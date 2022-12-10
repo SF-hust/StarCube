@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StarCubeClient
+namespace StarCube.Client
 {
     public class BootStrap
     {
