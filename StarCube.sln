@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarCube", "StarCube\StarCube.csproj", "{244335F6-2075-4782-9F33-C265585B4CFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarCubeClient", "StarCubeClient\StarCubeClient.csproj", "{F051C00A-1904-4FCB-9373-E507C08A0782}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{244335F6-2075-4782-9F33-C265585B4CFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{244335F6-2075-4782-9F33-C265585B4CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{244335F6-2075-4782-9F33-C265585B4CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{244335F6-2075-4782-9F33-C265585B4CFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F051C00A-1904-4FCB-9373-E507C08A0782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F051C00A-1904-4FCB-9373-E507C08A0782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F051C00A-1904-4FCB-9373-E507C08A0782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F051C00A-1904-4FCB-9373-E507C08A0782}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6D4B9C5-ED40-4F26-B323-CB76186A42DC}
+	EndGlobalSection
+EndGlobal
