@@ -131,7 +131,7 @@ namespace StarCube.Resource
             bool lastCharIsSlash = true;
             foreach (char c in path)
             {
-                if (!(char.IsLower(c) || char.IsNumber(c) || c == '.' || c == '-' || c == '_'))
+                if (char.IsLower(c) || char.IsNumber(c) || c == '.' || c == '-' || c == '_')
                 {
                     lastCharIsSlash = false;
                 }
