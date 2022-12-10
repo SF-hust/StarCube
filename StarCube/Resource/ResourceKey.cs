@@ -6,7 +6,6 @@ namespace StarCube.Resource
     /// <summary>
     /// 表示一个资源在游戏中的 唯一Key，不会存在两个值相同的 ResourceKey 对象
     /// </summary>
-    /// 
     public sealed class ResourceKey : IComparable<ResourceKey>
     {
         /// <summary>
@@ -18,28 +17,56 @@ namespace StarCube.Resource
         public readonly ResourceLocation registry;
         public readonly ResourceLocation location;
 
+        public readonly string keyString;
+
         private readonly int _hashcodeCache;
 
         /// <summary>
-        /// 创建 ResourceKey，由于是从两个合法的 ResourceLocation 中创建的，所以无需检查
+        /// 创建 ResourceKey，参数不合法则抛出异常
         /// </summary>
         /// <param name="registry"></param>
         /// <param name="location"></param>
         /// <returns></returns>
+        /// 虽然两个 ResourceLocation 均合法，但 registry 不一定符合 ResourceKey 的要求，因此需要额外检查
         public static ResourceKey Create(ResourceLocation registry, ResourceLocation location)
         {
-            string key = registry.ToString() + "/" + location.ToString();
-            ResourceKey resourceKey;
-            // 这里加锁是为了保证不创建值相同的 ResourceKey 对象，Concurrent 版本在这里是没法起作用的
-            lock (RESOURCE_KEYS)
+            ResourceKey? key = TryCreate(registry, location);
+            if (key == null)
             {
-                if (!RESOURCE_KEYS.TryGetValue(key, out resourceKey))
-                {
-                    resourceKey = new ResourceKey(registry, location);
-                    RESOURCE_KEYS.TryAdd(key, resourceKey);
-                }
+                throw new ArgumentException($"Fail to create ResourceKey : registry.path \"{registry.path}\" is invalid for a ResourceKey");
             }
-            return resourceKey;
+            return key;
+        }
+
+        /// <summary>
+        /// 创建 ResourceKey，参数不合法则返回 null
+        /// </summary>
+        /// <param name="registry"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public static ResourceKey? TryCreate(ResourceLocation registry, ResourceLocation location)
+        {
+            // registry.path 需要符合 namespace 的格式
+            if (!ResourceLocation.IsValidNamespace(registry.path))
+            {
+                return null;
+            }
+            return DoCreate(registry, location, null);
+        }
+
+        /// <summary>
+        /// 从 "{registry}/{location}" 形式的字符串创建一个 ResourceLocation，如果参数不符合要求则抛出异常
+        /// </summary>
+        /// <param name="keyString"></param>
+        /// <returns></returns>
+        public static ResourceKey? Parse(string keyString)
+        {
+            ResourceKey? key = TryParse(keyString);
+            if (key == null)
+            {
+                throw new ArgumentException($"Fail to parse \"{keyString}\" as ResourceKey");
+            }
+            return key;
         }
 
         /// <summary>
@@ -59,18 +86,43 @@ namespace StarCube.Resource
             {
                 return null;
             }
+            // registry.path 需要符合 namespace 的格式
+            if (!ResourceLocation.IsValidNamespace(registry.path))
+            {
+                return null;
+            }
             ResourceLocation? location = ResourceLocation.TryParse(splits[1]);
             if (location == null)
             {
                 return null;
             }
-            return Create(registry, location);
+            return DoCreate(registry, location, keyString);
         }
 
-        private ResourceKey(ResourceLocation registry, ResourceLocation location)
+        private static ResourceKey DoCreate(ResourceLocation registry, ResourceLocation location, string? keyString)
+        {
+            // 来自类内部的调用不会传入与 registry 和 location 不匹配的 keyString
+            keyString ??= registry.ToString() + "/" + location.ToString();
+
+            ResourceKey resourceKey;
+            // 这里加锁是为了保证不创建值相同的 ResourceKey 对象，Concurrent 版本在这里是没法起作用的
+            lock (RESOURCE_KEYS)
+            {
+                if (!RESOURCE_KEYS.TryGetValue(keyString, out resourceKey))
+                {
+                    resourceKey = new ResourceKey(registry, location, keyString);
+                    RESOURCE_KEYS.TryAdd(keyString, resourceKey);
+                }
+            }
+
+            return resourceKey;
+        }
+
+        private ResourceKey(ResourceLocation registry, ResourceLocation location, string keyString)
         {
             this.registry = registry;
             this.location = location;
+            this.keyString = keyString;
             _hashcodeCache = 31 * registry.GetHashCode() + location.GetHashCode();
         }
 
@@ -105,7 +157,7 @@ namespace StarCube.Resource
         /// <returns></returns>
         public override string ToString()
         {
-            return registry.ToString() + "/" + location.ToString();
+            return keyString;
         }
     }
 }
