@@ -13,6 +13,11 @@ namespace StarCube.Resource
     /// ResourceLocation 用字符串表示为 "{namspace}:{path}"
     public sealed class ResourceLocation : IComparable<ResourceLocation>
     {
+        /// <summary>
+        /// 构成一个合法 ResourceLocation 的字符串所需的最小长度
+        /// </summary>
+        public const int MIN_STRING_LENGTH = 3;
+
         public readonly string namspace;
         public readonly string path;
 

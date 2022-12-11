@@ -9,6 +9,11 @@ namespace StarCube.Resource
     public sealed class ResourceKey : IComparable<ResourceKey>
     {
         /// <summary>
+        /// 构成一个合法 ResourceKey 的字符串所需的最小长度
+        /// </summary>
+        public const int MIN_STRING_LENGTH = 7;
+
+        /// <summary>
         /// 存储所有 ResourceKey, 以保证不会存在两个值相同的 ResourceKey 对象
         /// 此表可能会被多线程访问，所以创建对象时需要加锁，仅使用 Concurrent 版本无法保证不构造两个值相同的 ResourceKey 对象
         /// </summary>
