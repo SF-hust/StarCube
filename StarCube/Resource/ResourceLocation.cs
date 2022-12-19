@@ -1,6 +1,5 @@
 ﻿using System;
-
-using StarCube.Utility;
+using System.Text.RegularExpressions;
 
 namespace StarCube.Resource
 {
@@ -8,18 +7,24 @@ namespace StarCube.Resource
     /// 表示一个资源的路径，既可以表示某个注册表、注册表中某个注册项，也可以表示磁盘上的某个文件
     /// </summary>
     /// 一个 ResourceLocation 含有两个字符串成员：
-    /// namspace：即 namespace，只能由大小写字母、数字、下划线(_)、连接符(-)、点(.)字符组成，长度需至少为1
-    /// path：必须满足 {namspace}[/{namspace}]* 的模式
+    /// namspace 和 path，它们各有所必须满足的格式
     /// ResourceLocation 用字符串表示为 "{namspace}:{path}"
-    public sealed class ResourceLocation : IComparable<ResourceLocation>
+    public sealed class ResourceLocation : IComparable<ResourceLocation>, IEquatable<ResourceLocation>
     {
         /// <summary>
         /// 构成一个合法 ResourceLocation 的字符串所需的最小长度
         /// </summary>
         public const int MIN_STRING_LENGTH = 3;
 
+        public const char NAMESPACE_SEPARATOR = ':';
+        public const string NAMESPACE_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*";
+        public const string PATH_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*(/[a-z0-9_]+(-[a-z0-9_]+)*)*";
+
         public readonly string namspace;
         public readonly string path;
+
+        private static readonly Regex NamespaceRegex = new Regex(NAMESPACE_PATTERN, RegexOptions.Compiled);
+        private static readonly Regex PathRegex = new Regex(PATH_PATTERN, RegexOptions.Compiled);
 
         /// <summary>
         /// 创建一个 ResourceLocation，如果参数不符合要求则抛出异常
@@ -39,16 +44,6 @@ namespace StarCube.Resource
                 throw new ArgumentException($"Fail to create ResourceLocation : path \"{path}\" is invalid");
             }
             return new ResourceLocation(namspace, path);
-        }
-
-        /// <summary>
-        /// 以默认 namespace 创建一个 ResourceLocation，如果参数不符合要求则抛出异常
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static ResourceLocation Create(string path)
-        {
-            return Create(Constants.DEFAULT_NAMESPACE, path);
         }
 
         /// <summary>
@@ -93,7 +88,7 @@ namespace StarCube.Resource
         /// <returns></returns>
         public static ResourceLocation? TryParse(string locationString)
         {
-            string[] splits = locationString.Split(':');
+            string[] splits = locationString.Split(NAMESPACE_SEPARATOR);
             if (splits.Length != 2)
             {
                 return null;
@@ -108,18 +103,8 @@ namespace StarCube.Resource
         /// <returns></returns>
         public static bool IsValidNamespace(string namspace)
         {
-            if (namspace.Length <= 0)
-            {
-                return false;
-            }
-            foreach (char c in namspace)
-            {
-                if (!(char.IsLower(c) || char.IsNumber(c) || c == '.' || c == '-' || c == '_'))
-                {
-                    return false;
-                }
-            }
-            return true;
+            Match match = NamespaceRegex.Match(namspace);
+            return match.Success && match.Index == 0 && match.Length == namspace.Length;
         }
 
         /// <summary>
@@ -129,31 +114,8 @@ namespace StarCube.Resource
         /// <returns></returns>
         public static bool IsValidPath(string path)
         {
-            if (path.Length <= 0)
-            {
-                return false;
-            }
-            bool lastCharIsSlash = true;
-            foreach (char c in path)
-            {
-                if (char.IsLower(c) || char.IsNumber(c) || c == '.' || c == '-' || c == '_')
-                {
-                    lastCharIsSlash = false;
-                }
-                else if (c == '/')
-                {
-                    if (lastCharIsSlash == true)
-                    {
-                        return false;
-                    }
-                    lastCharIsSlash = true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return !lastCharIsSlash;
+            Match match = PathRegex.Match(path);
+            return match.Success && match.Index == 0 && match.Length == path.Length;
         }
 
         private ResourceLocation(string namspace, string path)
@@ -215,7 +177,11 @@ namespace StarCube.Resource
         /// <returns></returns>
         public override bool Equals(object? obj)
         {
-            return CompareTo(obj as ResourceLocation) == 0;
+            if (obj == null)
+            {
+                return false;
+            }
+            return obj is ResourceLocation other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -229,7 +195,16 @@ namespace StarCube.Resource
         /// <returns></returns>
         public override string ToString()
         {
-            return namspace + ":" + path;
+            return namspace + NAMESPACE_SEPARATOR + path;
+        }
+
+        public bool Equals(ResourceLocation other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return path.Equals(other.path, StringComparison.Ordinal) && namspace.Equals(other.namspace, StringComparison.Ordinal);
         }
     }
 }

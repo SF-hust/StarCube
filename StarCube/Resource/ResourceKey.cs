@@ -32,7 +32,7 @@ namespace StarCube.Resource
         /// <param name="registry"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        /// 虽然两个 ResourceLocation 均合法，但 registry 不一定符合 ResourceKey 的要求，因此需要额外检查
+        /// 虽然两个 ResourceLocation 均合法，但 registry.path 还需要符合 namespace 的格式，因此需要额外检查
         public static ResourceKey Create(ResourceLocation registry, ResourceLocation location)
         {
             ResourceKey? key = TryCreate(registry, location);
