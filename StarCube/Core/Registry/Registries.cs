@@ -21,7 +21,7 @@ namespace StarCube.Core.Registry
 
         public static void Init()
         {
-
+            Root.Register(BlockRegistry);
         }
     }
 }
