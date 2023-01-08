@@ -9,7 +9,7 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 具体类型未知的 RegistryEntry 信息
         /// </summary>
-        public RegistryEntryData RegEntryInfo { get; }
+        public RegistryEntryData AbstractRegistryData { get; }
 
         /// <summary>
         /// RegistryEntry的具体类型, 如 Block
@@ -23,32 +23,32 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象注册用的 Key
         /// </summary>
-        public ResourceKey Key => RegEntryInfo.RegKey;
+        public ResourceKey Key => AbstractRegistryData.RegKey;
 
         /// <summary>
         /// 该对象的 字符串id
         /// </summary>
-        public ResourceLocation Id => RegEntryInfo.Id;
+        public ResourceLocation Id => AbstractRegistryData.Id;
 
         /// <summary>
         /// 该对象的名称
         /// </summary>
-        public string Name => RegEntryInfo.Name;
+        public string Name => AbstractRegistryData.Name;
 
         /// <summary>
         /// 该对象所属的 modid
         /// </summary>
-        public string ModId => RegEntryInfo.ModId;
+        public string ModId => AbstractRegistryData.ModId;
 
         /// <summary>
         /// 该对象的 数字id
         /// </summary>
-        public int NumId => RegEntryInfo.NumId;
+        public int NumId => AbstractRegistryData.NumId;
 
         /// <summary>
         /// 该对象的 Registry, 具体类型未知
         /// </summary>
-        public Registry UntypedRegistry => RegEntryInfo.AbstractRegistry;
+        public Registry AbstractRegistry => AbstractRegistryData.AbstractRegistry;
     }
 
     /// <summary>
@@ -65,13 +65,13 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// RegistryEntry 的信息, 包括注册名, Registry 实例的引用, Entry 实例的引用等
         /// </summary>
-        public new RegistryEntryData<T> RegistryData { get; set; }
+        public RegistryEntryData<T> RegistryData { get; set; }
 
         /*
          * 无需 override 的默认实现
          */
 
-        RegistryEntryData IRegistryEntry.RegEntryInfo => RegistryData;
+        RegistryEntryData IRegistryEntry.AbstractRegistryData => RegistryData;
 
         public Registry<T> Registry => RegistryData.Registry;
     }
