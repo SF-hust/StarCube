@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
-using Newtonsoft.Json.Linq;
+
+using StarCube.Resource;
 
 namespace StarCube.Core.State
 {
@@ -16,11 +17,11 @@ namespace StarCube.Core.State
         where T : struct, Enum
     {
         /// <summary>
-        /// 创建一个指定名字的 EnumStateProperty，取值范围为枚举的成员，顺序为枚举内成员的声明顺序
+        /// 创建一个 EnumStateProperty，取值范围为枚举的成员，顺序为枚举内成员的声明顺序
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public static EnumStateProperty<T> Create(string name)
+        public static EnumStateProperty<T> Create(ResourceLocation id)
         {
             Array array = Enum.GetValues(typeof(T));
             Debug.Assert(array.Rank == 1);
@@ -32,17 +33,17 @@ namespace StarCube.Core.State
                 T v = (T)o;
                 values.Add(v);
             }
-            return new EnumStateProperty<T>(name, values.ToArray());
+            return new EnumStateProperty<T>(id, values.ToArray());
         }
 
         /// <summary>
-        /// 创建一个指定名字的 EnumStateProperty，取值顺序为 values 的声明顺序
+        /// 创建一个 EnumStateProperty，取值顺序为 values 的声明顺序
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="id"></param>
         /// <param name="values"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static EnumStateProperty<T> Create(string name, IEnumerable<T> values)
+        public static EnumStateProperty<T> Create(ResourceLocation id, IEnumerable<T> values)
         {
             if(!CheckedEnumCache.CheckEnumEntries(typeof(T)))
             {
@@ -64,10 +65,10 @@ namespace StarCube.Core.State
                     throw new Exception($"Fail to create EnumProperty : value \"{value}\" is not in Enum \"{typeof(T).FullName}\"");
                 }
             }
-            return new EnumStateProperty<T>(name, valueList.ToArray());
+            return new EnumStateProperty<T>(id, valueList.ToArray());
         }
 
-        protected EnumStateProperty(string name, T[] values) : base(name, values.Length)
+        protected EnumStateProperty(ResourceLocation id, T[] values) : base(id, values.Length)
         {
             this.values = values;
             keys = new string[values.Length];
@@ -110,7 +111,7 @@ namespace StarCube.Core.State
             throw new IndexOutOfRangeException();
         }
 
-        public override bool ParseValue(string str, out T value)
+        public override bool TryParseValue(string str, out T value)
         {
             for (int i = 0; i < countOfValues; ++i)
             {
@@ -128,11 +129,6 @@ namespace StarCube.Core.State
         {
             int index = GetIndexByValue(value);
             return index == -1 ? $"[undefined value(= {value})]" : keys[index];
-        }
-
-        public override bool ValueEquals(StateProperty<T>? other)
-        {
-            return other is EnumStateProperty<T> p && values.SequenceEqual(p.values);
         }
 
         public override string ToString()

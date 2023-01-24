@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+
+using StarCube.Resource;
 
 namespace StarCube.Core.State
 {
     /// <summary>
     /// StateProperty 的非泛型版本基类
     /// </summary>
-    public abstract class StateProperty : IEquatable<StateProperty>
+    public abstract class StateProperty
     {
         /// <summary>
         /// 一个 StateProperty 取值的最小数量
@@ -18,37 +22,60 @@ namespace StarCube.Core.State
         /// </summary>
         public const int MAX_VALUE_COUNT = 65536;
 
+        private static readonly ConcurrentDictionary<ResourceLocation, StateProperty> AllStateProperties = new ConcurrentDictionary<ResourceLocation, StateProperty>();
+
+        private static void AddStateProperty(StateProperty stateProperty)
+        {
+            if(!AllStateProperties.TryAdd(stateProperty.id, stateProperty))
+            {
+                throw new Exception($"StateProperty ( id = \"{stateProperty.id}\" ) already exists");
+            }
+        }
+
+        /// <summary>
+        /// 获取指定 id 的 StateProperty
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="stateProperty"></param>
+        /// <returns></returns>
+        public static bool TryGetStatePropertyById(ResourceLocation id, [NotNullWhen(true)] out StateProperty? stateProperty)
+        {
+            return AllStateProperties.TryGetValue(id, out stateProperty);
+        }
+
         /// <summary>
         /// 创建一个 StateProperty
         /// </summary>
         /// <param name="name"></param>
         /// <param name="valueCount"></param>
         /// <exception cref="Exception"></exception>
-        public StateProperty(string name, int valueCount)
+        public StateProperty(ResourceLocation id, int valueCount)
         {
             if (valueCount < MIN_VALUE_COUNT || valueCount > MAX_VALUE_COUNT)
             {
                 throw new Exception($"value count must be in [{MIN_VALUE_COUNT}, {MAX_VALUE_COUNT}] for a StateProperty");
             }
-            this.name = name;
-            this.countOfValues = valueCount;
+            this.id = id;
+            countOfValues = valueCount;
 
             int bCount = 0;
             int vCount = valueCount;
             while(vCount > 0)
             {
-                vCount >>= 0;
+                vCount >>= 1;
                 bCount++;
             }
             bitCount = bCount;
-
             bitMask = (1 << bitCount) - 1;
+
+            // 将自身添加到表中
+            AddStateProperty(this);
         }
 
         /// <summary>
-        /// 属性的名称, 名称相同即视为同一属性
+        /// 属性的 id
         /// </summary>
-        public readonly string name;
+        public readonly ResourceLocation id;
 
         /// <summary>
         /// 属性值的类型
@@ -87,35 +114,17 @@ namespace StarCube.Core.State
 
         public override int GetHashCode()
         {
-            return name.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is StateProperty p && Equals(p);
-        }
-
-        /// <summary>
-        /// 比较两个 StateProperty 的名称是否相同
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public bool Equals(StateProperty? other)
-        {
-            return object.ReferenceEquals(this, other) || name == other?.name;
+            return id.GetHashCode();
         }
 
         public override string ToString()
         {
-            return name + " : " + ValuesType.ToString();
+            return  $"StateProperty ( id = \"{id}\", value type = {ValuesType} )";
         }
 
-        /// <summary>
-        /// 此属性是否与另一属性不仅名字相同, 取值范围也相同
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public abstract bool EqualWithValues(StateProperty? other);
+        public abstract string IndexToString(int index);
+
+        public abstract int ParseToIndex(string valueString);
     }
 
     /// <summary>
@@ -125,16 +134,11 @@ namespace StarCube.Core.State
     public abstract class StateProperty<T> : StateProperty
         where T : struct
     {
-        public StateProperty(string name, int valueCount) : base(name, valueCount)
+        public StateProperty(ResourceLocation id, int valueCount) : base(id, valueCount)
         {
         }
 
         public sealed override Type ValuesType => typeof(T);
-
-        public sealed override bool EqualWithValues(StateProperty? other)
-        {
-            return Equals(other) && other is StateProperty<T> o && ValueEquals(o);
-        }
 
         /// <summary>
         /// 从字符串中解析出值并获取其下标, 解析失败则返回 -1
@@ -143,7 +147,7 @@ namespace StarCube.Core.State
         /// <returns></returns>
         public int ParseValueToIndex(string str)
         {
-            return ParseValue(str, out T value) ? GetIndexByValue(value) : -1;
+            return TryParseValue(str, out T value) ? GetIndexByValue(value) : -1;
         }
 
         /// <summary>
@@ -189,10 +193,33 @@ namespace StarCube.Core.State
         /// <summary>
         /// 从一个 string 中解析出值, 返回值表示是否解析成功, 与 ValueToString() 对应
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="valueString"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract bool ParseValue(string str, out T value);
+        public abstract bool TryParseValue(string valueString, out T value);
+
+        public T ParseValue(string valueString)
+        {
+            if(TryParseValue(valueString, out T value))
+            {
+                return value;
+            }
+            throw new Exception($"parse value failed :(id = \"{id}\", value string = \"{valueString}\")");
+        }
+
+        /// <summary>
+        /// 从一个 string 中解析出值，并获取其下标，返回 -1 代表解析失败
+        /// </summary>
+        /// <param name="valueString"></param>
+        /// <returns></returns>
+        public override int ParseToIndex(string valueString)
+        {
+            if(TryParseValue(valueString, out T value))
+            {
+                return GetIndexByValue(value);
+            }
+            return -1;
+        }
 
         /// <summary>
         /// 将某个取值转换为字符串, 这个字符串应能被 ParseValue() 解析得到这个值,
@@ -202,11 +229,13 @@ namespace StarCube.Core.State
         /// <returns></returns>
         public abstract string ValueToString(T value);
 
-        /// <summary>
-        /// 两个属性的取值范围以及每个值对应的下标是否相同
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public abstract bool ValueEquals(StateProperty<T>? other);
+        public override string IndexToString(int index)
+        {
+            if(!IndexIsValid(index))
+            {
+                return $"invalid index ({index})";
+            }
+            return ValueToString(GetValueByIndex(index));
+        }
     }
 }

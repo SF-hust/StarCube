@@ -20,20 +20,20 @@ namespace StarCube.Core.State
         /// <param name="owner"></param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public delegate S Factory(O owner, StatePropertyList? properties);
+        public delegate S Factory(O owner, StatePropertyList properties);
 
-        public StateHolder(O owner, StatePropertyList? propertyList)
+        public StateHolder(O owner, StatePropertyList propertyList)
         {
             this.owner = owner;
             this.propertyList = propertyList;
             constructed = (propertyList == null);
-            hashcodeCache = 31 * owner.StateDefinition.GetHashCode() + (propertyList == null ? 0 : propertyList.packedProperties % 31);
+            hashcodeCache = 31 * owner.GetHashCode() + (propertyList == null ? 0 : propertyList.packedProperties % 31);
         }
 
         /// <summary>
         /// State 的属性与取值列表
         /// </summary>
-        public readonly StatePropertyList? propertyList;
+        public readonly StatePropertyList propertyList;
 
         /// <summary>
         /// 此 State 是否是其 Owner 的唯一 State
@@ -44,6 +44,10 @@ namespace StarCube.Core.State
         /// State 的 Owner
         /// </summary>
         public readonly O owner;
+
+        public ImmutableDictionary<StateProperty, ImmutableArray<S>> Neighbours => neighbours!;
+
+        public ImmutableDictionary<StateProperty, S> Followers => followers!;
 
         private ImmutableDictionary<StateProperty, ImmutableArray<S>>? neighbours = null;
         private ImmutableDictionary<StateProperty, S>? followers = null;

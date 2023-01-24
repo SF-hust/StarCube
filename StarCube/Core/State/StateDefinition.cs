@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace StarCube.Core.State
 {
@@ -24,14 +25,19 @@ namespace StarCube.Core.State
         /// <summary>
         /// 是否只含有 1 个状态
         /// </summary>
-        public readonly bool isSingle;
+        public readonly bool isSingleState;
+
+        /// <summary>
+        /// 按顺序排列的属性列表
+        /// </summary>
+        public IEnumerable<StateProperty> PropertyDefinition => defaultState.propertyList.StateProperties;
 
         private StateDefinition(O owner, ImmutableArray<S> states, S defaultState)
         {
             this.owner = owner;
             this.states = states;
             this.defaultState = defaultState;
-            isSingle = (states.Length == 1);
+            isSingleState = (states.Length == 1);
         }
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using StarCube.Resource;
+
 namespace StarCube.Core.State
 {
     /// <summary>
@@ -10,23 +12,29 @@ namespace StarCube.Core.State
     public class IntegerStateProperty : StateProperty<int>
     {
         /// <summary>
-        /// 创建一个指定名字的 IntStateProperty, 取值范围 [from, to]
+        /// 创建一个 IntegerStateProperty, 取值范围 [from, to]
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="id"></param>
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static IntegerStateProperty Create(string name, int from, int to)
+        public static IntegerStateProperty Create(ResourceLocation id, int from, int to)
         {
-            return new IntegerStateProperty(name, from, to);
+            return new IntegerStateProperty(id, from, to);
         }
 
-        public static IntegerStateProperty Create(string name, int count)
+        /// <summary>
+        /// 创建一个 IntegerStateProperty, 取值范围 [0, count - 1]
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static IntegerStateProperty Create(ResourceLocation id, int count)
         {
-            return new IntegerStateProperty(name, 0, count - 1);
+            return new IntegerStateProperty(id, 0, count - 1);
         }
 
-        public IntegerStateProperty(string name, int from, int to) : base(name, to - from + 1)
+        public IntegerStateProperty(ResourceLocation id, int from, int to) : base(id, to - from + 1)
         {
             this.from = from;
             this.to = to;
@@ -55,7 +63,7 @@ namespace StarCube.Core.State
             return ValueIsValid(value) ? value - from : -1;
         }
 
-        public override bool ParseValue(string str, out int value)
+        public override bool TryParseValue(string str, out int value)
         {
             return int.TryParse(str, out value) && ValueIsValid(value);
         }
@@ -63,11 +71,6 @@ namespace StarCube.Core.State
         public override string ValueToString(int value)
         {
             return ValueIsValid(value) ? value.ToString() : "!# " + value.ToString();
-        }
-
-        public override bool ValueEquals(StateProperty<int>? other)
-        {
-            return other is IntegerStateProperty otherProperty && from == otherProperty.from && to == otherProperty.to;
         }
 
         public override string ToString()

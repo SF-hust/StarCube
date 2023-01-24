@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using StarCube.Resource;
+
 namespace StarCube.Core.State
 {
     /// <summary>
@@ -9,18 +11,18 @@ namespace StarCube.Core.State
     public sealed class BooleanStateProperty : StateProperty<bool>
     {
         /// <summary>
-        /// 创建一个指定 name 的 BooleanStateProperty
+        /// 创建一个 BooleanStateProperty
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public static BooleanStateProperty Create(string name)
+        public static BooleanStateProperty Create(ResourceLocation id)
         {
-            return new BooleanStateProperty(name);
+            return new BooleanStateProperty(id);
         }
 
         public static readonly IEnumerable<bool> BOOLEAN_STATE_PROPERTY_VALUES = new bool[2] { false, true };
 
-        public BooleanStateProperty(string name) : base(name, 2) { }
+        public BooleanStateProperty(ResourceLocation id) : base(id, 2) { }
 
 
         public sealed override IEnumerable<bool> Values => BOOLEAN_STATE_PROPERTY_VALUES;
@@ -45,7 +47,7 @@ namespace StarCube.Core.State
         }
 
 
-        public sealed override bool ParseValue(string str, out bool value)
+        public sealed override bool TryParseValue(string str, out bool value)
         {
             if (str.Equals(bool.FalseString))
             {
@@ -64,11 +66,6 @@ namespace StarCube.Core.State
         public sealed override string ValueToString(bool value)
         {
             return value ? bool.TrueString : bool.FalseString;
-        }
-
-        public sealed override bool ValueEquals(StateProperty<bool>? other)
-        {
-            return true;
         }
     }
 }

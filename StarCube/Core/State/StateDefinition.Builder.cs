@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace StarCube.Core.State
 {
@@ -13,19 +12,18 @@ namespace StarCube.Core.State
         {
             List<S> states;
             states = new List<S>(1);
-            S state = factory(owner, null);
+            S state = factory(owner, StatePropertyList.EMPTY);
             states.Add(state);
             return new StateDefinition<O, S>(owner, states.ToImmutableArray(), state);
         }
 
         public class Builder
         {
-
             private readonly O owner;
             private readonly List<KeyValuePair<StateProperty, int>> propertyAndDefaultIndices = new List<KeyValuePair<StateProperty, int>>();
             private readonly StateHolder<O, S>.Factory stateFactory;
 
-            protected Builder(O owner, StateHolder<O, S>.Factory factory)
+            public Builder(O owner, StateHolder<O, S>.Factory factory)
             {
                 this.owner = owner;
                 stateFactory = factory;
@@ -97,100 +95,111 @@ namespace StarCube.Core.State
             /// <returns></returns>
             public StateDefinition<O, S> Build()
             {
+                // 如果无属性定义，只有一个状态，直接构造返回
+                if (propertyAndDefaultIndices.Count == 0)
+                {
+                    return BuildSingle(owner, stateFactory);
+                }
+
+                // 计算 :
+                // State 的数量 (stateCount)
+                // 默认 State 在列表中的下标 (defaultStateIndex)
+                // 属性按序变化时 State 在列表中下标的递增值 (indexOffsetForProperties)
                 int stateCount = 1;
                 int defaultStateIndex = 0;
                 List<int> indexOffsetForProperties = new List<int>(propertyAndDefaultIndices.Count);
-
-                // 计算 State 的数量, 默认 State 在列表中的下标,
-                // 以及每个属性顺序变化时对应的 State 在列表中下标的递增值
                 foreach (var pair in propertyAndDefaultIndices)
                 {
                     StateProperty property = pair.Key;
                     int i = pair.Value;
-                    Debug.Assert(i >= 0 && i < property.countOfValues);
                     indexOffsetForProperties.Add(stateCount);
                     defaultStateIndex += i * stateCount;
                     stateCount *= property.countOfValues;
                 }
 
-                List<S> states;
-                // 如果只有一个状态
-                if (stateCount == 1)
+                // 生成所有的 state 对象
+                List<S> states = GenerateAllStates(stateCount);
+
+                // 找到默认状态
+                S defaultState = states[defaultStateIndex];
+
+                // 为每个 State 创建并设置对应的 neighbours 和 followers
+                for (int i = 0; i < stateCount; ++i)
                 {
-                    S state = stateFactory(owner, null);
-                    states = new List<S>(1)
-                    {
-                        state
-                    };
-                    return new StateDefinition<O, S>(owner, states.ToImmutableArray(), state);
+                    ImmutableDictionary<StateProperty, ImmutableArray<S>> neighbours = GenerateNeighboursForState(states, i, indexOffsetForProperties);
+                    ImmutableDictionary<StateProperty, S> followers = GenerateFollowersForState(states, i, indexOffsetForProperties);
+
+                    states[i].SetNeighboursAndFollowers(neighbours, followers);
                 }
 
-                // 创建所有的可能状态
-                states = new List<S>(stateCount);
+                return new StateDefinition<O, S>(owner, states.ToImmutableArray(), defaultState);
+            }
+
+            private List<S> GenerateAllStates(int stateCount)
+            {
+                List<S> states = new List<S>(stateCount);
 
                 StatePropertyList.Builder propertyListBuilder = StatePropertyList.Builder.Create();
-
                 foreach (var pair in propertyAndDefaultIndices)
                 {
                     propertyListBuilder.AddProperty(pair.Key);
                 }
 
                 propertyListBuilder.StartBuild();
-
                 for (int i = 0; i < stateCount; ++i)
                 {
                     S state = stateFactory(owner, propertyListBuilder.BuildNext());
                     states.Add(state);
                 }
 
-                // 为每个 State 创建对应的 neighbours 和 followers
-                List<Dictionary<StateProperty, ImmutableArray<S>>> neighboursForStates = new List<Dictionary<StateProperty, ImmutableArray<S>>>(stateCount);
-                for (int i = 0; i < stateCount; ++i)
+                return states;
+            }
+
+            private ImmutableDictionary<StateProperty, S> GenerateFollowersForState(List<S> states, int index, List<int> indexOffsetForProperties)
+            {
+                Dictionary<StateProperty, S> followers = new Dictionary<StateProperty, S>();
+                // 为每个属性创建 follower
+                for (int i = 0; i < propertyAndDefaultIndices.Count; ++i)
                 {
-                    S state = states[i];
-
-                    // 创建 neighbours
-                    Dictionary<StateProperty, ImmutableArray<S>> neighbour = new Dictionary<StateProperty, ImmutableArray<S>>();
-                    for (int pi = 0; pi < propertyAndDefaultIndices.Count; ++pi)
-                    {
-                        StateProperty property = propertyAndDefaultIndices[pi].Key;
-                        ImmutableArray<S> neighbourForProperty;
-
-                        // 如果已经创建过所需的 neighbour 列表了, 直接引用它, 而不是再创建一遍
-                        if (i % (indexOffsetForProperties[pi] * property.countOfValues) > indexOffsetForProperties[pi])
-                        {
-                            int index = i - indexOffsetForProperties[pi];
-                            neighbourForProperty = neighboursForStates[index][property];
-                        }
-                        // 为一个 property 创建对应的 neighbour 列表
-                        else
-                        {
-                            List<S> neighbourList = new List<S>(property.countOfValues);
-                            for (int j = 0; j < property.countOfValues; ++j)
-                            {
-                                neighbourList.Add(states[i + j * indexOffsetForProperties[pi]]);
-                            }
-                            neighbourForProperty = neighbourList.ToImmutableArray();
-                        }
-                        neighbour.Add(property, neighbourForProperty);
-                    }
-
-                    // 创建 followers
-                    Dictionary<StateProperty, S> follower = new Dictionary<StateProperty, S>();
-                    for (int pi = 0; pi < propertyAndDefaultIndices.Count; ++pi)
-                    {
-                        StateProperty property = propertyAndDefaultIndices[pi].Key;
-                        int followStateIndex = (i + indexOffsetForProperties[pi]) % (property.countOfValues * indexOffsetForProperties[pi]);
-                        follower.Add(property, states[followStateIndex]);
-                    }
-
-                    // 设置 neighbours 和 followers
-                    state.SetNeighboursAndFollowers(neighbour.ToImmutableDictionary(), follower.ToImmutableDictionary());
+                    StateProperty property = propertyAndDefaultIndices[i].Key;
+                    int groupSize = property.countOfValues * indexOffsetForProperties[i];
+                    int currentGroupBaseIndex = index / groupSize * groupSize;
+                    int followerIndex = (index + indexOffsetForProperties[i]) % groupSize + currentGroupBaseIndex;
+                    followers.Add(property, states[followerIndex]);
                 }
 
-                // 获取默认状态
-                S defaultState = states[defaultStateIndex];
-                return new StateDefinition<O, S>(owner, states.ToImmutableArray(), defaultState);
+                return followers.ToImmutableDictionary();
+            }
+
+            private ImmutableDictionary<StateProperty, ImmutableArray<S>> GenerateNeighboursForState(List<S> states, int index, List<int> indexOffsetForProperties)
+            {
+                Dictionary<StateProperty, ImmutableArray<S>> neighbours = new Dictionary<StateProperty, ImmutableArray<S>>();
+                // 为每个属性创建邻居列表
+                for (int pi = 0; pi < propertyAndDefaultIndices.Count; ++pi)
+                {
+                    StateProperty property = propertyAndDefaultIndices[pi].Key;
+                    ImmutableArray<S> neighboursForProperty;
+
+                    // 如果已经创建过所需的 neighbour 列表了, 直接引用它, 而不是再创建一遍
+                    int neighourIndex = index - indexOffsetForProperties[pi];
+                    if (index % (indexOffsetForProperties[pi] * property.countOfValues) >= indexOffsetForProperties[pi])
+                    {
+                        neighboursForProperty = states[neighourIndex].Neighbours[property];
+                    }
+                    // 为一个 property 创建对应的 neighbour 列表
+                    else
+                    {
+                        List<S> neighbourList = new List<S>(property.countOfValues);
+                        for (int j = 0; j < property.countOfValues; ++j)
+                        {
+                            neighbourList.Add(states[(index + j * indexOffsetForProperties[pi]) % states.Count]);
+                        }
+                        neighboursForProperty = neighbourList.ToImmutableArray();
+                    }
+                    neighbours.Add(property, neighboursForProperty);
+                }
+
+                return neighbours.ToImmutableDictionary();
             }
         }
     }

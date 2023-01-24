@@ -33,6 +33,6 @@ namespace StarCube.Core.State
         /// <summary>
         /// 是否只有一个状态
         /// </summary>
-        public bool IsSingleState => StateDefinition.isSingle;
+        public bool IsSingleState => StateDefinition.isSingleState;
     }
 }

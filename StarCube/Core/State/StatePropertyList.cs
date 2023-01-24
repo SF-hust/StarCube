@@ -22,6 +22,8 @@ namespace StarCube.Core.State
 
         public const int MAX_STATE_VARIANTS = 1 << MAX_PACKED_BIT_COUNT;
 
+        public static readonly StatePropertyList EMPTY = new StatePropertyList(ImmutableArray<KeyValuePair<StateProperty, int>>.Empty);
+
         private StatePropertyList(ImmutableArray<KeyValuePair<StateProperty, int>> propertyIndexPairs)
         {
             this.propertyIndexPairs = propertyIndexPairs;
@@ -172,15 +174,15 @@ namespace StarCube.Core.State
             /// <returns></returns>
             public StatePropertyList BuildNext()
             {
-                UpdateValueIndices();
-
                 List<KeyValuePair<StateProperty, int>> list = new List<KeyValuePair<StateProperty, int>>();
                 for (int k = 0; k < properties.Count; ++k)
                 {
                     list.Add(new KeyValuePair<StateProperty, int>(properties[k], valueIndices[k]));
                 }
-                return new StatePropertyList(list.ToImmutableArray());
 
+                UpdateValueIndices();
+
+                return new StatePropertyList(list.ToImmutableArray());
             }
 
             /// <summary>
