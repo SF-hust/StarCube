@@ -15,7 +15,7 @@ namespace StarCube.BootStrap.ForceContructService
         {
             foreach(Type type in assembly.GetTypes())
             {
-                if(type.GetCustomAttribute(typeof(BootStrapAttribute)) == null)
+                if(type.GetCustomAttribute(typeof(ConstructInBootStrapAttribute)) == null)
                 {
                     continue;
                 }
