@@ -108,6 +108,11 @@ namespace StarCube.Core.State
             return propertyIndexPairs[i].Value;
         }
 
+        public override int GetHashCode()
+        {
+            return packedProperties;
+        }
+
         public class Builder
         {
             public static Builder Create()
