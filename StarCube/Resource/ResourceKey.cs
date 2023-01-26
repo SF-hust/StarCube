@@ -24,7 +24,7 @@ namespace StarCube.Resource
 
         public readonly string keyString;
 
-        private readonly int _hashcodeCache;
+        private readonly int hashcodeCache;
 
         /// <summary>
         /// 创建 ResourceKey，参数不合法则抛出异常
@@ -128,7 +128,7 @@ namespace StarCube.Resource
             this.registry = registry;
             this.location = location;
             this.keyString = keyString;
-            _hashcodeCache = 31 * registry.GetHashCode() + location.GetHashCode();
+            hashcodeCache = 31 * registry.GetHashCode() + location.GetHashCode();
         }
 
         public int CompareTo(ResourceKey? other)
@@ -153,7 +153,7 @@ namespace StarCube.Resource
 
         public override int GetHashCode()
         {
-            return _hashcodeCache;
+            return hashcodeCache;
         }
 
         /// <summary>
