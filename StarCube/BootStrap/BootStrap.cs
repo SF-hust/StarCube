@@ -1,5 +1,6 @@
-﻿using System.Reflection;
-using StarCube.BootStrap.ForceContructService;
+﻿using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace StarCube.BootStrap
 {
@@ -7,7 +8,24 @@ namespace StarCube.BootStrap
     {
         public static void Boot()
         {
-            ForceConstructService.ForceConstructClassesInAssembly(Assembly.GetExecutingAssembly());
+            EnsureConstructClassesInAssembly(Assembly.GetExecutingAssembly());
+        }
+
+        public static void EnsureConstructClass(Type type)
+        {
+            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+        }
+
+        public static void EnsureConstructClassesInAssembly(Assembly assembly)
+        {
+            foreach (Type type in assembly.GetTypes())
+            {
+                if (type.GetCustomAttribute(typeof(ConstructInBootStrapAttribute)) == null)
+                {
+                    continue;
+                }
+                EnsureConstructClass(type);
+            }
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace StarCube.BootStrap.ForceContructService
+namespace StarCube.BootStrap
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class ConstructInBootStrapAttribute : Attribute
