@@ -151,26 +151,6 @@ namespace StarCube.Core.Registry
         }
 
         /// <summary>
-        /// Registry 事件的参数
-        /// </summary>
-        public class RegisterEventArgs : EventArgs
-        {
-            /// <summary>
-            /// 空的 Registry 事件参数
-            /// </summary>
-            public static new RegisterEventArgs Empty = new RegisterEventArgs(string.Empty);
-
-            public readonly string modid;
-
-            public bool IsRegisterComplete = true;
-
-            private RegisterEventArgs(string modid) : base()
-            {
-                this.modid = modid;
-            }
-        }
-
-        /// <summary>
         /// 注册事件, 注册游戏对象时该事件会被触发, 事件的触发者将是这个 Registry 自身
         /// </summary>
         public event EventHandler<RegisterEventArgs>? OnRegisterEvent;
@@ -192,6 +172,26 @@ namespace StarCube.Core.Registry
             {
                 return TryGetEntryById(id, out var entry) ? entry : null;
             });
+        }
+    }
+
+    /// <summary>
+    /// Registry 事件的参数
+    /// </summary>
+    public class RegisterEventArgs : EventArgs
+    {
+        /// <summary>
+        /// 空的 Registry 事件参数
+        /// </summary>
+        public static new RegisterEventArgs Empty = new RegisterEventArgs(string.Empty);
+
+        public readonly string modid;
+
+        public bool IsRegisterComplete = true;
+
+        private RegisterEventArgs(string modid) : base()
+        {
+            this.modid = modid;
         }
     }
 }
