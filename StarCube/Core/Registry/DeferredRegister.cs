@@ -69,7 +69,7 @@ namespace StarCube.Core.Registry
         /// </summary>
         /// <param name="sender">no use</param>
         /// <param name="args">no use</param>
-        private void DoRegister(object sender, Registry<T>.RegisterEventArgs args)
+        private void DoRegister(object sender, RegisterEventArgs args)
         {
             /*LogUtil.Logger.Info($"DeferredRegister capture a register event:\n" +
                 $"modid = ({_modid}), registry = ({_registry.RegEntryInfo.Id}),\n" +
@@ -84,6 +84,7 @@ namespace StarCube.Core.Registry
             {
                 registry.Register(id);
             }
+            entries.Clear();
         }
     }
 }
