@@ -21,11 +21,11 @@ namespace StarCube.Core.Registry
         /// </summary>
         public int NumId => numId;
 
-        protected ResourceKey regKey;
         /// <summary>
         /// 此 Entry 的 ResourceKey, 在整个游戏中唯一
         /// </summary>
         public ResourceKey RegKey => regKey;
+        protected ResourceKey regKey;
 
         /// <summary>
         /// 此 Entry 的字符串 Id, 即 "namespace:name", 在同一个 Registry 中唯一

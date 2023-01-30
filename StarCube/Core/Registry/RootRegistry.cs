@@ -15,6 +15,8 @@ namespace StarCube.Core.Registry
         {
         }
 
+        public static readonly ResourceKey key = ResourceKey.Create(Registry.RegistryRegistry, Registry.RegistryRegistry);
+
         public bool Register(Registry registry)
         {
             return registries.TryAdd(registry.id, registry);

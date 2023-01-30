@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 
 using StarCube.Resource;
+using static StarCube.Core.Tag.TagData;
 
 namespace StarCube.Core.Registry
 {
     /// <summary>
-    /// 用于管理游戏对象注册, 会执行真正的注册动作
+    /// 用于简化游戏对象的注册
     /// </summary>
-    /// <typeparam name="T">class of registry entry</typeparam>
+    /// <typeparam name="T"></typeparam>
     public class DeferredRegister<T>
         where T : class, IRegistryEntry<T>
     {
         /// <summary>
-        /// 创建一个指定 modid 的 DeferredRegister, 后续使用 Register() 注册时会默认使用这个 modid,
-        /// 如果想向其中注册一个使用其他 modid 的 Entry, 使用 RegisterCustom()
+        /// 创建一个指定 modid 的 DeferredRegister，后续注册时会使用这个 modid
         /// </summary>
-        /// <param name="modid">your modid</param>
+        /// <param name="modid"></param>
         /// <returns></returns>
         public static DeferredRegister<T> Create(Registry<T> registry, string modid)
         {
@@ -25,43 +25,99 @@ namespace StarCube.Core.Registry
 
         private readonly string modid;
         private readonly Registry<T> registry;
-        private readonly List<ResourceLocation> entries = new List<ResourceLocation>();
+        private readonly List<IEntry> entries = new List<IEntry>();
 
-        private DeferredRegister(string modid, Registry<T> registry)
+        private interface IEntry
+        {
+            public void RegisterTo(Registry<T> registry);
+
+            public ResourceLocation Id { get; }
+        }
+
+        private class IdEntry : IEntry
+        {
+            public ResourceLocation Id => id;
+
+            private readonly ResourceLocation id;
+
+            public IdEntry(ResourceLocation id)
+            {
+                this.id = id;
+            }
+
+            public void RegisterTo(Registry<T> registry)
+            {
+                registry.Register(id);
+            }
+        }
+
+        private class EntryEntry : IEntry
+        {
+            public ResourceLocation Id => id;
+
+            private readonly ResourceLocation id;
+            private readonly T entry;
+            public EntryEntry(ResourceLocation id, T entry)
+            {
+                this.id = id;
+                this.entry = entry;
+            }
+
+            public void RegisterTo(Registry<T> registry)
+            {
+                registry.Register(id, entry);
+            }
+        }
+        
+        public DeferredRegister(string modid, Registry<T> registry)
         {
             this.modid = modid;
             this.registry = registry;
-            registry.OnRegisterEvent += DoRegister;
+            registry.OnRegisterStartEvent += DoRegister;
+        }
+
+        /// <summary>
+        /// 向 DeferredRegister 中添加一个 name，用于新 entry 的命名
+        /// </summary>
+        /// <param name="name">name of registry entry</param>
+        public void Register(string name)
+        {
+            if (Exist(name))
+            {
+                throw new InvalidOperationException($"can't add entry with same name ( = \"{name}\") to one DeferredRegister");
+            }
+
+            ResourceLocation id = ResourceLocation.Create(modid, name);
+            entries.Add(new IdEntry(id));
         }
 
         /// <summary>
         /// 向 DeferredRegister 中添加一个新的 Entry
         /// </summary>
-        /// <param name="name">name of registry entry</param>
-        public void Register(string name)
+        /// <param name="name"></param>
+        /// <param name="entry"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void Register(string name, T entry)
         {
-            ResourceLocation id = ResourceLocation.Create(modid, name);
-            if (entries.Contains(id))
+            if (Exist(name))
             {
-                throw new InvalidOperationException("can't add entry with same id to DeferredRegister");
+                throw new InvalidOperationException($"can't add entry with same name ( = \"{name}\") to one DeferredRegister");
             }
-            entries.Add(id);
+
+            ResourceLocation id = ResourceLocation.Create(modid, name);
+            entries.Add(new EntryEntry(id, entry));
         }
 
-        /// <summary>
-        /// 向 DeferredRegister 中添加一个新的 Entry, 但自行指定 modid
-        /// </summary>
-        /// <param name="modid"></param>
-        /// <param name="name"></param>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void RegisterCustom(string modid, string name)
+        public bool Exist(string name)
         {
-            ResourceLocation id = ResourceLocation.Create(modid, name);
-            if (entries.Contains(id))
+            foreach(IEntry entry in entries)
             {
-                throw new InvalidOperationException("can't add entry with same id to DeferredRegister");
+                if(entry.Id.path == name)
+                {
+                    return true;
+                }
             }
-            entries.Add(id);
+            return false;
         }
 
         /// <summary>
@@ -69,22 +125,14 @@ namespace StarCube.Core.Registry
         /// </summary>
         /// <param name="sender">no use</param>
         /// <param name="args">no use</param>
-        private void DoRegister(object sender, RegisterEventArgs args)
+        private void DoRegister(object sender, RegisterStartEventArgs args)
         {
-            /*LogUtil.Logger.Info($"DeferredRegister capture a register event:\n" +
-                $"modid = ({_modid}), registry = ({_registry.RegEntryInfo.Id}),\n" +
-                "entries = {");
-            foreach (var pair in _entries)
+            foreach (IEntry entry in entries)
             {
-                LogUtil.Logger.Info(pair.Key.ToString());
-            }
-            LogUtil.Logger.Info("}");*/
-
-            foreach (var id in entries)
-            {
-                registry.Register(id);
+                entry.RegisterTo(registry);
             }
             entries.Clear();
+            registry.OnRegisterStartEvent -= DoRegister;
         }
     }
 }

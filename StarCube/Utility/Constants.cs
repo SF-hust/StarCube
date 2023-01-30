@@ -13,7 +13,7 @@
         /// <summary>
         /// 注册表的注册名
         /// </summary>
-        public const string ROOT_REGISTRY_PATH = "registry";
+        public const string REGISTRY_STRING = "registry";
 
         /// <summary>
         /// 方块的注册名
