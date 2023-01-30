@@ -12,7 +12,9 @@ namespace StarCube.Game.Block
 
         static Blocks()
         {
-            Registries.BlockRegistry.Add(Air, ResourceLocation.Create(Constants.DEFAULT_NAMESPACE, "air"));
+            Registries.BlockRegistry.OnRegisterStartEvent +=
+                (object sender, RegisterStartEventArgs args) => 
+                Registries.BlockRegistry.Register(ResourceLocation.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
         }
     }
 }
