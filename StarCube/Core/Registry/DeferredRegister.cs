@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using StarCube.Resource;
-using static StarCube.Core.Tag.TagData;
 
 namespace StarCube.Core.Registry
 {
