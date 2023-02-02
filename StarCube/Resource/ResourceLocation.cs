@@ -20,6 +20,11 @@ namespace StarCube.Resource
         public const string NAMESPACE_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*";
         public const string PATH_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*(/[a-z0-9_]+(-[a-z0-9_]+)*)*";
 
+        /// <summary>
+        /// 占位符，相当于空
+        /// </summary>
+        public static ResourceLocation Default = new ResourceLocation("_", "_");
+
         public readonly string namspace;
         public readonly string path;
 
