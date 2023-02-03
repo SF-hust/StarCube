@@ -18,7 +18,7 @@ namespace StarCube.Core.State
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static IntegerStateProperty Create(ResourceLocation id, int from, int to)
+        public static IntegerStateProperty Create(StringID id, int from, int to)
         {
             return new IntegerStateProperty(id, from, to);
         }
@@ -29,12 +29,12 @@ namespace StarCube.Core.State
         /// <param name="id"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public static IntegerStateProperty Create(ResourceLocation id, int count)
+        public static IntegerStateProperty Create(StringID id, int count)
         {
             return new IntegerStateProperty(id, 0, count - 1);
         }
 
-        public IntegerStateProperty(ResourceLocation id, int from, int to) : base(id, to - from + 1)
+        public IntegerStateProperty(StringID id, int from, int to) : base(id, to - from + 1)
         {
             this.from = from;
             this.to = to;

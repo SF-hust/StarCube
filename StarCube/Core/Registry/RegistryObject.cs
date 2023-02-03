@@ -15,15 +15,15 @@ namespace StarCube.Core.Registry
 
         public RegistryObject<T> Create(Registry<T> registry, string modid, string name)
         {
-            return Create(registry, ResourceLocation.Create(modid, name));
+            return Create(registry, StringID.Create(modid, name));
         }
 
-        public RegistryObject<T> Create(Registry<T> registry, ResourceLocation id)
+        public RegistryObject<T> Create(Registry<T> registry, StringID id)
         {
             return registry.GetAsRegistryObject(id);
         }
 
-        internal RegistryObject(Registry<T> registry, ResourceLocation id, Func<T> factory) : base(factory, LazyThreadSafetyMode.PublicationOnly)
+        internal RegistryObject(Registry<T> registry, StringID id, Func<T> factory) : base(factory, LazyThreadSafetyMode.PublicationOnly)
         {
             this.registry = registry;
             this.id = id;
@@ -31,6 +31,6 @@ namespace StarCube.Core.Registry
 
         public readonly Registry<T> registry;
 
-        public readonly ResourceLocation id;
+        public readonly StringID id;
     }
 }

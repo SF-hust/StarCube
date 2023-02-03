@@ -22,7 +22,7 @@ namespace StarCube.Core.State
         /// </summary>
         public const int MAX_VALUE_COUNT = 65536;
 
-        private static readonly ConcurrentDictionary<ResourceLocation, StateProperty> AllStateProperties = new ConcurrentDictionary<ResourceLocation, StateProperty>();
+        private static readonly ConcurrentDictionary<StringID, StateProperty> AllStateProperties = new ConcurrentDictionary<StringID, StateProperty>();
 
         private static void AddStateProperty(StateProperty stateProperty)
         {
@@ -38,7 +38,7 @@ namespace StarCube.Core.State
         /// <param name="id"></param>
         /// <param name="stateProperty"></param>
         /// <returns></returns>
-        public static bool TryGetStatePropertyById(ResourceLocation id, [NotNullWhen(true)] out StateProperty? stateProperty)
+        public static bool TryGetStatePropertyById(StringID id, [NotNullWhen(true)] out StateProperty? stateProperty)
         {
             return AllStateProperties.TryGetValue(id, out stateProperty);
         }
@@ -49,7 +49,7 @@ namespace StarCube.Core.State
         /// <param name="name"></param>
         /// <param name="valueCount"></param>
         /// <exception cref="Exception"></exception>
-        public StateProperty(ResourceLocation id, int valueCount)
+        public StateProperty(StringID id, int valueCount)
         {
             if (valueCount < MIN_VALUE_COUNT || valueCount > MAX_VALUE_COUNT)
             {
@@ -75,7 +75,7 @@ namespace StarCube.Core.State
         /// <summary>
         /// 属性的 id
         /// </summary>
-        public readonly ResourceLocation id;
+        public readonly StringID id;
 
         /// <summary>
         /// 属性值的类型
@@ -134,7 +134,7 @@ namespace StarCube.Core.State
     public abstract class StateProperty<T> : StateProperty
         where T : struct
     {
-        public StateProperty(ResourceLocation id, int valueCount) : base(id, valueCount)
+        public StateProperty(StringID id, int valueCount) : base(id, valueCount)
         {
         }
 

@@ -23,12 +23,12 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象注册用的 Key
         /// </summary>
-        public ResourceKey Key => AbstractRegistryData.RegKey;
+        public StringKey Key => AbstractRegistryData.RegKey;
 
         /// <summary>
         /// 该对象的 字符串id
         /// </summary>
-        public ResourceLocation Id => AbstractRegistryData.Id;
+        public StringID Id => AbstractRegistryData.Id;
 
         /// <summary>
         /// 该对象的名称

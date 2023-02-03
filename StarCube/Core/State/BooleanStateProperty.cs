@@ -15,14 +15,14 @@ namespace StarCube.Core.State
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static BooleanStateProperty Create(ResourceLocation id)
+        public static BooleanStateProperty Create(StringID id)
         {
             return new BooleanStateProperty(id);
         }
 
         public static readonly IEnumerable<bool> BOOLEAN_STATE_PROPERTY_VALUES = new bool[2] { false, true };
 
-        public BooleanStateProperty(ResourceLocation id) : base(id, 2) { }
+        public BooleanStateProperty(StringID id) : base(id, 2) { }
 
 
         public sealed override IEnumerable<bool> Values => BOOLEAN_STATE_PROPERTY_VALUES;

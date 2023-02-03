@@ -14,7 +14,7 @@ namespace StarCube.Game.Block
         {
             Registries.BlockRegistry.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) => 
-                Registries.BlockRegistry.Register(ResourceLocation.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
+                Registries.BlockRegistry.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
         }
     }
 }

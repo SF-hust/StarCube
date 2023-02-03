@@ -30,16 +30,16 @@ namespace StarCube.Core.Registry
         {
             public void RegisterTo(Registry<T> registry);
 
-            public ResourceLocation Id { get; }
+            public StringID Id { get; }
         }
 
         private class IdEntry : IEntry
         {
-            public ResourceLocation Id => id;
+            public StringID Id => id;
 
-            private readonly ResourceLocation id;
+            private readonly StringID id;
 
-            public IdEntry(ResourceLocation id)
+            public IdEntry(StringID id)
             {
                 this.id = id;
             }
@@ -52,11 +52,11 @@ namespace StarCube.Core.Registry
 
         private class EntryEntry : IEntry
         {
-            public ResourceLocation Id => id;
+            public StringID Id => id;
 
-            private readonly ResourceLocation id;
+            private readonly StringID id;
             private readonly T entry;
-            public EntryEntry(ResourceLocation id, T entry)
+            public EntryEntry(StringID id, T entry)
             {
                 this.id = id;
                 this.entry = entry;
@@ -86,7 +86,7 @@ namespace StarCube.Core.Registry
                 throw new InvalidOperationException($"can't add entry with same name ( = \"{name}\") to one DeferredRegister");
             }
 
-            ResourceLocation id = ResourceLocation.Create(modid, name);
+            StringID id = StringID.Create(modid, name);
             entries.Add(new IdEntry(id));
         }
 
@@ -103,7 +103,7 @@ namespace StarCube.Core.Registry
                 throw new InvalidOperationException($"can't add entry with same name ( = \"{name}\") to one DeferredRegister");
             }
 
-            ResourceLocation id = ResourceLocation.Create(modid, name);
+            StringID id = StringID.Create(modid, name);
             entries.Add(new EntryEntry(id, entry));
         }
 

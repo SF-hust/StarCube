@@ -21,7 +21,7 @@ namespace StarCube.Core.State
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static EnumStateProperty<T> Create(ResourceLocation id)
+        public static EnumStateProperty<T> Create(StringID id)
         {
             Array array = Enum.GetValues(typeof(T));
             Debug.Assert(array.Rank == 1);
@@ -43,7 +43,7 @@ namespace StarCube.Core.State
         /// <param name="values"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static EnumStateProperty<T> Create(ResourceLocation id, IEnumerable<T> values)
+        public static EnumStateProperty<T> Create(StringID id, IEnumerable<T> values)
         {
             if(!CheckedEnumCache.CheckEnumEntries(typeof(T)))
             {
@@ -68,7 +68,7 @@ namespace StarCube.Core.State
             return new EnumStateProperty<T>(id, valueList.ToArray());
         }
 
-        protected EnumStateProperty(ResourceLocation id, T[] values) : base(id, values.Length)
+        protected EnumStateProperty(StringID id, T[] values) : base(id, values.Length)
         {
             this.values = values;
             keys = new string[values.Length];

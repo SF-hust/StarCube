@@ -14,7 +14,7 @@ namespace StarCube.Core.Registry
     /// </summary>
     public abstract class Registry
     {
-        public static readonly ResourceLocation RegistryRegistry = ResourceLocation.Create(Constants.DEFAULT_NAMESPACE, Constants.REGISTRY_STRING);
+        public static readonly StringID RegistryRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, Constants.REGISTRY_STRING);
 
         /// <summary>
         /// 此 Registry 内注册的 Entry 的具体类型
@@ -24,14 +24,14 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// Registry 的 id
         /// </summary>
-        public readonly ResourceLocation id;
+        public readonly StringID id;
 
-        public readonly ResourceKey key;
+        public readonly StringKey key;
 
-        public Registry(ResourceLocation id)
+        public Registry(StringID id)
         {
             this.id = id;
-            key = ResourceKey.Create(RegistryRegistry, id);
+            key = StringKey.Create(RegistryRegistry, id);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace StarCube.Core.Registry
         /// </summary>
         /// <param name="location"></param>
         /// <returns>若对应的 字符串id 不存在返回 -1</returns>
-        public abstract int GetNumIdByStringId(ResourceLocation location);
+        public abstract int GetNumIdByStringId(StringID location);
 
         /// <summary>
         /// 触发注册事件, 仅供游戏框架内部使用
@@ -57,7 +57,7 @@ namespace StarCube.Core.Registry
     {
         protected readonly List<T> entries = new List<T>();
 
-        protected readonly Dictionary<ResourceLocation, int> numIdByStringId = new Dictionary<ResourceLocation, int>();
+        protected readonly Dictionary<StringID, int> numIdByStringId = new Dictionary<StringID, int>();
 
         protected readonly Func<T>? entryFactory;
 
@@ -70,10 +70,10 @@ namespace StarCube.Core.Registry
         /// <returns></returns>
         public static Registry<T> Create(string modid, string name, Func<T>? entryFactory = null)
         {
-            return new Registry<T>(ResourceLocation.Create(modid, name), entryFactory);
+            return new Registry<T>(StringID.Create(modid, name), entryFactory);
         }
 
-        public Registry(ResourceLocation id, Func<T>? entryFactory) : base(id)
+        public Registry(StringID id, Func<T>? entryFactory) : base(id)
         {
             this.entryFactory = entryFactory;
         }
@@ -85,7 +85,7 @@ namespace StarCube.Core.Registry
         /// </summary>
         public IEnumerable<IRegistryEntry<T>> Entries => entries;
 
-        public bool TryGet(ResourceLocation id, [NotNullWhen(true)] out T? entry)
+        public bool TryGet(StringID id, [NotNullWhen(true)] out T? entry)
         {
             if (numIdByStringId.TryGetValue(id, out int i))
             {
@@ -116,7 +116,7 @@ namespace StarCube.Core.Registry
             throw new IndexOutOfRangeException();
         }
 
-        public T Get(ResourceLocation id)
+        public T Get(StringID id)
         {
             if (TryGet(id, out T? entry))
             {
@@ -125,7 +125,7 @@ namespace StarCube.Core.Registry
             throw new IndexOutOfRangeException();
         }
 
-        public override int GetNumIdByStringId(ResourceLocation location)
+        public override int GetNumIdByStringId(StringID location)
         {
             if (numIdByStringId.TryGetValue(location, out int id))
             {
@@ -145,7 +145,7 @@ namespace StarCube.Core.Registry
         /// <param name="id"></param>
         /// <returns>如果 Registry 不知道如何创建 entry 对象，或此时 Registry 是 Lock 状态，则返回 false</returns>
         /// <exception cref="Exception">id 重复会导致异常</exception>
-        public bool Register(ResourceLocation id)
+        public bool Register(StringID id)
         {
             if (entryFactory == null)
             {
@@ -161,7 +161,7 @@ namespace StarCube.Core.Registry
         /// <param name="entry"></param>
         /// <returns>如果此时 Registry 是 Lock 状态，则返回 false</returns>
         /// <exception cref="Exception">id 重复会导致异常</exception>
-        public bool Register(ResourceLocation id, T entry)
+        public bool Register(StringID id, T entry)
         {
             if (IsLocked)
             {
@@ -173,8 +173,8 @@ namespace StarCube.Core.Registry
             }
 
             int numId = entries.Count;
-            ResourceLocation registryId = this.id;
-            RegistryEntryData<T> data = new RegistryEntryData<T>(numId, ResourceKey.Create(registryId, id), this, entry);
+            StringID registryId = this.id;
+            RegistryEntryData<T> data = new RegistryEntryData<T>(numId, StringKey.Create(registryId, id), this, entry);
             entry.RegistryData = data;
 
             entries.Add(entry);
@@ -209,7 +209,7 @@ namespace StarCube.Core.Registry
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public RegistryObject<T> GetAsRegistryObject(ResourceLocation id)
+        public RegistryObject<T> GetAsRegistryObject(StringID id)
         {
             return new RegistryObject<T>(this, id, () => Get(id));
         }

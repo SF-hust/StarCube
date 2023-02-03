@@ -7,7 +7,7 @@ namespace StarCube.Core.Tag
 {
     public abstract class Tag
     {
-        public Tag(ResourceLocation id)
+        public Tag(StringID id)
         {
             this.id = id;
         }
@@ -15,7 +15,7 @@ namespace StarCube.Core.Tag
         /// <summary>
         /// Tag 的字符串id
         /// </summary>
-        public readonly ResourceLocation id;
+        public readonly StringID id;
 
         public override string ToString()
         {
@@ -47,7 +47,7 @@ namespace StarCube.Core.Tag
         /// </summary>
         /// <param name="id"></param>
         /// <param name="values"></param>
-        internal Tag(ResourceLocation id, IEnumerable<T> values) : base(id)
+        internal Tag(StringID id, IEnumerable<T> values) : base(id)
         {
             elements = values.ToImmutableArray();
             hashCodeCache = id.GetHashCode() + 31 * typeof(T).GetHashCode();

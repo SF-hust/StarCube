@@ -11,7 +11,7 @@ namespace StarCube.Resource
     /// 一个 ResourceLocation 含有两个字符串成员 : namspace 和 path
     /// 它们各有所必须满足的格式
     /// ResourceLocation 用字符串表示为 $"{namspace}:{path}"
-    public sealed class ResourceLocation : IComparable<ResourceLocation>, IEquatable<ResourceLocation>
+    public sealed class StringID : IComparable<StringID>, IEquatable<StringID>
     {
         /// <summary>
         /// 构成一个合法 ResourceLocation 的字符串所需的最小长度
@@ -27,7 +27,7 @@ namespace StarCube.Resource
         /// <summary>
         /// 占位符，解析或创建失败时会返回这个 ResourceLocation
         /// </summary>
-        public static readonly ResourceLocation Failed = new ResourceLocation("_", "_");
+        public static readonly StringID Failed = new StringID("_", "_");
 
 
         public readonly string namspace;
@@ -44,7 +44,7 @@ namespace StarCube.Resource
         /// <param name="path"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static ResourceLocation Create(string namspace, string path)
+        public static StringID Create(string namspace, string path)
         {
             if (!IsValidNamespace(namspace))
             {
@@ -54,7 +54,7 @@ namespace StarCube.Resource
             {
                 throw new ArgumentException($"Fail to create ResourceLocation : path \"{path}\" is invalid");
             }
-            return new ResourceLocation(namspace, path);
+            return new StringID(namspace, path);
         }
 
 
@@ -64,14 +64,14 @@ namespace StarCube.Resource
         /// <param name="namspace"></param>
         /// <param name="path"></param>
         /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
-        public static bool TryCreate(string namspace, string path, out ResourceLocation location)
+        public static bool TryCreate(string namspace, string path, out StringID location)
         {
             if (!IsValidNamespace(namspace) || !IsValidPath(path))
             {
                 location = Failed;
                 return false;
             }
-            location = new ResourceLocation(namspace, path);
+            location = new StringID(namspace, path);
             return true;
         }
 
@@ -82,9 +82,9 @@ namespace StarCube.Resource
         /// <param name="locationString"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static ResourceLocation Parse(string locationString)
+        public static StringID Parse(string locationString)
         {
-            if(TryParse(locationString, out ResourceLocation location))
+            if(TryParse(locationString, out StringID location))
             {
                 return location;
             }
@@ -100,9 +100,9 @@ namespace StarCube.Resource
         /// <param name="length"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static ResourceLocation Parse(string locationString, int start, int length)
+        public static StringID Parse(string locationString, int start, int length)
         {
-            if (TryParse(locationString, out ResourceLocation location, start, length))
+            if (TryParse(locationString, out StringID location, start, length))
             {
                 return location;
             }
@@ -115,7 +115,7 @@ namespace StarCube.Resource
         /// </summary>
         /// <param name="locationString"></param>
         /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
-        public static bool TryParse(string locationString, out ResourceLocation location)
+        public static bool TryParse(string locationString, out StringID location)
         {
             return TryParse(locationString, out location, 0, locationString.Length);
         }
@@ -129,7 +129,7 @@ namespace StarCube.Resource
         /// <param name="start"></param>
         /// <param name="length"></param>
         /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
-        public static bool TryParse(string locationString, out ResourceLocation location, int start, int length)
+        public static bool TryParse(string locationString, out StringID location, int start, int length)
         {
             if (!IsValidStringID(locationString, out int i, start, length))
             {
@@ -226,7 +226,7 @@ namespace StarCube.Resource
         }
 
 
-        internal ResourceLocation(string namspace, string path)
+        internal StringID(string namspace, string path)
         {
             this.namspace = namspace;
             this.path = path;
@@ -238,7 +238,7 @@ namespace StarCube.Resource
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public int CompareTo(ResourceLocation? other)
+        public int CompareTo(StringID? other)
         {
             if (this == other)
             {
@@ -262,7 +262,7 @@ namespace StarCube.Resource
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public int CompareNamespaceFirst(ResourceLocation? other)
+        public int CompareNamespaceFirst(StringID? other)
         {
             if (this == other)
             {
@@ -308,7 +308,7 @@ namespace StarCube.Resource
             {
                 return false;
             }
-            return obj is ResourceLocation other && Equals(other);
+            return obj is StringID other && Equals(other);
         }
 
 
@@ -317,7 +317,7 @@ namespace StarCube.Resource
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(ResourceLocation other)
+        public bool Equals(StringID other)
         {
             if (object.ReferenceEquals(this, other))
             {

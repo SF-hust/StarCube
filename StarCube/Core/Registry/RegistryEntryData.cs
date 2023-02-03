@@ -9,7 +9,7 @@ namespace StarCube.Core.Registry
     /// </summary>
     public abstract class RegistryEntryData
     {
-        protected RegistryEntryData(int numId, ResourceKey regKey)
+        protected RegistryEntryData(int numId, StringKey regKey)
         {
             this.numId = numId;
             this.regKey = regKey;
@@ -24,13 +24,13 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 此 Entry 的 ResourceKey, 在整个游戏中唯一
         /// </summary>
-        public ResourceKey RegKey => regKey;
-        protected ResourceKey regKey;
+        public StringKey RegKey => regKey;
+        protected StringKey regKey;
 
         /// <summary>
         /// 此 Entry 的字符串 Id, 即 "namespace:name", 在同一个 Registry 中唯一
         /// </summary>
-        public ResourceLocation Id => RegKey.location;
+        public StringID Id => RegKey.location;
 
         /// <summary>
         /// 此 Entry 的 modid
@@ -85,7 +85,7 @@ namespace StarCube.Core.Registry
     public class RegistryEntryData<T> : RegistryEntryData
         where T : class, IRegistryEntry<T>
     {
-        public RegistryEntryData(int numId, ResourceKey key, Registry<T> registry, T entry) : base(numId, key)
+        public RegistryEntryData(int numId, StringKey key, Registry<T> registry, T entry) : base(numId, key)
         {
             this.registry = registry;
             this.entry = entry;
