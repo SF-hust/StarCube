@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
+using StarCube.Utility;
+
 namespace StarCube.Resource
 {
     /// <summary>
     /// 表示一个资源的路径，既可以表示某个注册表、注册表中某个注册项，也可以表示磁盘上的某个文件
     /// </summary>
-    /// 一个 ResourceLocation 含有两个字符串成员：
-    /// namspace 和 path，它们各有所必须满足的格式
-    /// ResourceLocation 用字符串表示为 "{namspace}:{path}"
+    /// 一个 ResourceLocation 含有两个字符串成员 : namspace 和 path
+    /// 它们各有所必须满足的格式
+    /// ResourceLocation 用字符串表示为 $"{namspace}:{path}"
     public sealed class ResourceLocation : IComparable<ResourceLocation>, IEquatable<ResourceLocation>
     {
         /// <summary>
@@ -16,20 +18,24 @@ namespace StarCube.Resource
         /// </summary>
         public const int MIN_STRING_LENGTH = 3;
 
+
         public const char NAMESPACE_SEPARATOR = ':';
         public const string NAMESPACE_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*";
         public const string PATH_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*(/[a-z0-9_]+(-[a-z0-9_]+)*)*";
 
+
         /// <summary>
-        /// 占位符，相当于空
+        /// 占位符，解析或创建失败时会返回这个 ResourceLocation
         /// </summary>
-        public static ResourceLocation Default = new ResourceLocation("_", "_");
+        public static readonly ResourceLocation Failed = new ResourceLocation("_", "_");
+
 
         public readonly string namspace;
         public readonly string path;
 
         private static readonly Regex NamespaceRegex = new Regex(NAMESPACE_PATTERN, RegexOptions.Compiled);
         private static readonly Regex PathRegex = new Regex(PATH_PATTERN, RegexOptions.Compiled);
+
 
         /// <summary>
         /// 创建一个 ResourceLocation，如果参数不符合要求则抛出异常
@@ -51,55 +57,122 @@ namespace StarCube.Resource
             return new ResourceLocation(namspace, path);
         }
 
+
         /// <summary>
-        /// 创建一个 ResourceLocation，如果参数不符合要求则返回 null
+        /// 尝试创建一个 ResourceLocation
         /// </summary>
         /// <param name="namspace"></param>
         /// <param name="path"></param>
-        /// <returns></returns>
-        public static ResourceLocation? TryCreate(string namspace, string path)
+        /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
+        public static bool TryCreate(string namspace, string path, out ResourceLocation location)
         {
-            if (!IsValidNamespace(namspace))
+            if (!IsValidNamespace(namspace) || !IsValidPath(path))
             {
-                return null;
+                location = Failed;
+                return false;
             }
-            if (!IsValidPath(path))
-            {
-                return null;
-            }
-            return new ResourceLocation(namspace, path);
+            location = new ResourceLocation(namspace, path);
+            return true;
         }
 
+
         /// <summary>
-        /// 尝试从 "{namspace}:{path}" 形式的字符串创建一个 ResourceLocation，如果参数不符合要求则抛出异常
+        /// 尝试从 "{namspace}:{path}" 形式的字符串解析并创建一个 ResourceLocation，如果参数不符合要求则抛出异常
         /// </summary>
         /// <param name="locationString"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         public static ResourceLocation Parse(string locationString)
         {
-            ResourceLocation? loc = TryParse(locationString);
-            if (loc == null)
+            if(TryParse(locationString, out ResourceLocation location))
             {
-                throw new ArgumentException($"Fail to parse ResourceLocation \"{locationString}\"");
+                return location;
             }
-            return loc;
+            throw new ArgumentException($"Fail to parse ResourceLocation \"{locationString}\"");
         }
 
+
         /// <summary>
-        /// 尝试从 "{namspace}:{path}" 形式的字符串创建一个 ResourceLocation，如果参数不符合要求则返回 null
+        /// 解析并创建一个 ResourceLocation，如果参数不符合要求则抛出异常，可指定起始位置和长度
         /// </summary>
         /// <param name="locationString"></param>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
         /// <returns></returns>
-        public static ResourceLocation? TryParse(string locationString)
+        /// <exception cref="ArgumentException"></exception>
+        public static ResourceLocation Parse(string locationString, int start, int length)
         {
-            string[] splits = locationString.Split(NAMESPACE_SEPARATOR);
-            if (splits.Length != 2)
+            if (TryParse(locationString, out ResourceLocation location, start, length))
             {
-                return null;
+                return location;
             }
-            return TryCreate(splits[0], splits[1]);
+            throw new ArgumentException($"Fail to parse ResourceLocation \"{locationString[start..(length + start)]}\"");
         }
+
+
+        /// <summary>
+        /// 尝试从 "{namspace}:{path}" 形式的字符串解析并创建一个 ResourceLocation
+        /// </summary>
+        /// <param name="locationString"></param>
+        /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
+        public static bool TryParse(string locationString, out ResourceLocation location)
+        {
+            return TryParse(locationString, out location, 0, locationString.Length);
+        }
+
+
+        /// <summary>
+        /// 尝试解析并创建一个 ResourceLocation，可指定起始位置和长度
+        /// </summary>
+        /// <param name="locationString"></param>
+        /// <param name="location"></param>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
+        public static bool TryParse(string locationString, out ResourceLocation location, int start, int length)
+        {
+            if (!IsValidStringID(locationString, out int i, start, length))
+            {
+                location = Failed;
+                return false;
+            }
+            location = Create(locationString[start..i], locationString[(i + 1)..(start + length)]);
+            return true;
+        }
+
+
+        /// <summary>
+        /// 判断一个字符串是否是合法的 StringID
+        /// </summary>
+        /// <param name="idString"></param>
+        /// <param name="i">分隔符在 idString 中的下标</param>
+        /// <returns></returns>
+        public static bool IsValidStringID(string idString, out int i)
+        {
+            return IsValidStringID(idString, out i, 0, idString.Length);
+        }
+
+
+        /// <summary>
+        /// 判断一个字符串是否是合法的 StringID，可指定起始位置和长度
+        /// </summary>
+        /// <param name="idString"></param>
+        /// <param name="i">分隔符在 idString 中的下标</param>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static bool IsValidStringID(string idString, out int i, int start, int length)
+        {
+            i = idString.SimpleIndexOf(NAMESPACE_SEPARATOR, start, length);
+            if (i < 0 ||
+                !IsValidNamespace(idString, start, i - start) ||
+                !IsValidPath(idString, i + 1, length + start - i - 1))
+            {
+                return false;
+            }
+            return true;
+        }
+
 
         /// <summary>
         /// 检查某个 namespace 是否符合格式要求
@@ -112,6 +185,21 @@ namespace StarCube.Resource
             return match.Success && match.Index == 0 && match.Length == namspace.Length;
         }
 
+
+        /// <summary>
+        /// 检查某个 namespace 是否符合格式要求，可指定起始位置和长度
+        /// </summary>
+        /// <param name="namspace"></param>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static bool IsValidNamespace(string namspace, int start, int length)
+        {
+            Match match = NamespaceRegex.Match(namspace, start);
+            return match.Success && match.Index == start && match.Length == length;
+        }
+
+
         /// <summary>
         /// 检查某个 path 是否符合格式要求
         /// </summary>
@@ -123,11 +211,27 @@ namespace StarCube.Resource
             return match.Success && match.Index == 0 && match.Length == path.Length;
         }
 
-        private ResourceLocation(string namspace, string path)
+
+        /// <summary>
+        /// 检查某个 path 是否符合格式要求，可指定起始位置和长度
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static bool IsValidPath(string path, int start, int length)
+        {
+            Match match = PathRegex.Match(path, start);
+            return match.Success && match.Index == start && match.Length == length;
+        }
+
+
+        internal ResourceLocation(string namspace, string path)
         {
             this.namspace = namspace;
             this.path = path;
         }
+
 
         /// <summary>
         /// 比较两个 ResourceLocation，这个方法先比较 path 再比较 namspace
@@ -152,6 +256,7 @@ namespace StarCube.Resource
             return namspace.CompareTo(other?.namspace);
         }
 
+
         /// <summary>
         /// 比较两个 ResourceLocation，这个方法先比较 namspace 再比较 path
         /// </summary>
@@ -175,6 +280,23 @@ namespace StarCube.Resource
             return path.CompareTo(other?.path);
         }
 
+
+        public override int GetHashCode()
+        {
+            return 31 * namspace.GetHashCode() + path.GetHashCode();
+        }
+
+
+        /// <summary>
+        /// 返回一个 "{namspace}:{path}" 形式的字符串
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return namspace + NAMESPACE_SEPARATOR + path;
+        }
+
+
         /// <summary>
         /// 比较两个 ResourceLocation 是否相等，这会比较两者的两个字符串成员
         /// </summary>
@@ -189,20 +311,12 @@ namespace StarCube.Resource
             return obj is ResourceLocation other && Equals(other);
         }
 
-        public override int GetHashCode()
-        {
-            return 31 * namspace.GetHashCode() + path.GetHashCode();
-        }
 
         /// <summary>
-        /// 返回一个 "{namspace}:{path}" 形式的字符串
+        /// 比较两个 ResourceLocation 是否相等，这会比较两者的两个字符串成员
         /// </summary>
+        /// <param name="other"></param>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return namspace + NAMESPACE_SEPARATOR + path;
-        }
-
         public bool Equals(ResourceLocation other)
         {
             if (object.ReferenceEquals(this, other))
