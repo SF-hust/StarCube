@@ -7,7 +7,7 @@ using StarCube.Resource;
 namespace StarCube.Core.State
 {
     /// <summary>
-    /// IntegerStateProperty: 可以取指定连续范围内的 int 值(可以是负值)
+    /// IntegerStateProperty : 可以取指定连续范围内的 int 值(可以是负值)
     /// </summary>
     public class IntegerStateProperty : StateProperty<int>
     {

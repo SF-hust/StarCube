@@ -9,7 +9,7 @@ using StarCube.Resource;
 namespace StarCube.Core.State
 {
     /// <summary>
-    /// EnumStateProperty<T>: 取值为枚举类型，T 是对应的枚举类型
+    /// EnumStateProperty<T> : 取值为枚举类型，T 是对应的枚举类型
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// 注意在解析字符串与将值转为字符串时会使用全小写，因此使用的枚举不可以存在相同的成员名(在忽略大小写的情况下)

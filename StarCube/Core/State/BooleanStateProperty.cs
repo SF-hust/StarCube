@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Collections.Immutable;
 using StarCube.Resource;
 
 namespace StarCube.Core.State
 {
     /// <summary>
-    /// BooleanStateProperty: 只有两种值 false/true
+    /// BooleanStateProperty : 只有两种值 false/true
     /// </summary>
     public sealed class BooleanStateProperty : StateProperty<bool>
     {
-        /// <summary>
-        /// 创建一个 BooleanStateProperty
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public static BooleanStateProperty Create(StringID id)
         {
             return new BooleanStateProperty(id);
         }
 
-        public static readonly IEnumerable<bool> BOOLEAN_STATE_PROPERTY_VALUES = new bool[2] { false, true };
+        public static readonly ImmutableArray<bool> BOOLEAN_STATE_PROPERTY_VALUES = new bool[2] { false, true }.ToImmutableArray();
 
         public BooleanStateProperty(StringID id) : base(id, 2) { }
 
@@ -31,14 +26,10 @@ namespace StarCube.Core.State
         {
             return true;
         }
+
         public sealed override bool GetValueByIndex(int index)
         {
-            return index switch
-            {
-                0 => false,
-                1 => true,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            return BOOLEAN_STATE_PROPERTY_VALUES[index];
         }
 
         public sealed override int GetIndexByValue(bool value)
