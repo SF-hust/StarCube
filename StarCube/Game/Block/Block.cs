@@ -17,8 +17,12 @@ namespace StarCube.Game.Block
          * 作为 RegistryEntry
          */
 
-        public RegistryEntryData<Block> RegistryData { get => regData!; set => regData ??= value; }
-        private RegistryEntryData<Block>? regData;
+        public RegistryEntryData<Block> RegistryData
+        {
+            get => IRegistryEntry<Block>.RegistryEntryGetHelper(regData);
+            set => IRegistryEntry<Block>.RegistryEntrySetHelper(ref regData, value);
+        }
+        private RegistryEntryData<Block>? regData = null;
 
         public virtual Type AsEntryType => typeof(Block);
 

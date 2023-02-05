@@ -52,18 +52,42 @@ namespace StarCube.Core.Registry
     }
 
     /// <summary>
-    /// 所有需要被注册到 Registry 的对象的类应实现该接口,
-    /// 并实现其中的属性
+    /// 所有需要被注册到 Registry 的对象的类应实现该接口
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// 游戏中，一个 RegistryEntry 的生命周期如下：
-    /// 1.预注册，模组加载器读取模组数据，获取每个模组想注册的 Entry 的信息
-    /// 2.注册与实例化，注册事件开始后，模组
     public interface IRegistryEntry<T> : IRegistryEntry
         where T : class, IRegistryEntry<T>
     {
+        /*
+         * 对本接口的实现应为如下形式 :
+         * 
+         * public class T : IRegistryEntry<T>
+         * {
+         *     public RegistryEntryData<T> RegistryData
+         *     {
+         *         get => IRegistryEntry<T>.RegistryEntryGetHelper(regData);
+         *         set => IRegistryEntry<T>.RegistryEntrySetHelper(ref regData, value);
+         *     }
+         *     private RegistryEntryData<T>? regData = null;
+         *     public Type AsEntryType => typeof(T);
+         *     ...
+         * }
+         * 
+         * 将其中的 T 换成你自己的 RegistryEntry 的类型
+         */
+
+        protected static RegistryEntryData<T> RegistryEntryGetHelper(RegistryEntryData<T>? data)
+        {
+            return data ?? throw new NullReferenceException($"RegistryEntry (type = {typeof(T).FullName}) has not been constructed");
+        }
+
+        protected static void RegistryEntrySetHelper(ref RegistryEntryData<T>? data, RegistryEntryData<T> value)
+        {
+            data ??= value;
+        }
+
         /// <summary>
-        /// RegistryEntry 的信息, 包括注册名, Registry 实例的引用, Entry 实例的引用等
+        /// RegistryEntry 的信息
         /// </summary>
         public RegistryEntryData<T> RegistryData { get; set; }
 
