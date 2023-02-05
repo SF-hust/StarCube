@@ -1,5 +1,7 @@
 ﻿using StarCube.Utility;
 using StarCube.BootStrap;
+
+using StarCube.Core.Component;
 using StarCube.Game.Block;
 
 namespace StarCube.Core.Registry
@@ -17,10 +19,13 @@ namespace StarCube.Core.Registry
     {
         public static readonly RootRegistry Root = new RootRegistry();
 
+        public static readonly Registry<ComponentType> ComponentTypeRegistry = Registry<ComponentType>.Create(Constants.DEFAULT_NAMESPACE, Constants.COMPONENT_TYPE_STRING);
+
         public static readonly Registry<Block> BlockRegistry = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING, () => new Block());
 
         static Registries()
         {
+            Root.Register(ComponentTypeRegistry);
             Root.Register(BlockRegistry);
         }
     }
