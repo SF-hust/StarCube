@@ -16,7 +16,7 @@ namespace StarCube.Data.DependencyResolver
         where RD : class
     {
         /// <summary>
-        /// 构建一份解析后的数据，注意 : 此方法可能会被多线程调用
+        /// 构建一份解析后的数据，注意 : 此方法可能会被多线程调用，各实现者需自行保证实现部分的线程安全
         /// </summary>
         /// <param name="unresolvedData">未解析的数据</param>
         /// <param name="getResolvedData">可通过键获取相应解析后数据的线程安全的委托，此方法被调用时，保证其所有依赖均已被 Build</param>

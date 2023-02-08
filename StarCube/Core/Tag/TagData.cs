@@ -3,15 +3,17 @@ using System.Text;
 
 using Newtonsoft.Json.Linq;
 
-using StarCube.Resource;
 using StarCube.Utility;
+using StarCube.Resource;
+using StarCube.Data.DependencyResolver;
+using StarCube.Data.Exception;
 
 namespace StarCube.Core.Tag
 {
     /// <summary>
     /// 表示一个 Tag 定义文件的数据结构
     /// </summary>
-    public class TagData
+    public class TagData : IUnresolvedData<StringID, TagData>
     {
         public const string OVERRIDE_STRING = "override";
         public const string ENTRIES_STRING = "entries";
@@ -21,9 +23,11 @@ namespace StarCube.Core.Tag
         /// </summary>
         /// 一个 entry 的字符串合法格式为 [-][#]{id}[?]
         /// id 是一个合法的 ResourceLocation
-        /// - 代表此项需要被移除
+        /// - 代表此项需要被移除，注意如果此项对应的 Entry 不存在或者类型不对，则直接忽略
         /// # 代表此项是个 Tag
-        /// ? 代表对此项的依赖是非必须的
+        /// ? 代表对此项的依赖是非必需的
+        /// 三者可以任意组合使用
+        /// - 与 ? 同时使用时，? 会被忽略
         public readonly struct Entry
         {
             public const char TAG_TYPE_CHAR = '#';
@@ -36,29 +40,26 @@ namespace StarCube.Core.Tag
                 Tag,
             }
 
-            public readonly ResourceLocation id;
+            public readonly StringID id;
 
             public readonly EntryType entryType;
 
             public readonly bool optional;
 
-            public readonly bool toRemove;
-
-            public Entry(ResourceLocation id, EntryType entryType, bool optional, bool toRemove)
+            public Entry(StringID id, EntryType entryType, bool optional)
             {
                 this.id = id;
                 this.entryType = entryType;
                 this.optional = optional;
-                this.toRemove = toRemove;
             }
 
+            /// <summary>
+            /// 返回一个 [-][#]{id}[?] 格式的字符串
+            /// </summary>
+            /// <returns></returns>
             public override string ToString()
             {
                 StringBuilder str = new StringBuilder();
-                if (toRemove)
-                {
-                    str.Append(REMOVE_CHAR);
-                }
                 if (entryType == EntryType.Tag)
                 {
                     str.Append(TAG_TYPE_CHAR);
@@ -70,121 +71,167 @@ namespace StarCube.Core.Tag
                 }
                 return str.ToString();
             }
+        }
 
-            /// <summary>
-            /// 尝试从字符串中解析出 Entry
-            /// </summary>
-            /// <param name="entryString"></param>
-            /// <returns></returns>
-            public static bool TryParse(string entryString, out Entry entry)
+        /// <summary>
+        /// 按顺序读入多个 JsonObject 并构建 TagData
+        /// </summary>
+        public class Builder
+        {
+            private readonly StringID id;
+
+            private readonly List<Entry> entries = new List<Entry>();
+
+            public static Builder Create(StringID id)
+            {
+                return new Builder(id);
+            }
+
+            public Builder(StringID id)
+            {
+                this.id = id;
+            }
+
+            public Builder AddFromJson(JObject json)
+            {
+                // override 属性会使所有已存在的 entry 被清除
+                if (json.TryGetBoolean(OVERRIDE_STRING, out bool isOverride) && isOverride)
+                {
+                    entries.Clear();
+                }
+
+                // 
+                if (json.TryGetArray(ENTRIES_STRING, out JArray? array))
+                {
+                    foreach (JToken token in array)
+                    {
+                        if(!token.TryConvertToString(out string entryString))
+                        {
+                            throw new DataParseException($"an entry in \"{ENTRIES_STRING}\" array is not string");
+                        }
+
+                        if (!TryParse(entryString, out StringID entryId, out Entry.EntryType entryType, out bool optional, out bool toRemove))
+                        {
+                            throw new DataParseException($"failed to parse \"{entryString}\") as StringID");
+                        }
+
+                        if (toRemove)
+                        {
+                            Remove(entryId, entryType);
+                        }
+                        else
+                        {
+                            entries.Add(new Entry(id, entryType, optional));
+                        }
+                    }
+                }
+
+                return this;
+            }
+
+            public TagData Build()
+            {
+                return new TagData(id, entries);
+            }
+
+            private void Remove(StringID entryId, Entry.EntryType entryType)
+            {
+                for(int i = 0; i < entries.Count; ++i)
+                {
+                    if (entries[i].entryType == entryType && entries[i].id == entryId)
+                    {
+                        entries.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+
+            private static bool TryParse(string entryString, out StringID id, out Entry.EntryType type, out bool optional, out bool toRemove)
             {
                 int idStart = 0;
                 int idLength = entryString.Length;
-                ResourceLocation? id;
-                EntryType entryType = EntryType.Element;
-                bool optional = false;
-                bool toRemove = false;
+                type = Entry.EntryType.Element;
+                optional = false;
+                toRemove = false;
+
                 // 一个 entryString 的长度至少是一个合法 ResourceLocation 的长度
-                if (entryString.Length < ResourceLocation.MIN_STRING_LENGTH)
+                if (entryString.Length < StringID.MIN_STRING_LENGTH)
                 {
-                    entry = new Entry();
+                    id = StringID.Failed;
                     return false;
                 }
-                if (entryString.StartsWith(REMOVE_CHAR))
+
+                if (entryString.StartsWith(Entry.REMOVE_CHAR))
                 {
                     toRemove = true;
                     ++idStart;
                     --idLength;
                 }
-                if (entryString.EndsWith(OPTIONAL_CHAR))
+                if (entryString.EndsWith(Entry.OPTIONAL_CHAR))
                 {
                     optional = true;
                     --idLength;
                 }
                 // 注意: 这里不需要判断长度是因为 entryString 至少有 3 字符长，如果后续扩展功能则可能需要再次判断长度
-                if (!toRemove && entryString.StartsWith(TAG_TYPE_CHAR) || toRemove && entryString[1] == TAG_TYPE_CHAR)
+                if (!toRemove && entryString.StartsWith(Entry.TAG_TYPE_CHAR) || toRemove && entryString[1] == Entry.TAG_TYPE_CHAR)
                 {
-                    entryType = EntryType.Tag;
+                    type = Entry.EntryType.Tag;
                     ++idStart;
                     --idLength;
                 }
-                id = ResourceLocation.TryParse(entryString.Substring(idStart, idLength));
-                if (id == null)
+
+                if(!StringID.TryParse(entryString, out id, idStart, idLength))
                 {
-                    entry = new Entry();
                     return false;
                 }
-                entry = new Entry(id, entryType, optional, toRemove);
+
                 return true;
             }
         }
 
-        /// <summary>
-        /// 清除之前的所有 entry
-        /// </summary>
-        public readonly bool isOverride;
+
+        public StringID Key => id;
+
+        public TagData UnresolvedData => this;
+
+        public IEnumerable<StringID> RequiredDependencies => requiredDependencies;
+
+        public IEnumerable<StringID> OptionalDependencies => optionalDependencies;
+
+
+        private readonly List<StringID> requiredDependencies;
+        
+        private readonly List<StringID> optionalDependencies;
+
+        public readonly StringID id;
 
         /// <summary>
         /// 本 TagData 所添加的 entry
         /// </summary>
-        public readonly Entry[] entries;
+        public readonly List<Entry> entries;
 
-        public TagData(bool isOverride, Entry[] entries)
+        public TagData(StringID id, List<Entry> entries)
         {
-            this.isOverride = isOverride;
+            this.id = id;
             this.entries = entries;
-        }
 
-        /// <summary>
-        /// 将一个 TagData 结构转化为 JsonObject
-        /// </summary>
-        /// <param name="tagData"></param>
-        /// <returns></returns>
-        public JObject ToJson()
-        {
-            JObject json = new JObject();
-            if (isOverride)
+            optionalDependencies = new List<StringID>();
+            requiredDependencies = new List<StringID>();
+            for(int i = 0; i < entries.Count; ++i)
             {
-                json.Add(OVERRIDE_STRING, new JValue(isOverride));
-            }
-            JArray entryArray = new JArray();
-            foreach(Entry entry in entries)
-            {
-                entryArray.Add(new JValue(entry.ToString()));
-            }
-            json.Add(ENTRIES_STRING, entryArray);
-            return json;
-        }
-
-        /// <summary>
-        /// 从一个 JsonObject 中构造 TagData
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        /// 此方法只关心自己需要的数据，不会严格检查格式，所以通过这种方式构造的 TagData 再转化为 Json，结果与原始 Json 不一定相同
-        public static TagData? FromJson(JObject json)
-        {
-            List<Entry> entries = new List<Entry>();
-            if (!JsonHelper.TryGetBoolean(json, OVERRIDE_STRING, out bool isOverride))
-            {
-                isOverride = false;
-            }
-            if(!JsonHelper.TryGetArray(json, ENTRIES_STRING, out JArray? entryArray))
-            {
-                return null;
-            }
-            foreach(JToken token in entryArray)
-            {
-                if(token is JValue jValue && jValue.Value is string entryString && Entry.TryParse(entryString, out Entry entry))
+                Entry entry = entries[i];
+                if (entry.entryType == Entry.EntryType.Tag)
                 {
-                    entries.Add(entry);
-                }
-                else
-                {
-                    return null;
+                    if(entry.optional)
+                    {
+                        optionalDependencies.Add(entry.id);
+                    }
+                    else
+                    {
+                        requiredDependencies.Add(entry.id);
+                    }
                 }
             }
-            return new TagData(isOverride, entries.ToArray());
         }
     }
 }

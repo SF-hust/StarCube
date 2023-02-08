@@ -35,11 +35,11 @@ namespace StarCube.Data.DependencyResolver
         /// <summary>
         /// 必需依赖
         /// </summary>
-        public IReadOnlyCollection<K> RequiredDependencies { get; }
+        public IEnumerable<K> RequiredDependencies { get; }
 
         /// <summary>
         /// 非必需依赖
         /// </summary>
-        public IReadOnlyCollection<K> OptionalDependencies { get; }
+        public IEnumerable<K> OptionalDependencies { get; }
     }
 }
