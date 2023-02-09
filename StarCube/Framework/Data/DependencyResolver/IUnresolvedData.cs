@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StarCube.Data.DependencyResolver
+namespace StarCube.Framework.Data.DependencyResolver
 {
     /// <summary>
     /// 表示一份尚未解析依赖关系的数据

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Resource;
-using StarCube.Data.DependencyResolver;
+using StarCube.Framework.Data.DependencyResolver;
 
 namespace StarCube.Core.Tag
 {

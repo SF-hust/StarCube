@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace StarCube.Data.Exception
+﻿namespace StarCube.Framework.Data.Exception
 {
     public class DataParseException : DataLoadingException
     {

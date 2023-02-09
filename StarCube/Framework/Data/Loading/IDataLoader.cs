@@ -1,4 +1,4 @@
-﻿namespace StarCube.Data.Loading
+﻿namespace StarCube.Framework.Data.Loading
 {
     public interface IDataLoader
     {

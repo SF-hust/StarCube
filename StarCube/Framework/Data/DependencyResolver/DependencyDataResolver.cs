@@ -2,12 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using StarCube.Data.DependencyResolver;
-using StarCube.Resource;
 
-namespace StarCube.Data
+namespace StarCube.Framework.Data.DependencyResolver
 {
     public class DependencyDataResolver<K, UD, RD>
         where UD : class, IUnresolvedData<K, UD>

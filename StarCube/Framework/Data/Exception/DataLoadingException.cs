@@ -1,4 +1,4 @@
-﻿namespace StarCube.Data.Exception
+﻿namespace StarCube.Framework.Data.Exception
 {
     public class DataLoadingException : System.Exception
     {
