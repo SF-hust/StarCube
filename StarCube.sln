@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCubeClient", "StarCubeC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCubeServer", "StarCubeServer\StarCubeServer.csproj", "{500AA5F4-6FA1-4FCC-85DA-02E30435397A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{96CC387E-8C53-454A-933E-A20372CB8911}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Coremod", "Coremod\Coremod.csproj", "{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coremod", "Coremod\Coremod.csproj", "{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{5C22FEE9-A554-4259-8404-A762DB6E8452}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +31,14 @@ Global
 		{500AA5F4-6FA1-4FCC-85DA-02E30435397A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{500AA5F4-6FA1-4FCC-85DA-02E30435397A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{500AA5F4-6FA1-4FCC-85DA-02E30435397A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96CC387E-8C53-454A-933E-A20372CB8911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96CC387E-8C53-454A-933E-A20372CB8911}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96CC387E-8C53-454A-933E-A20372CB8911}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96CC387E-8C53-454A-933E-A20372CB8911}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C22FEE9-A554-4259-8404-A762DB6E8452}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C22FEE9-A554-4259-8404-A762DB6E8452}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C22FEE9-A554-4259-8404-A762DB6E8452}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C22FEE9-A554-4259-8404-A762DB6E8452}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
