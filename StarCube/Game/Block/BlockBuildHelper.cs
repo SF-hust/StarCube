@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using StarCube.Core.State;
+﻿using StarCube.Core.State;
 
 namespace StarCube.Game.Block
 {
