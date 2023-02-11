@@ -24,70 +24,13 @@ namespace StarCube.Core.Registry
 
         private readonly string modid;
         private readonly Registry<T> registry;
-        private readonly List<IEntry> entries = new List<IEntry>();
+        private readonly List<KeyValuePair<StringID, T>> entries = new List<KeyValuePair<StringID, T>>();
 
-        private interface IEntry
-        {
-            public void RegisterTo(Registry<T> registry);
-
-            public StringID Id { get; }
-        }
-
-        private class IdEntry : IEntry
-        {
-            public StringID Id => id;
-
-            private readonly StringID id;
-
-            public IdEntry(StringID id)
-            {
-                this.id = id;
-            }
-
-            public void RegisterTo(Registry<T> registry)
-            {
-                registry.Register(id);
-            }
-        }
-
-        private class EntryEntry : IEntry
-        {
-            public StringID Id => id;
-
-            private readonly StringID id;
-            private readonly T entry;
-            public EntryEntry(StringID id, T entry)
-            {
-                this.id = id;
-                this.entry = entry;
-            }
-
-            public void RegisterTo(Registry<T> registry)
-            {
-                registry.Register(id, entry);
-            }
-        }
-        
         public DeferredRegister(string modid, Registry<T> registry)
         {
             this.modid = modid;
             this.registry = registry;
             registry.OnRegisterStartEvent += DoRegister;
-        }
-
-        /// <summary>
-        /// 向 DeferredRegister 中添加一个 name，用于新 entry 的命名
-        /// </summary>
-        /// <param name="name">name of registry entry</param>
-        public void Register(string name)
-        {
-            if (Exist(name))
-            {
-                throw new InvalidOperationException($"can't add entry with same name ( = \"{name}\") to one DeferredRegister");
-            }
-
-            StringID id = StringID.Create(modid, name);
-            entries.Add(new IdEntry(id));
         }
 
         /// <summary>
@@ -104,14 +47,14 @@ namespace StarCube.Core.Registry
             }
 
             StringID id = StringID.Create(modid, name);
-            entries.Add(new EntryEntry(id, entry));
+            entries.Add(new KeyValuePair<StringID, T>(id, entry));
         }
 
         public bool Exist(string name)
         {
-            foreach(IEntry entry in entries)
+            foreach(var pair in entries)
             {
-                if(entry.Id.path == name)
+                if(pair.Key.path == name)
                 {
                     return true;
                 }
@@ -126,9 +69,9 @@ namespace StarCube.Core.Registry
         /// <param name="args">no use</param>
         private void DoRegister(object sender, RegisterStartEventArgs args)
         {
-            foreach (IEntry entry in entries)
+            foreach (var pair in entries)
             {
-                entry.RegisterTo(registry);
+                registry.Register(pair.Key, pair.Value);
             }
             entries.Clear();
             registry.OnRegisterStartEvent -= DoRegister;

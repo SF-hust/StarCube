@@ -10,23 +10,14 @@ using StarCube.Resource;
 namespace StarCube.Core.Registry
 {
     /// <summary>
-    /// Registry 是注册表的抽象基类, 可以向其注册游戏对象(此操作一般由 DefferedRegister 完成), 或查找已注册的游戏对象
+    /// Registry 是注册表的抽象基类
     /// </summary>
     public abstract class Registry
     {
+        /// <summary>
+        /// 一个值为 "starcube:registry" 的 StringID，是每个 Registry 的 key.registry
+        /// </summary>
         public static readonly StringID RegistryRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, Constants.REGISTRY_STRING);
-
-        /// <summary>
-        /// 此 Registry 内注册的 Entry 的具体类型
-        /// </summary>
-        public abstract Type EntryType { get; }
-
-        /// <summary>
-        /// Registry 的 id
-        /// </summary>
-        public readonly StringID id;
-
-        public readonly StringKey key;
 
         public Registry(StringID id)
         {
@@ -35,16 +26,31 @@ namespace StarCube.Core.Registry
         }
 
         /// <summary>
-        /// 使用 字符串id 获取对应的 数字id
+        /// 此 Registry 内注册的 Entry 的 C# 类型
+        /// </summary>
+        public abstract Type EntryType { get; }
+
+        /// <summary>
+        /// Registry 的 id
+        /// </summary>
+        public readonly StringID id;
+
+        /// <summary>
+        /// Registry 的 key
+        /// </summary>
+        public readonly StringKey key;
+
+        /// <summary>
+        /// 使用字符串 id 获取对应的数字 id
         /// </summary>
         /// <param name="location"></param>
-        /// <returns>若对应的 字符串id 不存在返回 -1</returns>
+        /// <returns>若对应的字符串 id 不存在返回 -1</returns>
         public abstract int GetNumIdByStringId(StringID location);
 
         /// <summary>
         /// 触发注册事件, 仅供游戏框架内部使用
         /// </summary>
-        /// <returns>如果没有需要注册的 entry 了，返回 true，否则返回 false，这样这个函数还会被再次调用</returns>
+        /// <returns>如果没有需要注册的 entry 了，返回 true，否则返回 false，此情况下这个函数会被再次调用直到 返回 true 为止</returns>
         public abstract bool FireRegisterEvent();
     }
 
@@ -52,38 +58,51 @@ namespace StarCube.Core.Registry
     /// 注册表类，保存了一系列的 RegistryEntry，可以向其注册游戏对象，或查找已注册的游戏对象
     /// </summary>
     /// <typeparam name="T">RegistryEntry 的类型</typeparam>
-    public class Registry<T> : Registry, IIdMap<T>
+    public class Registry<T> : Registry, IIdMap<T>, IEnumerable<T>
         where T : class, IRegistryEntry<T>
     {
-        protected readonly List<T> entries = new List<T>();
-
-        protected readonly Dictionary<StringID, int> numIdByStringId = new Dictionary<StringID, int>();
-
-        protected readonly Func<T>? entryFactory;
-
-        /// <summary>
-        /// 通过此方法创建一个 Registry
-        /// </summary>
-        /// <param name="modid"></param>
-        /// <param name="name"></param>
-        /// <param name="entryFactory"></param>
-        /// <returns></returns>
-        public static Registry<T> Create(string modid, string name, Func<T>? entryFactory = null)
+        public static Registry<T> Create(string modid, string name)
         {
-            return new Registry<T>(StringID.Create(modid, name), entryFactory);
+            return new Registry<T>(StringID.Create(modid, name));
         }
 
-        public Registry(StringID id, Func<T>? entryFactory) : base(id)
+        public Registry(StringID id) : base(id)
         {
-            this.entryFactory = entryFactory;
         }
 
+
+        /* Registry 抽象类实现 start */
         public override Type EntryType => typeof(T);
+
+        public override int GetNumIdByStringId(StringID location)
+        {
+            if (numIdByStringId.TryGetValue(location, out int id))
+            {
+                return id;
+            }
+            return -1;
+        }
+
+        public override bool FireRegisterEvent()
+        {
+            RegisterStartEventArgs eventArg = new RegisterStartEventArgs();
+            isLocked = false;
+            OnRegisterStartEvent?.Invoke(this, eventArg);
+            isLocked = true;
+            return eventArg.isRegisterComplete;
+        }
+        /* Registry 抽象类实现 end */
+
+
 
         /// <summary>
         /// 已被添加进此 Registry 中的 Entry 集合
         /// </summary>
         public IEnumerable<IRegistryEntry<T>> Entries => entries;
+
+        protected readonly List<T> entries = new List<T>();
+
+        protected readonly Dictionary<StringID, int> numIdByStringId = new Dictionary<StringID, int>();
 
         public bool TryGet(StringID id, [NotNullWhen(true)] out T? entry)
         {
@@ -124,35 +143,19 @@ namespace StarCube.Core.Registry
             }
             throw new IndexOutOfRangeException();
         }
-
-        public override int GetNumIdByStringId(StringID location)
+        
+        /// <summary>
+        /// 获取 entry 的 RegistryObject 包装, 这个方法可以在 entry 被实际注册之前调用
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public RegistryObject<T> GetAsRegistryObject(StringID id)
         {
-            if (numIdByStringId.TryGetValue(location, out int id))
-            {
-                return id;
-            }
-            return -1;
+            return new RegistryObject<T>(this, id, () => Get(id));
         }
 
         public bool IsLocked => isLocked;
         private bool isLocked = true;
-
-        public int Count => entries.Count;
-
-        /// <summary>
-        /// 构造一个默认 entry 对象并注册
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>如果 Registry 不知道如何创建 entry 对象，或此时 Registry 是 Lock 状态，则返回 false</returns>
-        /// <exception cref="Exception">id 重复会导致异常</exception>
-        public bool Register(StringID id)
-        {
-            if (entryFactory == null)
-            {
-                return false;
-            }
-            return Register(id, entryFactory());
-        }
 
         /// <summary>
         /// 向 Registry 中添加新的 Entry
@@ -167,6 +170,7 @@ namespace StarCube.Core.Registry
             {
                 return false;
             }
+
             if(numIdByStringId.ContainsKey(id))
             {
                 throw new Exception("");
@@ -195,24 +199,9 @@ namespace StarCube.Core.Registry
         /// </summary>
         public event EventHandler<EventArgs>? OnEntryAddEvent;
 
-        public override bool FireRegisterEvent()
-        {
-            RegisterStartEventArgs eventArg = new RegisterStartEventArgs();
-            isLocked = false;
-            OnRegisterStartEvent?.Invoke(this, eventArg);
-            isLocked = true;
-            return eventArg.isRegisterComplete;
-        }
 
-        /// <summary>
-        /// 获取 entry 的 RegistryObject 包装, 这个方法可以在 entry 被实际注册之前调用
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public RegistryObject<T> GetAsRegistryObject(StringID id)
-        {
-            return new RegistryObject<T>(this, id, () => Get(id));
-        }
+        /* IIdMap<T> 接口实现 start */
+        public int Count => entries.Count;
 
         public int IdFor(T value)
         {
@@ -223,7 +212,10 @@ namespace StarCube.Core.Registry
         {
             return Get(id);
         }
+        /* IIdMap<T> 接口实现 end */
 
+
+        /* IEnumrable<T> 接口实现 start */
         public IEnumerator<T> GetEnumerator()
         {
             return entries.GetEnumerator();
@@ -233,6 +225,7 @@ namespace StarCube.Core.Registry
         {
             return GetEnumerator();
         }
+        /* IEnumrable<T> 接口实现 end */
     }
 
     /// <summary>
@@ -247,6 +240,9 @@ namespace StarCube.Core.Registry
         }
     }
 
+    /// <summary>
+    /// Entry 注册事件的参数
+    /// </summary>
     public class RegistryEntryAddEventArgs : EventArgs
     {
         public readonly IRegistryEntry registryEntry;

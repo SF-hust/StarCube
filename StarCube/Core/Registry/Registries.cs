@@ -21,7 +21,7 @@ namespace StarCube.Core.Registry
 
         public static readonly Registry<ComponentType> ComponentTypeRegistry = Registry<ComponentType>.Create(Constants.DEFAULT_NAMESPACE, Constants.COMPONENT_TYPE_STRING);
 
-        public static readonly Registry<Block> BlockRegistry = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING, () => new Block());
+        public static readonly Registry<Block> BlockRegistry = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING);
 
         static Registries()
         {
