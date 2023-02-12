@@ -1,4 +1,4 @@
-﻿namespace StarCube.Framework.Data.Exception
+﻿namespace StarCube.Core.Data.Exception
 {
     public class DataParseException : DataLoadingException
     {

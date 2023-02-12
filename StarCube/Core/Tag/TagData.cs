@@ -5,8 +5,8 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 using StarCube.Resource;
-using StarCube.Framework.Data.DependencyResolver;
-using StarCube.Framework.Data.Exception;
+using StarCube.Core.Data.DependencyResolver;
+using StarCube.Core.Data.Exception;
 
 namespace StarCube.Core.Tag
 {

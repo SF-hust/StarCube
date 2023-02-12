@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace StarCube.Framework.Data.DependencyResolver
+namespace StarCube.Core.Data.DependencyResolver
 {
     /// <summary>
     /// 从未解析数据构建出相应的解析后的数据

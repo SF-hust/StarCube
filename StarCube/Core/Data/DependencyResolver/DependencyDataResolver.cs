@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace StarCube.Framework.Data.DependencyResolver
+namespace StarCube.Core.Data.DependencyResolver
 {
     public class DependencyDataResolver<K, UD, RD>
         where UD : class, IUnresolvedData<K, UD>

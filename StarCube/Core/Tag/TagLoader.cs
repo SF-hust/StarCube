@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-using StarCube.Framework.Data.Loading;
+using StarCube.Core.Data.Loading;
 
 namespace StarCube.Core.Tag
 {
