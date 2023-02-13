@@ -6,6 +6,6 @@
         /// 执行 DataLoader
         /// </summary>
         /// <param name="reader"></param>
-        void Run();
+        void Run(IDataProvider dataProvider);
     }
 }

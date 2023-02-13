@@ -40,8 +40,6 @@ namespace StarCube.Core.Tag
         /// </summary>
         public readonly ImmutableArray<T> elements;
 
-        private readonly int hashCodeCache;
-
         /// <summary>
         /// 构造一个 Tag, 这个方法只能由内部调用
         /// </summary>
@@ -50,7 +48,6 @@ namespace StarCube.Core.Tag
         internal Tag(StringID id, IEnumerable<T> values) : base(id)
         {
             elements = values.ToImmutableArray();
-            hashCodeCache = id.GetHashCode() + 31 * typeof(T).GetHashCode();
         }
 
         public override string ToString()
@@ -60,7 +57,7 @@ namespace StarCube.Core.Tag
 
         public override int GetHashCode()
         {
-            return hashCodeCache;
+            return id.GetHashCode() + 31 * typeof(T).GetHashCode();
         }
     }
 }

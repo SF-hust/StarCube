@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
+
+using StarCube.Resource;
 
 namespace StarCube.Core.Data.Loading
 {
-    public interface IDataProvider
+    public interface IDataProvider : IEnumerable<IDataProvider.Data>
     {
-        public IEnumerable<Stream> DataStreams { get; }
+        public readonly struct Data
+        {
+            public readonly StringID id;
+            public readonly Stream dataStream;
+        }
+
+        public void Refresh();
     }
 }
