@@ -72,14 +72,14 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryGetJObject(this JObject json, string propertyName, [NotNullWhen(true)] out JObject? array)
+        public static bool TryGetJObject(this JObject json, string propertyName, [NotNullWhen(true)] out JObject? jObject)
         {
             if (json.TryGetValue(propertyName, out JToken? token) && token is JObject obj)
             {
-                array = obj;
+                jObject = obj;
                 return true;
             }
-            array = null;
+            jObject = null;
             return false;
         }
 
@@ -180,6 +180,115 @@ namespace StarCube.Utility
             }
             value = string.Empty;
             return false;
+        }
+
+        public static bool ToBooleanArray(this JArray jArray, out bool[] array)
+        {
+            array = new bool[jArray.Count];
+            for(int i = 0; i < jArray.Count; i++)
+            {
+                if(!TryConvertToBoolean(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToInt32Array(this JArray jArray, out int[] array)
+        {
+            array = new int[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToInt32(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToUInt32Array(this JArray jArray, out uint[] array)
+        {
+            array = new uint[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToUInt32(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToInt64Array(this JArray jArray, out long[] array)
+        {
+            array = new long[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToInt64(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToUInt64Array(this JArray jArray, out ulong[] array)
+        {
+            array = new ulong[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToUInt64(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToFloatArray(this JArray jArray, out float[] array)
+        {
+            array = new float[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToFloat(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToDoubleArray(this JArray jArray, out double[] array)
+        {
+            array = new double[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToDouble(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToGuidArray(this JArray jArray, out Guid[] array)
+        {
+            array = new Guid[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToGuid(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ToStringArray(this JArray jArray, out string[] array)
+        {
+            array = new string[jArray.Count];
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                if (!TryConvertToString(jArray[i], out array[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
