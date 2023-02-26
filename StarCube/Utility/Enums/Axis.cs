@@ -6,8 +6,9 @@ namespace StarCube.Utility.Enums
 {
     public enum Axis
     {
-        X,
-        Z,
-        Y,
+        None = 0x0,
+        X = 0x1,
+        Z = 0x2,
+        Y = 0x4,
     }
 }
