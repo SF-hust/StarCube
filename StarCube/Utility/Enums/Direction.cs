@@ -17,6 +17,13 @@ namespace StarCube.Utility.Enums
 
     public static class DirectionExtension
     {
+        public const string NORTH = "north";
+        public const string EAST = "east";
+        public const string SOUTH = "south";
+        public const string WEST = "west";
+        public const string UP = "up";
+        public const string DOWN = "down";
+
         private static readonly Direction[] directions = new Direction[7]
         {
             Direction.None,
@@ -111,6 +118,64 @@ namespace StarCube.Utility.Enums
                 return Axis.Z;
             }
             return Axis.None;
+        }
+
+        public static Direction Parse(string directionString)
+        {
+            if (directionString == NORTH)
+            {
+                return Direction.North;
+            }
+            if (directionString == EAST)
+            {
+                return Direction.East;
+            }
+            if (directionString == SOUTH)
+            {
+                return Direction.South;
+            }
+            if (directionString == WEST)
+            {
+                return Direction.West;
+            }
+            if (directionString == UP)
+            {
+                return Direction.Up;
+            }
+            if (directionString == DOWN)
+            {
+                return Direction.Down;
+            }
+            return Direction.None;
+        }
+
+        public static string ToDirectionString(this Direction direction)
+        {
+            if (direction == Direction.North)
+            {
+                return NORTH;
+            }
+            if (direction == Direction.East)
+            {
+                return EAST;
+            }
+            if (direction == Direction.South)
+            {
+                return SOUTH;
+            }
+            if (direction == Direction.West)
+            {
+                return WEST;
+            }
+            if (direction == Direction.Up)
+            {
+                return UP;
+            }
+            if (direction == Direction.Down)
+            {
+                return DOWN;
+            }
+            return string.Empty;
         }
     }
 }
