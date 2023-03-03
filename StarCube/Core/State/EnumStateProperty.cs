@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
-
-using StarCube.Resource;
+using StarCube.Data;
 
 namespace StarCube.Core.State
 {

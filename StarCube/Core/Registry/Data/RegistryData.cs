@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
-using StarCube.Resource;
+using StarCube.Data;
 
 namespace StarCube.Core.Registry.Data
 {

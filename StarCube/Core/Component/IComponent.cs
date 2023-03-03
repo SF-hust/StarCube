@@ -1,5 +1,4 @@
 ﻿using System;
-using StarCube.Resource;
 
 namespace StarCube.Core.Component
 {

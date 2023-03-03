@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 using StarCube.Utility;
 
-namespace StarCube.Resource
+namespace StarCube.Data
 {
     /// <summary>
     /// 表示一个资源在游戏中的 唯一Key，不会存在两个值相同的 ResourceKey 对象
@@ -67,7 +66,7 @@ namespace StarCube.Resource
         /// <exception cref="ArgumentException"></exception>
         public static StringKey Create(string regSpace, string regName, string idSpace, string idName)
         {
-            if(!TryCreate(regSpace, regName, idSpace, idName, out StringKey key))
+            if (!TryCreate(regSpace, regName, idSpace, idName, out StringKey key))
             {
                 throw new ArgumentException($"Fail to create ResourceKey : (\"{regSpace}\", \"{regName}\", \"{idSpace}\", \"{idName}\") is invalid for a ResourceKey");
             }
@@ -84,7 +83,7 @@ namespace StarCube.Resource
         /// <returns></returns>
         public static bool TryCreate(StringID registry, StringID location, out StringKey key)
         {
-            if(!StringID.IsValidNamespace(registry.path))
+            if (!StringID.IsValidNamespace(registry.path))
             {
                 key = Failed;
                 return false;
@@ -105,8 +104,8 @@ namespace StarCube.Resource
         /// <returns></returns>
         public static bool TryCreate(string regSpace, string regName, string idSpace, string idName, out StringKey key)
         {
-            if(StringID.IsValidNamespace(regSpace) &&
-                StringID.IsValidNamespace(regName) && 
+            if (StringID.IsValidNamespace(regSpace) &&
+                StringID.IsValidNamespace(regName) &&
                 StringID.IsValidNamespace(idSpace) &&
                 StringID.IsValidPath(idName))
             {
@@ -211,7 +210,7 @@ namespace StarCube.Resource
         public static bool IsValidStringKey(string keyString, out int i, out int j, out int k, int start, int length)
         {
             j = keyString.SimpleIndexOf(REGISTRY_SEPARATOR, start, length);
-            if(j < 0 ||
+            if (j < 0 ||
                 !StringID.IsValidStringID(keyString, out i, start, j - start) ||
                 !StringID.IsValidStringID(keyString, out k, j + 1, start + length - j))
             {
@@ -301,7 +300,7 @@ namespace StarCube.Resource
         /// <returns></returns>
         public override bool Equals(object? obj)
         {
-            return object.ReferenceEquals(this, obj);
+            return ReferenceEquals(this, obj);
         }
 
 

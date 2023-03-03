@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-
-using StarCube.Resource;
+using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {

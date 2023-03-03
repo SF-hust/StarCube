@@ -1,6 +1,6 @@
 ﻿using System;
 
-using StarCube.Core.Data.Loading;
+using StarCube.Data.Loading;
 
 namespace StarCube.Core.Registry.Data
 {

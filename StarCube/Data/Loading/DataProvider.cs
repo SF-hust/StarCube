@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using StarCube.Resource;
-
-namespace StarCube.Core.Data.Loading
+namespace StarCube.Data.Loading
 {
     public class DataProvider : IDataProvider
     {

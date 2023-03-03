@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using StarCube.Resource;
-
-namespace StarCube.Core.Data.Loading
+namespace StarCube.Data.Loading
 {
     public interface IDataProvider : IEnumerable<IDataProvider.Data>
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
-
-using StarCube.Resource;
+using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {

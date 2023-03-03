@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-
-using StarCube.Resource;
-using StarCube.Core.Data.DependencyResolver;
+using StarCube.Data.DependencyResolver;
+using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {

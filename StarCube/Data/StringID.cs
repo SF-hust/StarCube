@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 using StarCube.Utility;
 
-namespace StarCube.Resource
+namespace StarCube.Data
 {
     /// <summary>
     /// 表示一个资源的路径，既可以表示某个注册表、注册表中某个注册项，也可以表示磁盘上的某个文件
@@ -84,7 +84,7 @@ namespace StarCube.Resource
         /// <exception cref="ArgumentException"></exception>
         public static StringID Parse(string locationString)
         {
-            if(TryParse(locationString, out StringID location))
+            if (TryParse(locationString, out StringID location))
             {
                 return location;
             }
@@ -319,7 +319,7 @@ namespace StarCube.Resource
         /// <returns></returns>
         public bool Equals(StringID other)
         {
-            if (object.ReferenceEquals(this, other))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }

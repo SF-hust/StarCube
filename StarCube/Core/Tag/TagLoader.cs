@@ -5,12 +5,11 @@ using System.Linq;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using StarCube.Resource;
-using StarCube.Core.Data.DependencyResolver;
-using StarCube.Core.Data.Loading;
+using StarCube.Data.DependencyResolver;
+using StarCube.Data.Loading;
 using StarCube.Core.Registry;
 using StarCube.Game.Block;
+using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {

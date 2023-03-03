@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-
-using StarCube.Resource;
+using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {
