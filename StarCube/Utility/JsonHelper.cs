@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace StarCube.Utility
@@ -194,6 +196,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToInt32Array(this JArray jArray, out int[] array)
         {
             array = new int[jArray.Count];
@@ -206,6 +209,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToUInt32Array(this JArray jArray, out uint[] array)
         {
             array = new uint[jArray.Count];
@@ -218,6 +222,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToInt64Array(this JArray jArray, out long[] array)
         {
             array = new long[jArray.Count];
@@ -230,6 +235,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToUInt64Array(this JArray jArray, out ulong[] array)
         {
             array = new ulong[jArray.Count];
@@ -242,6 +248,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToFloatArray(this JArray jArray, out float[] array)
         {
             array = new float[jArray.Count];
@@ -254,6 +261,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToDoubleArray(this JArray jArray, out double[] array)
         {
             array = new double[jArray.Count];
@@ -266,6 +274,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToGuidArray(this JArray jArray, out Guid[] array)
         {
             array = new Guid[jArray.Count];
@@ -278,6 +287,7 @@ namespace StarCube.Utility
             }
             return true;
         }
+
         public static bool ToStringArray(this JArray jArray, out string[] array)
         {
             array = new string[jArray.Count];
@@ -288,6 +298,26 @@ namespace StarCube.Utility
                     return false;
                 }
             }
+            return true;
+        }
+
+        public static JObject ReadFromStreamSync(Stream stream)
+        {
+            return JObject.Load(new JsonTextReader(new StreamReader(stream)));
+        }
+
+        public static bool TryReadFromStreamSync(Stream stream, [NotNullWhen(true)] out JObject? json)
+        {
+            try
+            {
+                json = JObject.Load(new JsonTextReader(new StreamReader(stream)));
+            }
+            catch (JsonReaderException)
+            {
+                json = null;
+                return false;
+            }
+
             return true;
         }
     }
