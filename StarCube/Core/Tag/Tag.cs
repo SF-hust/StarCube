@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+
+using StarCube.Utility;
 using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {
     public abstract class Tag
     {
+        public static StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "tag");
+
         public Tag(StringID id)
         {
             this.id = id;

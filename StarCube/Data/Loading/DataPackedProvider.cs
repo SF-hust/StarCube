@@ -6,9 +6,9 @@ using System.Text;
 
 namespace StarCube.Data.Loading
 {
-    public class DataProvider : IDataProvider
+    public class DataPackedProvider : IDataProvider
     {
-        public DataProvider(string gameDirectory)
+        public DataPackedProvider(string gameDirectory)
         {
             this.gameDirectory = gameDirectory;
             modDirectory = Path.Combine(gameDirectory, "mods/");
@@ -31,18 +31,23 @@ namespace StarCube.Data.Loading
         public string DataDirectory => dataDirectory;
 
         // IDataProvider 实现 start
-        public IEnumerable<IDataProvider.DataEntry> EnumData(StringID dataRegistry)
+        public IEnumerable<IDataProvider.DataEntry> EnumerateData(StringID dataRegistry)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryLoad(StringID registry, StringID id, out IDataProvider.DataEntry entry)
+        public bool TryGet(StringID registry, StringID id, out IDataProvider.DataEntry entry)
         {
             string path = Path.Combine(dataDirectory, registry.path, id.ToString());
             FileStream fileStream = File.OpenRead(path);
             entry = new IDataProvider.DataEntry(id, fileStream);
             return true;
         }
+
+        public void Refresh()
+        {
+        }
+
         // IDataProvider 实现 end
 
         private string gameDirectory;
@@ -53,17 +58,5 @@ namespace StarCube.Data.Loading
 
 
 
-        public IEnumerator<IDataProvider.Data> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-        public void Refresh()
-        {
-            throw new NotImplementedException();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

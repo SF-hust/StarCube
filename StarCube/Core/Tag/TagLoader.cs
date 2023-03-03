@@ -5,11 +5,12 @@ using System.Linq;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using StarCube.Data.DependencyResolver;
+
+using StarCube.Data;
 using StarCube.Data.Loading;
+using StarCube.Data.DependencyResolver;
 using StarCube.Core.Registry;
 using StarCube.Game.Block;
-using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {
@@ -30,13 +31,13 @@ namespace StarCube.Core.Tag
         private void LoadTagData(IDataProvider dataProvider, out List<TagData> loadedTagData)
         {
             Dictionary<StringID, TagData.Builder> tagBuilders = new Dictionary<StringID, TagData.Builder>();
-            foreach (IDataProvider.Data data in dataProvider)
+            foreach (IDataProvider.DataEntry entry in dataProvider.EnumerateData(Tag.DataRegistry))
             {
-                JObject json = JObject.Load(new JsonTextReader(new StreamReader(data.dataStream)));
-                if (!tagBuilders.TryGetValue(data.id, out TagData.Builder builder))
+                JObject json = JObject.Load(new JsonTextReader(new StreamReader(entry.dataStream)));
+                if (!tagBuilders.TryGetValue(entry.id, out TagData.Builder builder))
                 {
-                    builder = new TagData.Builder(data.id);
-                    tagBuilders.Add(data.id, builder);
+                    builder = new TagData.Builder(entry.id);
+                    tagBuilders.Add(entry.id, builder);
                 }
                 builder.AddFromJson(json);
             }

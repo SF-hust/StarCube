@@ -3,14 +3,8 @@ using System.IO;
 
 namespace StarCube.Data.Loading
 {
-    public interface IDataProvider : IEnumerable<IDataProvider.Data>
+    public interface IDataProvider
     {
-        public readonly struct Data
-        {
-            public readonly StringID id;
-            public readonly Stream dataStream;
-        }
-
         public readonly struct DataEntry
         {
             public readonly StringID id;
@@ -25,8 +19,8 @@ namespace StarCube.Data.Loading
 
         public void Refresh();
 
-        public IEnumerable<DataEntry> EnumData(StringID dataRegistry);
+        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry);
 
-        public bool TryLoad(StringID registry, StringID id, out DataEntry entry);
+        public bool TryGet(StringID dataRegistry, StringID id, out DataEntry entry);
     }
 }
