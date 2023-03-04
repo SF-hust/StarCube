@@ -74,15 +74,15 @@ namespace StarCube.Data.DependencyResolver
             }
 
             Dictionary<K, UD> resolved = new Dictionary<K, UD>();
-            List<UD> newPhase = new List<UD>();
+            List<UD> newPhase;
 
             // 每次循环找出依赖树中更深的一层
             while (unresolved.Count > 0)
             {
-                newPhase.Clear();
+                newPhase = new List<UD>();
 
                 // 找出所有只依赖于已解析完数据的数据
-                foreach (UD data in unresolvedData)
+                foreach (UD data in unresolved.Values)
                 {
                     // 是否所有必需依赖都已解析过
                     bool allRequiredDependencyResolved = true;
