@@ -19,7 +19,9 @@ namespace StarCube.Data
         public const int MIN_STRING_LENGTH = 3;
 
 
-        public const char NAMESPACE_SEPARATOR = ':';
+        public const char SEPARATOR_CHAR = ':';
+        public const char PATH_SEPARATOR_CHAR = '/';
+
         public const string NAMESPACE_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*";
         public const string PATH_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*(/[a-z0-9_]+(-[a-z0-9_]+)*)*";
 
@@ -163,7 +165,7 @@ namespace StarCube.Data
         /// <returns></returns>
         public static bool IsValidStringID(string idString, out int i, int start, int length)
         {
-            i = idString.SimpleIndexOf(NAMESPACE_SEPARATOR, start, length);
+            i = idString.SimpleIndexOf(SEPARATOR_CHAR, start, length);
             if (i < 0 ||
                 !IsValidNamespace(idString, start, i - start) ||
                 !IsValidPath(idString, i + 1, length + start - i - 1))
@@ -293,7 +295,7 @@ namespace StarCube.Data
         /// <returns></returns>
         public override string ToString()
         {
-            return namspace + NAMESPACE_SEPARATOR + path;
+            return namspace + SEPARATOR_CHAR + path;
         }
 
 

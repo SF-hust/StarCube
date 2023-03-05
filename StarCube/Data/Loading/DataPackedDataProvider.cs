@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace StarCube.Data.Loading
 {
-    public class DataPackedProvider : IDataProvider
+    public class DataPackedDataProvider// : IDataProvider
     {
-        public DataPackedProvider(string gameDirectory)
+        public DataPackedDataProvider(string gameDirectory)
         {
             this.gameDirectory = gameDirectory;
             modDirectory = Path.Combine(gameDirectory, "mods/");

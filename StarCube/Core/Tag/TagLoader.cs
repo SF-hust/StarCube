@@ -33,7 +33,7 @@ namespace StarCube.Core.Tag
             Dictionary<StringID, TagData.Builder> tagBuilders = new Dictionary<StringID, TagData.Builder>();
             foreach (IDataProvider.DataEntry entry in dataProvider.EnumerateData(Tag.DataRegistry))
             {
-                JObject json = JObject.Load(new JsonTextReader(new StreamReader(entry.dataStream)));
+                JObject json = JObject.Load(new JsonTextReader(new StreamReader(entry.stream)));
                 if (!tagBuilders.TryGetValue(entry.id, out TagData.Builder builder))
                 {
                     builder = new TagData.Builder(entry.id);

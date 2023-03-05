@@ -16,7 +16,7 @@ namespace StarCube.Data
         public const int MIN_STRING_LENGTH = 7;
 
 
-        public const char REGISTRY_SEPARATOR = '/';
+        public const char SEPARATOR_CHAR = StringID.PATH_SEPARATOR_CHAR;
 
         public static readonly StringKey Failed = DoCreate("_", "_", "_", "_", "_:_/_:_");
 
@@ -209,7 +209,7 @@ namespace StarCube.Data
         /// <returns></returns>
         public static bool IsValidStringKey(string keyString, out int i, out int j, out int k, int start, int length)
         {
-            j = keyString.SimpleIndexOf(REGISTRY_SEPARATOR, start, length);
+            j = keyString.SimpleIndexOf(SEPARATOR_CHAR, start, length);
             if (j < 0 ||
                 !StringID.IsValidStringID(keyString, out i, start, j - start) ||
                 !StringID.IsValidStringID(keyString, out k, j + 1, start + length - j))
@@ -235,11 +235,11 @@ namespace StarCube.Data
             {
                 StringBuilder str = new StringBuilder(registry.namspace.Length + registry.path.Length + id.namspace.Length + id.path.Length + 3);
                 str.Append(registry.namspace);
-                str.Append(StringID.NAMESPACE_SEPARATOR);
+                str.Append(StringID.SEPARATOR_CHAR);
                 str.Append(registry.path);
-                str.Append(REGISTRY_SEPARATOR);
+                str.Append(SEPARATOR_CHAR);
                 str.Append(id.namspace);
-                str.Append(StringID.NAMESPACE_SEPARATOR);
+                str.Append(StringID.SEPARATOR_CHAR);
                 str.Append(id.path);
                 keyString = str.ToString();
             }

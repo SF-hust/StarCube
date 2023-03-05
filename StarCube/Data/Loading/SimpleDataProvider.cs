@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
-using StarCube.Utility;
 
-#nullable enable
+using static StarCube.Data.Loading.IDataProvider;
 
 namespace StarCube.Data.Loading
 {
     public class SimpleDataProvider : IDataProvider
     {
         // ~ IDataProvider 接口实现 start
-        public IEnumerable<IDataProvider.DataEntry> EnumerateData(StringID dataRegistry)
+        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, FilterMode filterMode)
         {
-            List<IDataProvider.DataEntry> dataEntries = new List<IDataProvider.DataEntry>();
+            List<DataEntry> dataEntries = new List<DataEntry>();
+            // 遍历所有以 modid 命名的文件夹
             foreach(string directoryForModid in Directory.EnumerateDirectories(dataDirectoryPath))
             {
                 string modid = Path.GetFileName(directoryForModid);
@@ -23,7 +23,7 @@ namespace StarCube.Data.Loading
                 }
 
                 string directoryPath = Path.Combine(directoryForModid, dataRegistry.path);
-                GetAllDataEntriesInDirectory(directoryPath, modid, dataEntries);
+                GetAllDataEntriesInDirectory(directoryPath, modid, filterMode, dataEntries);
             }
 
             return dataEntries;
@@ -32,11 +32,11 @@ namespace StarCube.Data.Loading
         /// <summary>
         /// 递归查找文件夹及其子文件夹里的数据文件
         /// </summary>
-        /// <param name="directoryPath">文件夹的路径</param>
-        /// <param name="prefix">应被加到</param>
-        /// <param name="modid"></param>
-        /// <param name="dataEntries"></param>
-        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, List<IDataProvider.DataEntry> dataEntries)
+        /// <param name="directoryPath">数据文件夹的根路径</param>
+        /// <param name="modid">模组 id</param>
+        /// <param name="filterMode">过滤设置</param>
+        /// <param name="dataEntries">输出的数据项目</param>
+        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, FilterMode filterMode, List<DataEntry> dataEntries)
         {
             // 合法的文件名到其路径的映射
             Dictionary<string, string> fileToPath = new Dictionary<string, string>();
@@ -44,11 +44,12 @@ namespace StarCube.Data.Loading
             HashSet<string> conflictFilenames = new HashSet<string>();
 
             // 查找本文件夹下的所有数据文件
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories))
+            string searchPattern = filterMode.directoryPrefix.Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar) + "*";
+            foreach (string filePath in Directory.EnumerateFiles(directoryPath, searchPattern, SearchOption.AllDirectories))
             {
                 // 确认文件名合法
-                string filename = Path.GetRelativePath(directoryPath, filePath).Replace('\\', '/');
-                int dotIndex = filename.SimpleIndexOf('.');
+                string filename = Path.GetRelativePath(directoryPath, filePath).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
+                int dotIndex = filename.IndexOf('.');
                 if (!StringID.IsValidPath(filename, 0, dotIndex))
                 {
                     continue;
@@ -79,29 +80,27 @@ namespace StarCube.Data.Loading
                 string filePath = pair.Value;
 
                 StringID id = StringID.Create(modid, filenameWithoutExtension);
-                Stream stream = new FileStream(filePath, FileMode.Open);
-                dataEntries.Add(new IDataProvider.DataEntry(id, stream));
+                FileStream stream = new FileStream(filePath, FileMode.Open);
+                dataEntries.Add(new DataEntry(id, stream));
             }
         }
 
-        public void Refresh()
+        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream)
         {
-        }
+            stream = null;
 
-        public bool TryGet(StringID dataRegistry, StringID id, out IDataProvider.DataEntry entry)
-        {
-            entry = new IDataProvider.DataEntry();
-
-            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, id.namspace, dataRegistry.path, id.path).Replace('/', '\\');
+            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, id.namspace, dataRegistry.path, id.path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
             string directoryPath = Path.GetDirectoryName(filePathWithoutExtension);
 
             bool found = false;
             string foundFilePath = string.Empty;
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath))
+            foreach (string filePath in Directory.EnumerateFiles(directoryPath, filePathWithoutExtension + "*"))
             {
                 if (filePath.StartsWith(filePathWithoutExtension, StringComparison.Ordinal) &&
-                    filePath.SimpleIndexOf('.') == filePathWithoutExtension.Length)
+                    (filePath.Length == filePathWithoutExtension.Length ||
+                    filePath.IndexOf('.') == filePathWithoutExtension.Length))
                 {
+                    // 多个文件命名冲突，视为不存在这个文件
                     if (found)
                     {
                         return false;
@@ -117,7 +116,7 @@ namespace StarCube.Data.Loading
                 return false;
             }
 
-            entry = new IDataProvider.DataEntry(id, new FileStream(foundFilePath, FileMode.Open));
+            stream = new FileStream(foundFilePath, FileMode.Open);
 
             return true;
         }
