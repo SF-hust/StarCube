@@ -6,9 +6,8 @@ namespace StarCube.Core.Registry
 {
     public class RootRegistry
     {
-        private readonly Dictionary<StringID, Registry> registries = new Dictionary<StringID, Registry>();
 
-        public IEnumerable<Registry> Registries => registries.Values;
+        public IEnumerable<Registry> Registries => registryList;
 
         internal RootRegistry()
         {
@@ -18,7 +17,14 @@ namespace StarCube.Core.Registry
 
         public bool Register(Registry registry)
         {
-            return registries.TryAdd(registry.id, registry);
+            if(!registries.TryAdd(registry.id, registry))
+            {
+                return false;
+            }
+
+            registryList.Add(registry);
+
+            return true;
         }
 
         public bool TryGet(StringID id, [NotNullWhen(true)] out Registry? registry)
@@ -37,5 +43,17 @@ namespace StarCube.Core.Registry
             registry = null;
             return false;
         }
+
+        public void FireRegistryEvents()
+        {
+            foreach (Registry registry in registryList)
+            {
+                registry.FireRegisterEvent();
+            }
+        }
+
+        private readonly Dictionary<StringID, Registry> registries = new Dictionary<StringID, Registry>();
+
+        private readonly List<Registry> registryList = new List<Registry>();
     }
 }

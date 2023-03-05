@@ -10,38 +10,40 @@ namespace StarCube.Core.Registry.Data
 {
     public class RegistryData
     {
-        public static bool TryParseFromJson(StringID registry, JObject json, [NotNullWhen(true)] out RegistryData? registryData)
+        public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out RegistryData? registryData)
         {
             registryData = null;
-            List<StringID> entries= new List<StringID>();
-            if(!json.TryGetArray("entries", out JArray? jArray) || jArray.ToStringArray(out string[] array))
+            List<string> entries= new List<string>();
+            if(!json.TryGetArray("entries", out JArray? entriesJArray) || entriesJArray.ToStringArray(out string[] entriesArray))
             {
                 return false;
             }
 
-            foreach (string str in array)
+            foreach (string entry in entriesArray)
             {
-                if(!StringID.TryParse(str, out StringID id))
+                if(!StringID.IsValidPath(entry))
                 {
                     return false;
                 }
-                entries.Add(id);
+
+                entries.Add(entry);
             }
 
-            registryData = new RegistryData(registry, entries);
+            registryData = new RegistryData(id, entries);
             return true;
         }
 
-        public RegistryData(StringID registry, List<StringID> entries)
+        public RegistryData(StringID id, List<string> entries)
         {
-            this.registry = registry;
+            this.id = id;
             this.entries = entries;
         }
 
-        public readonly StringID registry;
+        /// <summary>
+        /// RegistryData 文件的 id
+        /// </summary>
+        public readonly StringID id;
 
-        public IEnumerable<StringID> Entries => entries;
-
-        private List<StringID> entries = new List<StringID>();
+        public readonly List<string> entries = new List<string>();
     }
 }

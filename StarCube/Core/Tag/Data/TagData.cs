@@ -4,11 +4,11 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
-using StarCube.Data.DependencyResolver;
-using StarCube.Data.Exception;
 using StarCube.Data;
+using StarCube.Data.Exception;
+using StarCube.Data.DependencyResolver;
 
-namespace StarCube.Core.Tag
+namespace StarCube.Core.Tag.Data
 {
     /// <summary>
     /// 表示一个 Tag 定义文件的数据结构
@@ -105,7 +105,7 @@ namespace StarCube.Core.Tag
                 {
                     foreach (JToken token in array)
                     {
-                        if(!token.TryConvertToString(out string entryString))
+                        if (!token.TryConvertToString(out string entryString))
                         {
                             throw new DataParseException($"an entry in \"{ENTRIES_STRING}\" array is not string");
                         }
@@ -136,7 +136,7 @@ namespace StarCube.Core.Tag
 
             private void Remove(StringID entryId, Entry.EntryType entryType)
             {
-                for(int i = 0; i < entries.Count; ++i)
+                for (int i = 0; i < entries.Count; ++i)
                 {
                     if (entries[i].entryType == entryType && entries[i].id == entryId)
                     {
@@ -180,7 +180,7 @@ namespace StarCube.Core.Tag
                     --idLength;
                 }
 
-                if(!StringID.TryParse(entryString, out id, idStart, idLength))
+                if (!StringID.TryParse(entryString, out id, idStart, idLength))
                 {
                     return false;
                 }
@@ -200,7 +200,7 @@ namespace StarCube.Core.Tag
 
 
         private readonly List<StringID> requiredDependencies;
-        
+
         private readonly List<StringID> optionalDependencies;
 
         public readonly StringID id;
@@ -217,12 +217,12 @@ namespace StarCube.Core.Tag
 
             optionalDependencies = new List<StringID>();
             requiredDependencies = new List<StringID>();
-            for(int i = 0; i < entries.Count; ++i)
+            for (int i = 0; i < entries.Count; ++i)
             {
                 Entry entry = entries[i];
                 if (entry.entryType == Entry.EntryType.Tag)
                 {
-                    if(entry.optional)
+                    if (entry.optional)
                     {
                         optionalDependencies.Add(entry.id);
                     }

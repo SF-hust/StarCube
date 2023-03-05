@@ -31,6 +31,11 @@ namespace StarCube.Core.Registry
         public abstract Type EntryType { get; }
 
         /// <summary>
+        /// Registry 的名字
+        /// </summary>
+        public string Name => id.path;
+
+        /// <summary>
         /// Registry 的 id
         /// </summary>
         public readonly StringID id;

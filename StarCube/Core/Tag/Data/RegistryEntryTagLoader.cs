@@ -10,11 +10,13 @@ using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
 using StarCube.Core.Registry;
+
 using StarCube.Game.Block;
 
-namespace StarCube.Core.Tag
+namespace StarCube.Core.Tag.Data
 {
-    public class TagLoader : IDataLoader
+    public class RegistryEntryTagLoader<T> : IDataLoader
+        where T : class, IRegistryEntry<T>
     {
         public void Run(IDataProvider dataProvider)
         {
@@ -55,7 +57,7 @@ namespace StarCube.Core.Tag
             TagBuilder<Block> blockTagBuilder = new TagBuilder<Block>(blockGetter);
             DependencyDataResolver<StringID, TagData, Tag<Block>> dataResolver =
                 new DependencyDataResolver<StringID, TagData, Tag<Block>>(unresolvedTagData, blockTagBuilder);
-            if(dataResolver.BuildResolvedData(out Dictionary<StringID, Tag<Block>>? resolvedData, false))
+            if (dataResolver.BuildResolvedData(out Dictionary<StringID, Tag<Block>>? resolvedData, false))
             {
                 tags = resolvedData.Values.ToList();
             }
