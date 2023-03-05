@@ -10,7 +10,7 @@ namespace StarCube.Data.Loading
     public class SimpleDataProvider : IDataProvider
     {
         // ~ IDataProvider 接口实现 start
-        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, FilterMode filterMode)
+        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode)
         {
             List<DataEntry> dataEntries = new List<DataEntry>();
             // 遍历所有以 modid 命名的文件夹
@@ -36,7 +36,7 @@ namespace StarCube.Data.Loading
         /// <param name="modid">模组 id</param>
         /// <param name="filterMode">过滤设置</param>
         /// <param name="dataEntries">输出的数据项目</param>
-        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, FilterMode filterMode, List<DataEntry> dataEntries)
+        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, DataFilterMode filterMode, List<DataEntry> dataEntries)
         {
             // 合法的文件名到其路径的映射
             Dictionary<string, string> fileToPath = new Dictionary<string, string>();

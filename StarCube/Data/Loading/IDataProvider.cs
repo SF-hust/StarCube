@@ -20,13 +20,13 @@ namespace StarCube.Data.Loading
             }
         }
 
-        public class FilterMode
+        public class DataFilterMode
         {
-            public static readonly FilterMode None = new FilterMode(string.Empty);
+            public static readonly DataFilterMode None = new DataFilterMode(string.Empty);
 
             public readonly string directoryPrefix;
 
-            public FilterMode(string directoryPrefix)
+            public DataFilterMode(string directoryPrefix)
             {
                 this.directoryPrefix = directoryPrefix;
             }
@@ -34,10 +34,10 @@ namespace StarCube.Data.Loading
 
         public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry)
         {
-            return EnumerateData(dataRegistry, FilterMode.None);
+            return EnumerateData(dataRegistry, DataFilterMode.None);
         }
 
-        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, FilterMode filterMode);
+        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode);
 
         public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream);
     }
