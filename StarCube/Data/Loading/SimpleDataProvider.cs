@@ -50,6 +50,7 @@ namespace StarCube.Data.Loading
                 // 确认文件名合法
                 string filename = Path.GetRelativePath(directoryPath, filePath).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
                 int dotIndex = filename.IndexOf('.');
+                dotIndex = dotIndex == -1 ? filename.Length : dotIndex;
                 if (!StringID.IsValidPath(filename, 0, dotIndex))
                 {
                     continue;
@@ -91,10 +92,11 @@ namespace StarCube.Data.Loading
 
             string filePathWithoutExtension = Path.Combine(dataDirectoryPath, id.namspace, dataRegistry.path, id.path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
             string directoryPath = Path.GetDirectoryName(filePathWithoutExtension);
+            string searchPattern = Path.GetFileName(id.path) + "*";
 
             bool found = false;
             string foundFilePath = string.Empty;
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath, filePathWithoutExtension + "*"))
+            foreach (string filePath in Directory.EnumerateFiles(directoryPath, searchPattern, SearchOption.TopDirectoryOnly))
             {
                 if (filePath.StartsWith(filePathWithoutExtension, StringComparison.Ordinal) &&
                     (filePath.Length == filePathWithoutExtension.Length ||
