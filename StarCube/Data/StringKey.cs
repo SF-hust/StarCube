@@ -18,14 +18,16 @@ namespace StarCube.Data
 
         public const char SEPARATOR_CHAR = StringID.PATH_SEPARATOR_CHAR;
 
-        public static readonly StringKey Failed = DoCreate("_", "_", "_", "_", "_:_/_:_");
-
-
         /// <summary>
         /// 存储所有 ResourceKey, 以保证不会存在两个值相同的 ResourceKey 对象
         /// 此表可能会被多线程访问，所以创建对象时需要加锁，仅使用 Concurrent 版本无法保证不构造两个值相同的 ResourceKey 对象
         /// </summary>
         private static readonly Dictionary<string, StringKey> RESOURCE_KEYS = new Dictionary<string, StringKey>();
+
+        /// <summary>
+        /// 此值代表创建失败
+        /// </summary>
+        public static readonly StringKey Failed = DoCreate("_", "_", "_", "_", "_:_/_:_");
 
 
         public readonly StringID registry;
