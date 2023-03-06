@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+
 using StarCube.Data;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.State.Property
 {
     /// <summary>
     /// EnumStateProperty<T> : 取值为枚举类型，T 是对应的枚举类型

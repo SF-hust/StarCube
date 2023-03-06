@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
+using StarCube.Core.State.Property;
+
 namespace StarCube.Core.State
 {
     public sealed partial class StateDefinition<O, S>
@@ -64,6 +66,16 @@ namespace StarCube.Core.State
                 }
 
                 propertyAndDefaultIndices.Add(new KeyValuePair<StateProperty, int>(property, defaultValueIndex));
+
+                return this;
+            }
+
+            public Builder AddRange(IEnumerable<KeyValuePair<StateProperty, int>> propertyAndDefaults)
+            {
+                foreach (KeyValuePair<StateProperty, int> pair in propertyAndDefaults)
+                {
+                    AddPropertyAndDefaultIndex(pair.Key, pair.Value);
+                }
 
                 return this;
             }

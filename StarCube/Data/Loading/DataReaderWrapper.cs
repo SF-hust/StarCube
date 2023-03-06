@@ -34,7 +34,7 @@ namespace StarCube.Data.Loading
     /// </summary>
     /// <typeparam name="D"></typeparam>
     /// <typeparam name="R"></typeparam>
-    public class TwoStepDataReader<D, R> : IDataReader<D>
+    public class DataReaderWrapper<D, R> : IDataReader<D>
         where D : class
         where R : class
     {
@@ -44,10 +44,10 @@ namespace StarCube.Data.Loading
             return TryReadFromStream(fileStream, out R? structuredData) && TryParse(structuredData, id, out data);
         }
 
-        public TwoStepDataReader(RawDataReader<R> tryReadFromStream, DataParser<D, R> tryParse)
+        public DataReaderWrapper(RawDataReader<R> rawDataReader, DataParser<D, R> dataParser)
         {
-            TryReadFromStream = tryReadFromStream;
-            TryParse = tryParse;
+            TryReadFromStream = rawDataReader;
+            TryParse = dataParser;
         }
 
         private readonly RawDataReader<R> TryReadFromStream;

@@ -3,6 +3,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
 
+using StarCube.Core.State.Property;
+
 namespace StarCube.Core.State
 {
     /// <summary>

@@ -8,38 +8,36 @@ namespace StarCube.Core.Registry
     /// </summary>
     public abstract class RegistryEntryData
     {
-        protected RegistryEntryData(int numId, StringKey regKey)
+        protected RegistryEntryData(int numID, StringKey key)
         {
-            this.numId = numId;
-            this.regKey = regKey;
+            this.numID = numID;
+            this.key = key;
         }
 
-        protected int numId;
+        public readonly int numID;
         /// <summary>
         /// 此 Entry 在 Registry 中的数字Id, 在同一个 Registry 中唯一
         /// </summary>
-        public int NumId => numId;
 
         /// <summary>
         /// 此 Entry 的 ResourceKey, 在整个游戏中唯一
         /// </summary>
-        public StringKey RegKey => regKey;
-        protected StringKey regKey;
+        public readonly StringKey key;
 
         /// <summary>
         /// 此 Entry 的字符串 Id, 即 "namespace:name", 在同一个 Registry 中唯一
         /// </summary>
-        public StringID Id => RegKey.location;
+        public StringID ID => key.location;
 
         /// <summary>
         /// 此 Entry 的 modid
         /// </summary>
-        public string ModId => Id.namspace;
+        public string Modid => ID.namspace;
 
         /// <summary>
         /// 此 Entry 的名字, 在本模组命名空间下, 同一个 Registry 中唯一
         /// </summary>
-        public string Name => RegKey.location.path;
+        public string Name => key.location.path;
 
         /// <summary>
         /// 此 Entry 的具体类型
@@ -62,7 +60,7 @@ namespace StarCube.Core.Registry
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return regKey.GetHashCode();
+            return key.GetHashCode();
         }
 
         /// <summary>
@@ -84,7 +82,7 @@ namespace StarCube.Core.Registry
     public class RegistryEntryData<T> : RegistryEntryData
         where T : class, IRegistryEntry<T>
     {
-        public RegistryEntryData(int numId, StringKey key, Registry<T> registry, T entry) : base(numId, key)
+        public RegistryEntryData(int numID, StringKey key, Registry<T> registry, T entry) : base(numID, key)
         {
             this.registry = registry;
             this.entry = entry;
@@ -111,7 +109,7 @@ namespace StarCube.Core.Registry
 
         public override string ToString()
         {
-            return $"RegistryEntryData (type = {EntryType}, registry id = {Registry.id}, num id = {NumId}, id = {Id})";
+            return $"RegistryEntryData (type = {EntryType}, registry id = {Registry.id}, num id = {numID}, id = {ID})";
         }
     }
 }

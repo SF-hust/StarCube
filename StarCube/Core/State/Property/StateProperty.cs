@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+
 using StarCube.Data;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.State.Property
 {
     /// <summary>
     /// StateProperty 的非泛型版本基类
     /// </summary>
-    public abstract class StateProperty
+    public abstract class StateProperty : IStringID
     {
         /// <summary>
         /// 一个 StateProperty 取值的最小数量
@@ -75,6 +76,8 @@ namespace StarCube.Core.State
         /// 属性的 id
         /// </summary>
         public readonly StringID id;
+
+        public StringID ID => id;
 
         /// <summary>
         /// 属性值的类型

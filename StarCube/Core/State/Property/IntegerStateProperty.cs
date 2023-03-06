@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using StarCube.Data;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.State.Property
 {
     /// <summary>
     /// IntegerStateProperty : 可以取指定连续范围内的 int 值(可以是负值)

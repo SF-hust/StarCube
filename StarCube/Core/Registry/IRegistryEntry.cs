@@ -1,9 +1,10 @@
 ﻿using System;
+
 using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {
-    public interface IRegistryEntry
+    public interface IRegistryEntry : IStringID
     {
         /// <summary>
         /// 具体类型未知的 RegistryEntry 信息
@@ -22,12 +23,12 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象注册用的 Key
         /// </summary>
-        public StringKey Key => AbstractRegistryData.RegKey;
+        public StringKey Key => AbstractRegistryData.key;
 
         /// <summary>
         /// 该对象的 字符串id
         /// </summary>
-        public StringID Id => AbstractRegistryData.Id;
+        StringID IStringID.ID => AbstractRegistryData.ID;
 
         /// <summary>
         /// 该对象的名称
@@ -37,12 +38,12 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象所属的 modid
         /// </summary>
-        public string ModId => AbstractRegistryData.ModId;
+        public string Modid => AbstractRegistryData.Modid;
 
         /// <summary>
         /// 该对象的 数字id
         /// </summary>
-        public int NumId => AbstractRegistryData.NumId;
+        public int NumID => AbstractRegistryData.numID;
 
         /// <summary>
         /// 该对象的 Registry, 具体类型未知

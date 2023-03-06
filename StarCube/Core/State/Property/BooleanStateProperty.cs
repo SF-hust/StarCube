@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+
 using StarCube.Data;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.State.Property
 {
     /// <summary>
     /// BooleanStateProperty : 只有两种值 false/true

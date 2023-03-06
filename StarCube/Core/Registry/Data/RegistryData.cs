@@ -10,6 +10,8 @@ namespace StarCube.Core.Registry.Data
 {
     public class RegistryData
     {
+        public static StringID DataRegistry = Registry.RegistryRegistry;
+
         public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out RegistryData? registryData)
         {
             registryData = null;

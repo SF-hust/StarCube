@@ -12,7 +12,7 @@ namespace StarCube.Core.Registry
     /// <summary>
     /// Registry 是注册表的抽象基类
     /// </summary>
-    public abstract class Registry
+    public abstract class Registry : IStringID
     {
         /// <summary>
         /// 一个值为 "starcube:registry" 的 StringID，是每个 Registry 的 key.registry
@@ -40,6 +40,8 @@ namespace StarCube.Core.Registry
         /// </summary>
         public readonly StringID id;
 
+        public StringID ID => id;
+
         /// <summary>
         /// Registry 的 key
         /// </summary>
@@ -63,7 +65,7 @@ namespace StarCube.Core.Registry
     /// 注册表类，保存了一系列的 RegistryEntry，可以向其注册游戏对象，或查找已注册的游戏对象
     /// </summary>
     /// <typeparam name="T">RegistryEntry 的类型</typeparam>
-    public class Registry<T> : Registry, IIdMap<T>, IEnumerable<T>
+    public class Registry<T> : Registry, IIdMap<T>
         where T : class, IRegistryEntry<T>
     {
         public static Registry<T> Create(string modid, string name)
@@ -210,7 +212,7 @@ namespace StarCube.Core.Registry
 
         public int IdFor(T value)
         {
-            return GetNumIdByStringId(value.Id);
+            return GetNumIdByStringId(value.ID);
         }
 
         public T ValueFor(int id)

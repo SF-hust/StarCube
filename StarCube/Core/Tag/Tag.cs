@@ -6,7 +6,7 @@ using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {
-    public abstract class Tag
+    public abstract class Tag : IStringID
     {
         public static StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "tag");
 
@@ -19,6 +19,8 @@ namespace StarCube.Core.Tag
         /// Tag 的字符串id
         /// </summary>
         public readonly StringID id;
+
+        public StringID ID => id;
 
         public override string ToString()
         {

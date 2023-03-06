@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
+using StarCube.Core.State.Property;
+
 namespace StarCube.Core.State
 {
     /// <summary>

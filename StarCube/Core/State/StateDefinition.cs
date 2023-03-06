@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 
+using StarCube.Core.State.Property;
+
 namespace StarCube.Core.State
 {
     public sealed partial class StateDefinition<O, S>
