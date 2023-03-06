@@ -14,7 +14,7 @@ namespace StarCube.Core.Registry.Data
         {
             registryData = null;
             List<string> entries= new List<string>();
-            if(!json.TryGetArray("entries", out JArray? entriesJArray) || entriesJArray.ToStringArray(out string[] entriesArray))
+            if(!json.TryGetArray("entries", out JArray? entriesJArray) || !entriesJArray.ToStringArray(out string[] entriesArray))
             {
                 return false;
             }
