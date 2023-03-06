@@ -2,6 +2,8 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+using StarCube.BootStrap.Attributes;
+
 namespace StarCube.BootStrap
 {
     public class BootStrap
