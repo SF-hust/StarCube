@@ -10,9 +10,9 @@ namespace StarCube.Data.DependencyResolver
         where UD : class, IUnresolvedData<UD>
     {
         /// <summary>
-        /// 数据的 Key
+        /// 数据的 ID
         /// </summary>
-        public StringID Key { get; }
+        abstract StringID IStringID.ID { get; }
 
         /// <summary>
         /// 对此数据对象本身的引用
@@ -40,7 +40,5 @@ namespace StarCube.Data.DependencyResolver
         /// 非必需依赖
         /// </summary>
         public IEnumerable<StringID> OptionalDependencies { get; }
-
-        StringID IStringID.ID => Key;
     }
 }

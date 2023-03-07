@@ -10,6 +10,13 @@ namespace StarCube.Core.Tag
     {
         public static StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "tag");
 
+        StringID IStringID.ID => id;
+
+        public override string ToString()
+        {
+            return id.ToString();
+        }
+
         public Tag(StringID id)
         {
             this.id = id;
@@ -19,13 +26,6 @@ namespace StarCube.Core.Tag
         /// Tag 的字符串id
         /// </summary>
         public readonly StringID id;
-
-        public StringID ID => id;
-
-        public override string ToString()
-        {
-            return id.ToString();
-        }
     }
 
 
@@ -40,11 +40,6 @@ namespace StarCube.Core.Tag
     public class Tag<T> : Tag
         where T : class
     {
-        /// <summary>
-        /// 用于此 Tag 的对象
-        /// </summary>
-        public readonly ImmutableArray<T> elements;
-
         /// <summary>
         /// 构造一个 Tag, 这个方法只能由内部调用
         /// </summary>
@@ -64,5 +59,10 @@ namespace StarCube.Core.Tag
         {
             return id.GetHashCode() + 31 * typeof(T).GetHashCode();
         }
+
+        /// <summary>
+        /// 此 Tag 应用于的对象
+        /// </summary>
+        public readonly ImmutableArray<T> elements;
     }
 }

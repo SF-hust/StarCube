@@ -100,7 +100,7 @@ namespace StarCube.Core.Tag.Data
                     entries.Clear();
                 }
 
-                // 
+                // 读取 entries
                 if (json.TryGetArray(ENTRIES_STRING, out JArray? array))
                 {
                     foreach (JToken token in array)
@@ -190,7 +190,7 @@ namespace StarCube.Core.Tag.Data
         }
 
 
-        public StringID Key => id;
+        public StringID ID => id;
 
         public TagData UnresolvedData => this;
 

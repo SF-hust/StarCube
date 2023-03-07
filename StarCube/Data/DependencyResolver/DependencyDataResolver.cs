@@ -9,9 +9,6 @@ namespace StarCube.Data.DependencyResolver
         where UD : class, IUnresolvedData<UD>
         where RD : class
     {
-        private readonly IEnumerable<UD> unresolvedData;
-        private readonly IResolvedDataBuilder<UD, RD> resolvedDataBuilder;
-
         public DependencyDataResolver(IEnumerable<UD> unresolvedData, IResolvedDataBuilder<UD, RD> resolvedDataBuilder)
         {
             this.unresolvedData = unresolvedData;
@@ -67,7 +64,7 @@ namespace StarCube.Data.DependencyResolver
             // 检查是否有重复 key
             foreach (UD data in unresolvedData)
             {
-                if (!unresolved.TryAdd(data.Key, data))
+                if (!unresolved.TryAdd(data.ID, data))
                 {
                     return false;
                 }
@@ -126,8 +123,8 @@ namespace StarCube.Data.DependencyResolver
 
                 foreach (UD data in newPhase)
                 {
-                    resolved.Add(data.Key, data);
-                    unresolved.Remove(data.Key);
+                    resolved.Add(data.ID, data);
+                    unresolved.Remove(data.ID);
                 }
 
                 resolvedPhases.Add(newPhase);
@@ -144,7 +141,7 @@ namespace StarCube.Data.DependencyResolver
                 {
                     return false;
                 }
-                resolvedData.TryAdd(data.Key, resolved);
+                resolvedData.TryAdd(data.ID, resolved);
             }
 
             return true;
@@ -154,5 +151,8 @@ namespace StarCube.Data.DependencyResolver
         {
             throw new NotImplementedException();
         }
+
+        private readonly IEnumerable<UD> unresolvedData;
+        private readonly IResolvedDataBuilder<UD, RD> resolvedDataBuilder;
     }
 }
