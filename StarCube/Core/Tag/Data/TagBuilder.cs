@@ -13,7 +13,7 @@ namespace StarCube.Core.Tag.Data
     public class TagBuilder<T> : IResolvedDataBuilder<TagData, Tag<T>>
         where T : class
     {
-        public delegate bool ElementGetter(StringID id, [NotNullWhen(true)] out T? element);
+        public delegate bool TagHolderGetter(StringID id, [NotNullWhen(true)] out T? tagHolder);
 
         public bool BuildResolvedData(TagData unresolvedData, IResolvedDataBuilder<TagData, Tag<T>>.ResolvedDataGetter tryGetResolvedData, [NotNullWhen(true)] out Tag<T>? resolvedData)
         {
@@ -24,7 +24,7 @@ namespace StarCube.Core.Tag.Data
             {
                 if (entry.entryType == TagData.Entry.EntryType.Element)
                 {
-                    if(!tryGetElement(entry.id, out T? element))
+                    if(!tryGetTagHolder(entry.id, out T? element))
                     {
                         return false;
                     }
@@ -52,14 +52,14 @@ namespace StarCube.Core.Tag.Data
             return true;
         }
 
-        public TagBuilder(ElementGetter elementGetter)
+        public TagBuilder(TagHolderGetter tagHolderGetter)
         {
-            tryGetElement = elementGetter;
+            tryGetTagHolder = tagHolderGetter;
         }
 
         /// <summary>
         /// 通过 StringID 获取对象的委托，此委托需要保证可多线程读
         /// </summary>
-        private readonly ElementGetter tryGetElement;
+        private readonly TagHolderGetter tryGetTagHolder;
     }
 }

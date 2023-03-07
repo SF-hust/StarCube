@@ -63,11 +63,11 @@ namespace StarCube.Core.Tag.Data
             }
         }
 
-        public TagLoader(TagBuilder<T>.ElementGetter tagHolderGetter)
+        public TagLoader(TagBuilder<T>.TagHolderGetter tagHolderGetter)
         {
             this.tagHolderGetter = tagHolderGetter;
         }
 
-        private readonly TagBuilder<T>.ElementGetter tagHolderGetter;
+        private readonly TagBuilder<T>.TagHolderGetter tagHolderGetter;
     }
 }
