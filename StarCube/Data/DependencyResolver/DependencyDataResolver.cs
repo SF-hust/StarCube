@@ -5,14 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace StarCube.Data.DependencyResolver
 {
-    public class DependencyDataResolver<K, UD, RD>
-        where UD : class, IUnresolvedData<K, UD>
+    public class DependencyDataResolver<UD, RD>
+        where UD : class, IUnresolvedData<UD>
         where RD : class
     {
         private readonly IEnumerable<UD> unresolvedData;
-        private readonly IResolvedDataBuilder<K, UD, RD> resolvedDataBuilder;
+        private readonly IResolvedDataBuilder<UD, RD> resolvedDataBuilder;
 
-        public DependencyDataResolver(IEnumerable<UD> unresolvedData, IResolvedDataBuilder<K, UD, RD> resolvedDataBuilder)
+        public DependencyDataResolver(IEnumerable<UD> unresolvedData, IResolvedDataBuilder<UD, RD> resolvedDataBuilder)
         {
             this.unresolvedData = unresolvedData;
             this.resolvedDataBuilder = resolvedDataBuilder;
@@ -24,10 +24,10 @@ namespace StarCube.Data.DependencyResolver
         /// <param name="useMultiThread"></param>
         /// <param name="resolvedData"></param>
         /// <returns>如果数据间有重复 key、循环引用或者缺失引用，返回 false</returns>
-        public bool BuildResolvedData([NotNullWhen(true)] out Dictionary<K, RD>? resolvedData, bool useMultiThread)
+        public bool BuildResolvedData([NotNullWhen(true)] out Dictionary<StringID, RD>? resolvedData, bool useMultiThread = false)
         {
             resolvedData = null;
-            ConcurrentDictionary<K, RD> tempResolvedData = new ConcurrentDictionary<K, RD>();
+            ConcurrentDictionary<StringID, RD> tempResolvedData = new ConcurrentDictionary<StringID, RD>();
             if (!ResolvedDataDependencies(out List<List<UD>> phases))
             {
                 return false;
@@ -45,8 +45,8 @@ namespace StarCube.Data.DependencyResolver
                 }
             }
 
-            resolvedData = new Dictionary<K, RD>();
-            foreach (KeyValuePair<K, RD> pairs in tempResolvedData)
+            resolvedData = new Dictionary<StringID, RD>();
+            foreach (KeyValuePair<StringID, RD> pairs in tempResolvedData)
             {
                 resolvedData.Add(pairs.Key, pairs.Value);
             }
@@ -61,7 +61,7 @@ namespace StarCube.Data.DependencyResolver
         /// <returns>如果数据间有重复 key、循环依赖或者缺失依赖，返回 false</returns>
         private bool ResolvedDataDependencies(out List<List<UD>> resolvedPhases)
         {
-            Dictionary<K, UD> unresolved = new Dictionary<K, UD>();
+            Dictionary<StringID, UD> unresolved = new Dictionary<StringID, UD>();
             resolvedPhases = new List<List<UD>>();
 
             // 检查是否有重复 key
@@ -73,7 +73,7 @@ namespace StarCube.Data.DependencyResolver
                 }
             }
 
-            Dictionary<K, UD> resolved = new Dictionary<K, UD>();
+            Dictionary<StringID, UD> resolved = new Dictionary<StringID, UD>();
             List<UD> newPhase;
 
             // 每次循环找出依赖树中更深的一层
@@ -86,7 +86,7 @@ namespace StarCube.Data.DependencyResolver
                 {
                     // 是否所有必需依赖都已解析过
                     bool allRequiredDependencyResolved = true;
-                    foreach (K key in data.RequiredDependencies)
+                    foreach (StringID key in data.RequiredDependencies)
                     {
                         if(resolved.ContainsKey(key))
                         {
@@ -103,7 +103,7 @@ namespace StarCube.Data.DependencyResolver
 
                     // 是否所有非必需依赖都已解析过，或者是无效引用
                     bool allExistingOptionalDependencyResolved = true;
-                    foreach (K key in data.OptionalDependencies)
+                    foreach (StringID key in data.OptionalDependencies)
                     {
                         if (unresolved.ContainsKey(key))
                         {
@@ -136,13 +136,11 @@ namespace StarCube.Data.DependencyResolver
             return true;
         }
 
-        private bool BuildPhaseSingleThread(List<UD> phase, IDictionary<K, RD> resolvedData)
+        private bool BuildPhaseSingleThread(List<UD> phase, IDictionary<StringID, RD> resolvedData)
         {
-            RD? resolvedDataGetter(K key) => resolvedData.TryGetValue(key, out RD value) ? value : null;
-
             foreach (UD data in phase)
             {
-                if (!resolvedDataBuilder.BuildResolvedData(data, resolvedDataGetter, out RD? resolved))
+                if (!resolvedDataBuilder.BuildResolvedData(data, resolvedData.TryGetValue, out RD? resolved))
                 {
                     return false;
                 }
@@ -152,7 +150,7 @@ namespace StarCube.Data.DependencyResolver
             return true;
         }
 
-        private bool BuildPhaseMultiThread(List<UD> phase, IDictionary<K, RD> resolvedData)
+        private bool BuildPhaseMultiThread(List<UD> phase, IDictionary<StringID, RD> resolvedData)
         {
             throw new NotImplementedException();
         }

@@ -9,20 +9,17 @@ using Newtonsoft.Json.Linq;
 using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
-using StarCube.Core.Registry;
-
-using StarCube.Game.Block;
 
 namespace StarCube.Core.Tag.Data
 {
-    public class RegistryEntryTagLoader<T> : IDataLoader
-        where T : class, IRegistryEntry<T>
+    public class TagLoader<T> : IDataLoader
+        where T : class, IStringID
     {
         public void Run(IDataProvider dataProvider)
         {
             LoadTagData(dataProvider, out List<TagData> loadedTagData);
-            BuildTags(loadedTagData, out List<Tag<Block>> tags);
-            TagManager<Block> tagManager = new TagManager<Block>(tags);
+            BuildTags(loadedTagData, out List<Tag<T>> tags);
+            TagManager<T> tagManager = new TagManager<T>(tags);
         }
 
         /// <summary>
@@ -51,13 +48,12 @@ namespace StarCube.Core.Tag.Data
             }
         }
 
-        private void BuildTags(List<TagData> unresolvedTagData, out List<Tag<Block>> tags)
+        private void BuildTags(List<TagData> unresolvedTagData, out List<Tag<T>> tags)
         {
-            Func<StringID, Block?> blockGetter = (id) => Registries.BlockRegistry.TryGet(id, out Block? block) ? block : null;
-            TagBuilder<Block> blockTagBuilder = new TagBuilder<Block>(blockGetter);
-            DependencyDataResolver<StringID, TagData, Tag<Block>> dataResolver =
-                new DependencyDataResolver<StringID, TagData, Tag<Block>>(unresolvedTagData, blockTagBuilder);
-            if (dataResolver.BuildResolvedData(out Dictionary<StringID, Tag<Block>>? resolvedData, false))
+            TagBuilder<T> blockTagBuilder = new TagBuilder<T>(tagHolderGetter);
+            DependencyDataResolver<TagData, Tag<T>> dataResolver =
+                new DependencyDataResolver<TagData, Tag<T>>(unresolvedTagData, blockTagBuilder);
+            if (dataResolver.BuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, false))
             {
                 tags = resolvedData.Values.ToList();
             }
@@ -67,6 +63,11 @@ namespace StarCube.Core.Tag.Data
             }
         }
 
-        public string Name => "tagloader [builtin]";
+        public TagLoader(TagBuilder<T>.ElementGetter tagHolderGetter)
+        {
+            this.tagHolderGetter = tagHolderGetter;
+        }
+
+        private readonly TagBuilder<T>.ElementGetter tagHolderGetter;
     }
 }

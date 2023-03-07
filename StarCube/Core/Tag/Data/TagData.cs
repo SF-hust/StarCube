@@ -13,7 +13,7 @@ namespace StarCube.Core.Tag.Data
     /// <summary>
     /// 表示一个 Tag 定义文件的数据结构
     /// </summary>
-    public class TagData : IUnresolvedData<StringID, TagData>, IStringID
+    public class TagData : IUnresolvedData<TagData>
     {
         public const string OVERRIDE_STRING = "override";
         public const string ENTRIES_STRING = "entries";
@@ -204,8 +204,6 @@ namespace StarCube.Core.Tag.Data
         private readonly List<StringID> optionalDependencies;
 
         public readonly StringID id;
-
-        public StringID ID => id;
 
         /// <summary>
         /// 本 TagData 所添加的 entry

@@ -52,7 +52,7 @@ namespace StarCube.Data.Loading
         }
 
         public static Dictionary<StringID, T> LoadDataWithDependencies<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> ids, IDataReader<T> dataReader)
-            where T : class, IUnresolvedData<StringID, T>
+            where T : class, IUnresolvedData<T>
         {
             Dictionary<StringID, T> idToData = new Dictionary<StringID, T>();
 

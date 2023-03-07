@@ -91,6 +91,16 @@ namespace StarCube.Core.State
                 return AddPropertyAndDefaultIndex(property, index);
             }
 
+            public Builder AddRange(IEnumerable<KeyValuePair<StateProperty, int>> propertyAndDefaults)
+            {
+                foreach (KeyValuePair<StateProperty, int> pair in propertyAndDefaults)
+                {
+                    AddPropertyAndDefaultIndex(pair.Key, pair.Value);
+                }
+
+                return this;
+            }
+
             /// <summary>
             /// 根据各属性的组合构建所有的 State, 并设置好相应的 neighbour 和 follower, 如果没有任何属性则只会构建一个 State
             /// </summary>

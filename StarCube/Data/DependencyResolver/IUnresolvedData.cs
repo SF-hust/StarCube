@@ -5,15 +5,14 @@ namespace StarCube.Data.DependencyResolver
     /// <summary>
     /// 表示一份尚未解析依赖关系的数据
     /// </summary>
-    /// <typeparam name="K">数据的键类型</typeparam>
     /// <typeparam name="UD">未解析数据的类型</typeparam>
-    public interface IUnresolvedData<K, UD>
-        where UD : class, IUnresolvedData<K, UD>
+    public interface IUnresolvedData<UD> : IStringID
+        where UD : class, IUnresolvedData<UD>
     {
         /// <summary>
         /// 数据的 Key
         /// </summary>
-        public K Key { get; }
+        public StringID Key { get; }
 
         /// <summary>
         /// 对此数据对象本身的引用
@@ -35,11 +34,13 @@ namespace StarCube.Data.DependencyResolver
         /// <summary>
         /// 必需依赖
         /// </summary>
-        public IEnumerable<K> RequiredDependencies { get; }
+        public IEnumerable<StringID> RequiredDependencies { get; }
 
         /// <summary>
         /// 非必需依赖
         /// </summary>
-        public IEnumerable<K> OptionalDependencies { get; }
+        public IEnumerable<StringID> OptionalDependencies { get; }
+
+        StringID IStringID.ID => Key;
     }
 }
