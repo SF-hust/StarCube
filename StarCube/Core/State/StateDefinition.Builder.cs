@@ -70,16 +70,6 @@ namespace StarCube.Core.State
                 return this;
             }
 
-            public Builder AddRange(IEnumerable<KeyValuePair<StateProperty, int>> propertyAndDefaults)
-            {
-                foreach (KeyValuePair<StateProperty, int> pair in propertyAndDefaults)
-                {
-                    AddPropertyAndDefaultIndex(pair.Key, pair.Value);
-                }
-
-                return this;
-            }
-
             /// <summary>
             /// 添加一个 Property 及其在默认状态中的取值
             /// </summary>

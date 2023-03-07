@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-using StarCube.Core.State.Property;
-
-namespace StarCube.Core.State
+namespace StarCube.Core.State.Property
 {
     /// <summary>
     /// 一个不可变的 StateProperty 与对应值下标列表
@@ -91,7 +89,7 @@ namespace StarCube.Core.State
 
         public int FindProperty(StateProperty property)
         {
-            return propertyIndexPairs.First((KeyValuePair<StateProperty, int> pair) => property.Equals(pair.Key)).Value;
+            return propertyIndexPairs.First((pair) => property.Equals(pair.Key)).Value;
         }
 
         public bool ContainsProperty(StateProperty property)
@@ -141,7 +139,7 @@ namespace StarCube.Core.State
             /// <exception cref="Exception"></exception>
             public void AddProperty(StateProperty property)
             {
-                if(isBuilding)
+                if (isBuilding)
                 {
                     throw new Exception("Can't add property when building");
                 }
