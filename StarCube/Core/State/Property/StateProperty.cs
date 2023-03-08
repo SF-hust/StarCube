@@ -38,7 +38,7 @@ namespace StarCube.Core.State.Property
         /// <param name="id"></param>
         /// <param name="stateProperty"></param>
         /// <returns></returns>
-        public static bool TryGetStatePropertyById(StringID id, [NotNullWhen(true)] out StateProperty? stateProperty)
+        public static bool TryGet(StringID id, [NotNullWhen(true)] out StateProperty? stateProperty)
         {
             return AllStateProperties.TryGetValue(id, out stateProperty);
         }
@@ -59,7 +59,7 @@ namespace StarCube.Core.State.Property
             countOfValues = valueCount;
 
             int bCount = 0;
-            int vCount = valueCount;
+            int vCount = valueCount - 1;
             while(vCount > 0)
             {
                 vCount >>= 1;

@@ -7,7 +7,7 @@ namespace StarCube.Core.State
     }
 
     /// <summary>
-    /// 需要定义状态 (如 BlockState) 的类需要继承这个接口, 并实现对应接口, 示例见 Block 类
+    /// 需要定义状态 (如 Block 之于 BlockState) 的类需要继承这个接口, 并实现对应接口, 示例见 Block 类
     /// </summary>
     /// <typeparam name="O"></typeparam>
     /// <typeparam name="S"></typeparam>
