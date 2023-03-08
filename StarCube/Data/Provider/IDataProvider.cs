@@ -5,6 +5,7 @@ using System.IO;
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
 using StarCube.Data.Provider.DataSource;
+using System;
 
 namespace StarCube.Data.Provider
 {
@@ -36,14 +37,24 @@ namespace StarCube.Data.Provider
             }
         }
 
+        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream);
+
+        public bool TryGetDataChain(StringID dataRegistry, StringID id, [NotNullWhen(true)] out List<RawDataEntry> dataEntries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<List<RawDataEntry>> EnumerateDataChains(StringID dataRegistry, DataFilterMode filterMode)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry)
         {
             return EnumerateData(dataRegistry, DataFilterMode.None);
         }
 
         public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode);
-
-        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream);
     }
 
     public static class DataProviderExtension
