@@ -12,9 +12,9 @@ namespace StarCube.Game.Item
 
         static Items()
         {
-            Registries.BLOCK.OnRegisterStartEvent +=
+            Registries.ITEM.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) =>
-                Registries.BLOCK.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
+                Registries.ITEM.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
         }
     }
 }
