@@ -6,6 +6,6 @@ namespace StarCube.Data.Loading
 {
     public static class RawDataReaders
     {
-        public static RawDataReader<JObject> JsonReader = JsonHelper.TryReadFromStreamSync;
+        public static RawDataReader<JObject> JSON = JsonHelper.TryReadFromStreamSync;
     }
 }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
-using static StarCube.Data.Loading.IDataProvider;
+using static StarCube.Data.Provider.IDataProvider;
 
-namespace StarCube.Data.Loading
+namespace StarCube.Data.Provider
 {
     public class SimpleDataProvider : IDataProvider
     {
@@ -14,10 +14,10 @@ namespace StarCube.Data.Loading
         {
             List<DataEntry> dataEntries = new List<DataEntry>();
             // 遍历所有以 modid 命名的文件夹
-            foreach(string directoryForModid in Directory.EnumerateDirectories(dataDirectoryPath))
+            foreach (string directoryForModid in Directory.EnumerateDirectories(dataDirectoryPath))
             {
                 string modid = Path.GetFileName(directoryForModid);
-                if(!StringID.IsValidNamespace(modid))
+                if (!StringID.IsValidNamespace(modid))
                 {
                     continue;
                 }

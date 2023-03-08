@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using StarCube.Data;
 using StarCube.Data.Loading;
+using StarCube.Data.Provider;
 using StarCube.Data.DependencyResolver;
+
+using static StarCube.Data.Provider.IDataProvider;
 
 namespace StarCube.Core.Tag.Data
 {
@@ -17,9 +16,10 @@ namespace StarCube.Core.Tag.Data
     {
         public void Run(IDataProvider dataProvider)
         {
-            LoadTagData(dataProvider, out List<TagData> loadedTagData);
-            BuildTags(loadedTagData, out List<Tag<T>> tags);
+            LoadTagData(dataProvider, out List<TagData> allTagData);
+            BuildTags(allTagData, out List<Tag<T>> tags);
             TagManager<T> tagManager = new TagManager<T>(tags);
+            consumeTagManager(tagManager);
         }
 
         /// <summary>
@@ -29,45 +29,40 @@ namespace StarCube.Core.Tag.Data
         /// <param name="loadedTagData"></param>
         private void LoadTagData(IDataProvider dataProvider, out List<TagData> loadedTagData)
         {
-            Dictionary<StringID, TagData.Builder> tagBuilders = new Dictionary<StringID, TagData.Builder>();
-            foreach (IDataProvider.DataEntry entry in dataProvider.EnumerateData(Tag.DataRegistry))
-            {
-                JObject json = JObject.Load(new JsonTextReader(new StreamReader(entry.stream)));
-                if (!tagBuilders.TryGetValue(entry.id, out TagData.Builder builder))
-                {
-                    builder = new TagData.Builder(entry.id);
-                    tagBuilders.Add(entry.id, builder);
-                }
-                builder.AddFromJson(json);
-            }
-
             loadedTagData = new List<TagData>();
-            foreach (KeyValuePair<StringID, TagData.Builder> pair in tagBuilders)
+            DataFilterMode filterMode = new DataFilterMode(tagHolderType + "/");
+            foreach (TagData data in dataProvider.EnumerateData(Tag.DataRegistry, filterMode, TagData.DataReader))
             {
-                loadedTagData.Add(pair.Value.Build());
+                loadedTagData.Add(data);
             }
         }
 
         private void BuildTags(List<TagData> unresolvedTagData, out List<Tag<T>> tags)
         {
             TagBuilder<T> blockTagBuilder = new TagBuilder<T>(tagHolderGetter);
-            DependencyDataResolver<TagData, Tag<T>> dataResolver =
+            DependencyDataResolver<TagData, Tag<T>> dependencyResolver =
                 new DependencyDataResolver<TagData, Tag<T>>(unresolvedTagData, blockTagBuilder);
-            if (dataResolver.BuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, false))
+            if (dependencyResolver.TryBuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, false))
             {
                 tags = resolvedData.Values.ToList();
             }
             else
             {
-                throw new Exception();
+                throw new Exception("");
             }
         }
 
-        public TagLoader(TagBuilder<T>.TagHolderGetter tagHolderGetter)
+        public TagLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>> tagManagerConsumer)
         {
+            this.tagHolderType = tagHolderType;
             this.tagHolderGetter = tagHolderGetter;
+            consumeTagManager = tagManagerConsumer;
         }
 
+        private readonly string tagHolderType;
+
         private readonly TagBuilder<T>.TagHolderGetter tagHolderGetter;
+
+        private readonly Action<TagManager<T>> consumeTagManager;
     }
 }

@@ -2,6 +2,7 @@
 
 using StarCube.Data;
 using StarCube.Data.Loading;
+using StarCube.Data.Provider;
 
 namespace StarCube.Core.Registry.Data
 {
@@ -10,7 +11,7 @@ namespace StarCube.Core.Registry.Data
     {
         public void Run(IDataProvider dataProvider)
         {
-            IDataReader<RegistryData> dataReader = new DataReaderWrapper<RegistryData, JObject>(RawDataReaders.JsonReader, RegistryData.TryParseFromJson);
+            IDataReader<RegistryData> dataReader = new DataReaderWrapper<RegistryData, JObject>(RawDataReaders.JSON, RegistryData.TryParseFromJson);
             StringID dataID = StringID.Create(modid, registry.Name);
 
             if(!dataProvider.TryLoad(RegistryData.DataRegistry, dataID, dataReader, out RegistryData? registryData))

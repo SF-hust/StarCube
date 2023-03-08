@@ -7,6 +7,8 @@ using StarCube.Utility;
 using StarCube.Data;
 using StarCube.Data.Exception;
 using StarCube.Data.DependencyResolver;
+using StarCube.Data.Loading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StarCube.Core.Tag.Data
 {
@@ -17,6 +19,18 @@ namespace StarCube.Core.Tag.Data
     {
         public const string OVERRIDE_STRING = "override";
         public const string ENTRIES_STRING = "entries";
+
+        public static IDataReader<TagData> DataReader = new DataReaderWrapper<TagData, JObject>(RawDataReaders.JSON, );
+
+        public bool TryParse(JObject json, StringID id, [NotNullWhen(true)] out TagData? data)
+        {
+            Builder builder = new Builder(id);
+            builder.AddFromJson(json);
+
+            data = builder.Build();
+
+            return true;
+        }
 
         /// <summary>
         /// TagData 中 entries 数组中一个 entry，可用一个字符串表示

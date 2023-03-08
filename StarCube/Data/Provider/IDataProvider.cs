@@ -2,9 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
+using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
 
-namespace StarCube.Data.Loading
+namespace StarCube.Data.Provider
 {
     public interface IDataProvider
     {
@@ -91,6 +92,20 @@ namespace StarCube.Data.Loading
             }
 
             return idToData;
+        }
+
+        public static IEnumerable<T> EnumerateData<T>(this IDataProvider dataProvider, StringID dataRegistry, IDataProvider.DataFilterMode filterMode, IDataReader<T> dataReader)
+            where T : class, IStringID
+        {
+            List<T> dataList = new List<T>();
+            foreach (IDataProvider.DataEntry entry in dataProvider.EnumerateData(dataRegistry, filterMode))
+            {
+                if(dataReader.TryReadDataFrom(entry.stream, entry.id, out T? data))
+                {
+                    dataList.Add(data);
+                }
+            }
+            return dataList;
         }
     }
 }

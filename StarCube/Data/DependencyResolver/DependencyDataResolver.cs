@@ -21,7 +21,7 @@ namespace StarCube.Data.DependencyResolver
         /// <param name="useMultiThread"></param>
         /// <param name="resolvedData"></param>
         /// <returns>如果数据间有重复 key、循环引用或者缺失引用，返回 false</returns>
-        public bool BuildResolvedData([NotNullWhen(true)] out Dictionary<StringID, RD>? resolvedData, bool useMultiThread = false)
+        public bool TryBuildResolvedData([NotNullWhen(true)] out Dictionary<StringID, RD>? resolvedData, bool useMultiThread = false)
         {
             resolvedData = null;
             ConcurrentDictionary<StringID, RD> tempResolvedData = new ConcurrentDictionary<StringID, RD>();

@@ -2,6 +2,7 @@
 
 using StarCube.Data;
 using StarCube.Data.Loading;
+using StarCube.Data.Provider;
 
 namespace StarCube.Core.State.Data
 {
