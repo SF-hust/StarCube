@@ -14,5 +14,9 @@ namespace StarCube.Game.Item
         private RegistryEntryData<Item>? regData = null;
 
         public Type AsEntryType => typeof(Item);
+
+        public Item()
+        {
+        }
     }
 }

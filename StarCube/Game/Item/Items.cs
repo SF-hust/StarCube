@@ -1,19 +1,19 @@
 ﻿using StarCube.Utility;
 using StarCube.BootStrap.Attributes;
-using StarCube.Core.Registry;
 using StarCube.Data;
+using StarCube.Core.Registry;
 
-namespace StarCube.Game.Block
+namespace StarCube.Game.Item
 {
     [ConstructInBootStrap]
-    public static class Blocks
+    public class Items
     {
-        public static Block Air = new Block().BuildSingleBlockState();
+        public static Item Air = new Item();
 
-        static Blocks()
+        static Items()
         {
             Registries.BLOCK.OnRegisterStartEvent +=
-                (object sender, RegisterStartEventArgs args) => 
+                (object sender, RegisterStartEventArgs args) =>
                 Registries.BLOCK.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
         }
     }
