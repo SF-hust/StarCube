@@ -8,13 +8,13 @@ namespace StarCube.Core.Registry
     /// </summary>
     public abstract class RegistryEntryData
     {
-        protected RegistryEntryData(int numID, StringKey key)
+        protected RegistryEntryData(int integerID, StringKey key)
         {
-            this.numID = numID;
+            this.integerID = integerID;
             this.key = key;
         }
 
-        public readonly int numID;
+        public readonly int integerID;
         /// <summary>
         /// 此 Entry 在 Registry 中的数字Id, 在同一个 Registry 中唯一
         /// </summary>
@@ -82,7 +82,7 @@ namespace StarCube.Core.Registry
     public class RegistryEntryData<T> : RegistryEntryData
         where T : class, IRegistryEntry<T>
     {
-        public RegistryEntryData(int numID, StringKey key, Registry<T> registry, T entry) : base(numID, key)
+        public RegistryEntryData(int integerID, StringKey key, Registry<T> registry, T entry) : base(integerID, key)
         {
             this.registry = registry;
             this.entry = entry;
@@ -109,7 +109,7 @@ namespace StarCube.Core.Registry
 
         public override string ToString()
         {
-            return $"RegistryEntryData (type = {EntryType}, registry id = {Registry.id}, num id = {numID}, id = {ID})";
+            return $"RegistryEntryData (type = {EntryType}, registry id = {Registry.id}, num id = {integerID}, id = {ID})";
         }
     }
 }

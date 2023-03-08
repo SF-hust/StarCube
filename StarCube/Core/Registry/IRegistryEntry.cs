@@ -4,7 +4,7 @@ using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {
-    public interface IRegistryEntry : IStringID
+    public interface IRegistryEntry : IStringID, IIntegerID
     {
         /// <summary>
         /// 具体类型未知的 RegistryEntry 信息
@@ -26,9 +26,14 @@ namespace StarCube.Core.Registry
         public StringKey Key => AbstractEntryRegistryData.key;
 
         /// <summary>
-        /// 该对象的 字符串id
+        /// 该对象的字符串 id
         /// </summary>
         StringID IStringID.ID => AbstractEntryRegistryData.ID;
+
+        /// <summary>
+        /// 该对象的整数 id
+        /// </summary>
+        int IIntegerID.IntegerID => AbstractEntryRegistryData.integerID;
 
         /// <summary>
         /// 该对象的名称
@@ -39,11 +44,6 @@ namespace StarCube.Core.Registry
         /// 该对象所属的 modid
         /// </summary>
         public string Modid => AbstractEntryRegistryData.Modid;
-
-        /// <summary>
-        /// 该对象的 数字id
-        /// </summary>
-        public int NumID => AbstractEntryRegistryData.numID;
 
         /// <summary>
         /// 该对象的 Registry, 具体类型未知
