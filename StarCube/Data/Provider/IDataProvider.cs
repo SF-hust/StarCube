@@ -4,20 +4,23 @@ using System.IO;
 
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
+using StarCube.Data.Provider.DataSource;
 
 namespace StarCube.Data.Provider
 {
     public interface IDataProvider
     {
-        public readonly struct DataEntry
+        public readonly struct RawDataEntry
         {
             public readonly StringID id;
             public readonly FileStream stream;
+            public readonly IDataSource source;
 
-            public DataEntry(StringID id, FileStream stream)
+            public RawDataEntry(StringID id, FileStream stream, IDataSource source)
             {
                 this.id = id;
                 this.stream = stream;
+                this.source = source;
             }
         }
 
@@ -33,12 +36,12 @@ namespace StarCube.Data.Provider
             }
         }
 
-        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry)
+        public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry)
         {
             return EnumerateData(dataRegistry, DataFilterMode.None);
         }
 
-        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode);
+        public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode);
 
         public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream);
     }
@@ -98,7 +101,7 @@ namespace StarCube.Data.Provider
             where T : class, IStringID
         {
             List<T> dataList = new List<T>();
-            foreach (IDataProvider.DataEntry entry in dataProvider.EnumerateData(dataRegistry, filterMode))
+            foreach (IDataProvider.RawDataEntry entry in dataProvider.EnumerateData(dataRegistry, filterMode))
             {
                 if(dataReader.TryReadDataFrom(entry.stream, entry.id, out T? data))
                 {

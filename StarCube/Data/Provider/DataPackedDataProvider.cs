@@ -7,7 +7,7 @@ namespace StarCube.Data.Provider
 {
     public class DataPackedDataProvider : IDataProvider
     {
-        public IEnumerable<IDataProvider.DataEntry> EnumerateData(StringID dataRegistry, IDataProvider.DataFilterMode filterMode)
+        public IEnumerable<IDataProvider.RawDataEntry> EnumerateData(StringID dataRegistry, IDataProvider.DataFilterMode filterMode)
         {
             throw new NotImplementedException();
         }

@@ -20,9 +20,9 @@ namespace StarCube.Core.Tag.Data
         public const string OVERRIDE_STRING = "override";
         public const string ENTRIES_STRING = "entries";
 
-        public static IDataReader<TagData> DataReader = new DataReaderWrapper<TagData, JObject>(RawDataReaders.JSON, );
+        public static IDataReader<TagData> DataReader = new DataReaderWrapper<TagData, JObject>(RawDataReaders.JSON, TryParse);
 
-        public bool TryParse(JObject json, StringID id, [NotNullWhen(true)] out TagData? data)
+        public static bool TryParse(JObject json, StringID id, [NotNullWhen(true)] out TagData? data)
         {
             Builder builder = new Builder(id);
             builder.AddFromJson(json);

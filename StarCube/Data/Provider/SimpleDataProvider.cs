@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-
+using StarCube.Data.Provider.DataSource;
 using static StarCube.Data.Provider.IDataProvider;
 
 namespace StarCube.Data.Provider
@@ -10,9 +10,9 @@ namespace StarCube.Data.Provider
     public class SimpleDataProvider : IDataProvider
     {
         // ~ IDataProvider 接口实现 start
-        public IEnumerable<DataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode)
+        public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode)
         {
-            List<DataEntry> dataEntries = new List<DataEntry>();
+            List<RawDataEntry> dataEntries = new List<RawDataEntry>();
             // 遍历所有以 modid 命名的文件夹
             foreach (string directoryForModid in Directory.EnumerateDirectories(dataDirectoryPath))
             {
@@ -36,7 +36,7 @@ namespace StarCube.Data.Provider
         /// <param name="modid">模组 id</param>
         /// <param name="filterMode">过滤设置</param>
         /// <param name="dataEntries">输出的数据项目</param>
-        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, DataFilterMode filterMode, List<DataEntry> dataEntries)
+        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, DataFilterMode filterMode, List<RawDataEntry> dataEntries)
         {
             // 合法的文件名到其路径的映射
             Dictionary<string, string> fileToPath = new Dictionary<string, string>();
@@ -82,7 +82,8 @@ namespace StarCube.Data.Provider
 
                 StringID id = StringID.Create(modid, filenameWithoutExtension);
                 FileStream stream = new FileStream(filePath, FileMode.Open);
-                dataEntries.Add(new DataEntry(id, stream));
+                IDataSource source = new FileDataSource(filePath);
+                dataEntries.Add(new RawDataEntry(id, stream, source));
             }
         }
 
