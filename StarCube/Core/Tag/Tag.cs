@@ -8,8 +8,6 @@ namespace StarCube.Core.Tag
 {
     public abstract class Tag : IStringID
     {
-        public static StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "tag");
-
         StringID IStringID.ID => id;
 
         public override string ToString()

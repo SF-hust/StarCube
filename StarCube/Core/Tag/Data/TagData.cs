@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 using StarCube.Data;
-using StarCube.Data.Exception;
-using StarCube.Data.DependencyResolver;
 using StarCube.Data.Loading;
-using System.Diagnostics.CodeAnalysis;
+using StarCube.Data.DependencyResolver;
+using StarCube.Data.Exception;
 
 namespace StarCube.Core.Tag.Data
 {
@@ -20,7 +20,9 @@ namespace StarCube.Core.Tag.Data
         public const string OVERRIDE_STRING = "override";
         public const string ENTRIES_STRING = "entries";
 
-        public static IDataReader<TagData> DataReader = new DataReaderWrapper<TagData, JObject>(RawDataReaders.JSON, TryParse);
+        public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "tag");
+
+        public static readonly IDataReader<TagData> DataReader = new DataReaderWrapper<TagData, JObject>(RawDataReaders.JSON, TryParse);
 
         public static bool TryParse(JObject json, StringID id, [NotNullWhen(true)] out TagData? data)
         {

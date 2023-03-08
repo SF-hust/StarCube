@@ -31,7 +31,7 @@ namespace StarCube.Core.Tag.Data
         {
             loadedTagData = new List<TagData>();
             DataFilterMode filterMode = new DataFilterMode(tagHolderType + "/");
-            foreach (TagData data in dataProvider.EnumerateData(Tag.DataRegistry, filterMode, TagData.DataReader))
+            foreach (TagData data in dataProvider.EnumerateData(TagData.DataRegistry, filterMode, TagData.DataReader))
             {
                 loadedTagData.Add(data);
             }

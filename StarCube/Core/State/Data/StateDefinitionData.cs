@@ -12,9 +12,9 @@ namespace StarCube.Core.State.Data
 {
     public class StateDefinitionData : IStringID
     {
-        public static StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "state_def");
+        public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "state_def");
 
-        public static IDataReader<StateDefinitionData> DataReader = new DataReaderWrapper<StateDefinitionData, JObject>(JsonHelper.TryReadFromStreamSync, TryParseFromJson);
+        public static readonly IDataReader<StateDefinitionData> DataReader = new DataReaderWrapper<StateDefinitionData, JObject>(JsonHelper.TryReadFromStreamSync, TryParseFromJson);
 
         public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out StateDefinitionData? data)
         {
