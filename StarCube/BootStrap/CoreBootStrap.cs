@@ -6,9 +6,9 @@ using StarCube.BootStrap.Attributes;
 
 namespace StarCube.BootStrap
 {
-    public class BootStrap
+    public class CoreBootStrap
     {
-        public static void Boot()
+        public static void InitCore()
         {
             EnsureConstructClassesInAssembly(Assembly.GetExecutingAssembly());
         }
