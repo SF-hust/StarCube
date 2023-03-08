@@ -12,7 +12,7 @@ namespace StarCube.Core.Component
          * 作为 RegistryEntry
          */
 
-        public RegistryEntryData<ComponentType> RegistryData
+        public RegistryEntryData<ComponentType> RegistryEntryData
         {
             get => IRegistryEntry<ComponentType>.RegistryEntryGetHelper(regData);
             set => IRegistryEntry<ComponentType>.RegistryEntrySetHelper(ref regData, value);

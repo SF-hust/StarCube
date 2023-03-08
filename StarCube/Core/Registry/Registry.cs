@@ -186,7 +186,7 @@ namespace StarCube.Core.Registry
             int numId = entries.Count;
             StringID registryId = this.id;
             RegistryEntryData<T> data = new RegistryEntryData<T>(numId, StringKey.Create(registryId, id), this, entry);
-            entry.RegistryData = data;
+            entry.RegistryEntryData = data;
 
             entries.Add(entry);
             numIdByStringId.Add(id, numId);

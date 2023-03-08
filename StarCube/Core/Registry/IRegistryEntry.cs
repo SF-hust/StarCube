@@ -9,7 +9,7 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 具体类型未知的 RegistryEntry 信息
         /// </summary>
-        public RegistryEntryData AbstractRegistryData { get; }
+        public RegistryEntryData AbstractEntryRegistryData { get; }
 
         /// <summary>
         /// RegistryEntry的具体类型, 如 Block
@@ -23,32 +23,32 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象注册用的 Key
         /// </summary>
-        public StringKey Key => AbstractRegistryData.key;
+        public StringKey Key => AbstractEntryRegistryData.key;
 
         /// <summary>
         /// 该对象的 字符串id
         /// </summary>
-        StringID IStringID.ID => AbstractRegistryData.ID;
+        StringID IStringID.ID => AbstractEntryRegistryData.ID;
 
         /// <summary>
         /// 该对象的名称
         /// </summary>
-        public string Name => AbstractRegistryData.Name;
+        public string Name => AbstractEntryRegistryData.Name;
 
         /// <summary>
         /// 该对象所属的 modid
         /// </summary>
-        public string Modid => AbstractRegistryData.Modid;
+        public string Modid => AbstractEntryRegistryData.Modid;
 
         /// <summary>
         /// 该对象的 数字id
         /// </summary>
-        public int NumID => AbstractRegistryData.numID;
+        public int NumID => AbstractEntryRegistryData.numID;
 
         /// <summary>
         /// 该对象的 Registry, 具体类型未知
         /// </summary>
-        public Registry AbstractRegistry => AbstractRegistryData.AbstractRegistry;
+        public Registry AbstractRegistry => AbstractEntryRegistryData.AbstractRegistry;
     }
 
     /// <summary>
@@ -89,14 +89,14 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// RegistryEntry 的信息
         /// </summary>
-        public RegistryEntryData<T> RegistryData { get; set; }
+        public RegistryEntryData<T> RegistryEntryData { get; set; }
 
         /*
          * 无需 override 的默认实现
          */
 
-        RegistryEntryData IRegistryEntry.AbstractRegistryData => RegistryData;
+        RegistryEntryData IRegistryEntry.AbstractEntryRegistryData => RegistryEntryData;
 
-        public Registry<T> Registry => RegistryData.Registry;
+        public Registry<T> Registry => RegistryEntryData.Registry;
     }
 }

@@ -17,7 +17,7 @@ namespace StarCube.Game.Block
          * 作为 RegistryEntry
          */
 
-        public RegistryEntryData<Block> RegistryData
+        public RegistryEntryData<Block> RegistryEntryData
         {
             get => IRegistryEntry<Block>.RegistryEntryGetHelper(regData);
             set => IRegistryEntry<Block>.RegistryEntrySetHelper(ref regData, value);
