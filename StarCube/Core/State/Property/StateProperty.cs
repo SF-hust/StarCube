@@ -72,12 +72,12 @@ namespace StarCube.Core.State.Property
             AddStateProperty(this);
         }
 
+        StringID IStringID.ID => id;
+
         /// <summary>
         /// 属性的 id
         /// </summary>
         public readonly StringID id;
-
-        public StringID ID => id;
 
         /// <summary>
         /// 属性值的类型
