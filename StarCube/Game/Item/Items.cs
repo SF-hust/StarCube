@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility;
 using StarCube.BootStrap.Attributes;
-using StarCube.Data;
+
 using StarCube.Core.Registry;
 
 namespace StarCube.Game.Item

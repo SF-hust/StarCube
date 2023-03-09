@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
-using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
 using StarCube.Data.Exception;

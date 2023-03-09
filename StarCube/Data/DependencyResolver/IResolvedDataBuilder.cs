@@ -1,5 +1,6 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using StarCube.Utility;
 
 namespace StarCube.Data.DependencyResolver
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StarCube.Data
+namespace StarCube.Utility
 {
     public interface IGuid
     {

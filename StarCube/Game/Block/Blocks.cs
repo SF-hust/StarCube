@@ -1,7 +1,6 @@
 ﻿using StarCube.Utility;
 using StarCube.BootStrap.Attributes;
 using StarCube.Core.Registry;
-using StarCube.Data;
 
 namespace StarCube.Game.Block
 {

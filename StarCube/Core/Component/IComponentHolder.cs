@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace StarCube.Core.Component
+﻿namespace StarCube.Core.Component
 {
     public interface IComponentHolder
     {

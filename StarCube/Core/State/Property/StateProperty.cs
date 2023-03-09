@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-using StarCube.Data;
+using StarCube.Utility;
 
 namespace StarCube.Core.State.Property
 {

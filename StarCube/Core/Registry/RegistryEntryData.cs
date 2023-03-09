@@ -1,5 +1,6 @@
 ﻿using System;
-using StarCube.Data;
+
+using StarCube.Utility;
 
 namespace StarCube.Core.Registry
 {

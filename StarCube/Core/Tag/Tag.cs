@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 
 using StarCube.Utility;
-using StarCube.Data;
 
 namespace StarCube.Core.Tag
 {

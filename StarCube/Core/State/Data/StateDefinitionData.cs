@@ -3,7 +3,6 @@
 using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
-using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Core.State.Property;
 using System.Diagnostics.CodeAnalysis;

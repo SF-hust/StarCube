@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
+using StarCube.Utility;
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
 
