@@ -19,37 +19,49 @@ namespace StarCube.Core.State.Data
         {
             data = null;
 
-            List<KeyValuePair<StateProperty, int>> propertyToDefaultValue = new List<KeyValuePair<StateProperty, int>>(json.Count);
+            List<StatePropertyEntry> propertyEntries = new List<StatePropertyEntry>(json.Count);
 
             foreach (KeyValuePair<string, JToken?> item in json)
             {
-                if (item.Value == null)
+                string name = item.Key;
+                if(!StringID.IsValidNamespace(name))
                 {
                     return false;
                 }
 
-                if (!StringID.TryParse(item.Key, out StringID propertyID) || !StateProperty.TryGet(propertyID, out StateProperty? property))
+                if (!(item.Value is JArray jArray) || jArray.Count != 2)
                 {
                     return false;
                 }
 
-                int valueIndex = property.ParseToIndex(item.Value.ToString());
+                JToken idToken = jArray[0];
+                JToken valueToken = jArray[1];
+
+                if(!(idToken is JValue idValue) ||
+                    !(idValue.Value is string idString) ||
+                    !StringID.TryParse(idString, out StringID propertyID) ||
+                    !StateProperty.TryGet(propertyID, out StateProperty? property))
+                {
+                    return false;
+                }
+
+                int valueIndex = property.ParseToIndex(valueToken.ToString());
                 if(valueIndex == -1)
                 {
                     return false;
                 }
 
-                propertyToDefaultValue.Add(new KeyValuePair<StateProperty, int>(property, valueIndex));
+                propertyEntries.Add(new StatePropertyEntry(name, property, valueIndex));
             }
 
-            data = new StateDefinitionData(id, propertyToDefaultValue);
+            data = new StateDefinitionData(id, propertyEntries);
             return true;
         }
 
-        public StateDefinitionData(StringID id, List<KeyValuePair<StateProperty, int>> propertyToDefaultValueIndex)
+        public StateDefinitionData(StringID id, List<StatePropertyEntry> propertyToDefaultValueIndex)
         {
             this.id = id;
-            this.propertyToDefaultValueIndex = propertyToDefaultValueIndex;
+            this.propertyEntries = propertyToDefaultValueIndex;
         }
 
         StringID IStringID.ID => id;
@@ -62,6 +74,6 @@ namespace StarCube.Core.State.Data
         /// <summary>
         /// 属性与其默认值下标
         /// </summary>
-        public readonly List<KeyValuePair<StateProperty, int>> propertyToDefaultValueIndex;
+        public readonly List<StatePropertyEntry> propertyEntries;
     }
 }

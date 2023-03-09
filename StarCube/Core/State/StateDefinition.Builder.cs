@@ -22,7 +22,7 @@ namespace StarCube.Core.State
         public class Builder
         {
             private readonly O owner;
-            private readonly List<KeyValuePair<StateProperty, int>> propertyAndDefaultIndices = new List<KeyValuePair<StateProperty, int>>();
+            private readonly List<StatePropertyEntry> propertyEntries = new List<StatePropertyEntry>();
             private readonly StateHolder<O, S>.Factory stateFactory;
 
             public Builder(O owner, StateHolder<O, S>.Factory factory)
@@ -49,7 +49,7 @@ namespace StarCube.Core.State
             /// <param name="defaultValueIndex"></param>
             /// <returns></returns>
             /// <exception cref="Exception"></exception>
-            public Builder AddPropertyAndDefaultIndex(StateProperty property, int defaultValueIndex)
+            public Builder AddPropertyAndDefaultIndex(string name, StateProperty property, int defaultValueIndex)
             {
                 if (!property.IndexIsValid(defaultValueIndex))
                 {
@@ -58,14 +58,14 @@ namespace StarCube.Core.State
                 }
 
                 bool exist = false;
-                propertyAndDefaultIndices.ForEach((KeyValuePair<StateProperty, int> pair) => exist |= pair.Key.Equals(property));
+                propertyEntries.ForEach((StatePropertyEntry entry) => exist |= entry.property.Equals(property));
                 if (exist)
                 {
                     throw new Exception($"In state definition for [{owner}] :" +
                         $" state property ({property}) already exists");
                 }
 
-                propertyAndDefaultIndices.Add(new KeyValuePair<StateProperty, int>(property, defaultValueIndex));
+                propertyEntries.Add(new StatePropertyEntry(name, property, defaultValueIndex));
 
                 return this;
             }
@@ -78,7 +78,7 @@ namespace StarCube.Core.State
             /// <param name="defaultValue"></param>
             /// <returns></returns>
             /// <exception cref="Exception"></exception>
-            public Builder AddPropertyAndDefaultValue<VT>(StateProperty<VT> property, VT defaultValue)
+            public Builder AddPropertyAndDefaultValue<VT>(string name, StateProperty<VT> property, VT defaultValue)
                 where VT : struct
             {
                 int index = property.GetIndexByValue(defaultValue);
@@ -88,14 +88,14 @@ namespace StarCube.Core.State
                         $" value (= {property.ValueToString(defaultValue)}) can't be taken by property ({property})");
                 }
 
-                return AddPropertyAndDefaultIndex(property, index);
+                return AddPropertyAndDefaultIndex(name, property, index);
             }
 
-            public Builder AddRange(IEnumerable<KeyValuePair<StateProperty, int>> propertyAndDefaults)
+            public Builder AddRange(IEnumerable<StatePropertyEntry> propertyAndDefaults)
             {
-                foreach (KeyValuePair<StateProperty, int> pair in propertyAndDefaults)
+                foreach (StatePropertyEntry entry in propertyAndDefaults)
                 {
-                    AddPropertyAndDefaultIndex(pair.Key, pair.Value);
+                    AddPropertyAndDefaultIndex(entry.name, entry.property, entry.valueIndex);
                 }
 
                 return this;
@@ -108,7 +108,7 @@ namespace StarCube.Core.State
             public StateDefinition<O, S> Build()
             {
                 // 如果无属性定义，只有一个状态，直接构造返回
-                if (propertyAndDefaultIndices.Count == 0)
+                if (propertyEntries.Count == 0)
                 {
                     return BuildSingle(owner, stateFactory);
                 }
@@ -119,11 +119,11 @@ namespace StarCube.Core.State
                 // 属性按序变化时 State 在列表中下标的递增值 (indexOffsetForProperties)
                 int stateCount = 1;
                 int defaultStateIndex = 0;
-                List<int> indexOffsetForProperties = new List<int>(propertyAndDefaultIndices.Count);
-                foreach (var pair in propertyAndDefaultIndices)
+                List<int> indexOffsetForProperties = new List<int>(propertyEntries.Count);
+                foreach (var pair in propertyEntries)
                 {
-                    StateProperty property = pair.Key;
-                    int i = pair.Value;
+                    StateProperty property = pair.property;
+                    int i = pair.valueIndex;
                     indexOffsetForProperties.Add(stateCount);
                     defaultStateIndex += i * stateCount;
                     stateCount *= property.countOfValues;
@@ -152,9 +152,9 @@ namespace StarCube.Core.State
                 List<S> states = new List<S>(stateCount);
 
                 StatePropertyList.Builder propertyListBuilder = StatePropertyList.Builder.Create();
-                foreach (var pair in propertyAndDefaultIndices)
+                foreach (var entry in propertyEntries)
                 {
-                    propertyListBuilder.AddProperty(pair.Key);
+                    propertyListBuilder.AddProperty(entry.name, entry.property);
                 }
 
                 propertyListBuilder.StartBuild();
@@ -171,9 +171,9 @@ namespace StarCube.Core.State
             {
                 Dictionary<StateProperty, S> followers = new Dictionary<StateProperty, S>();
                 // 为每个属性创建 follower
-                for (int i = 0; i < propertyAndDefaultIndices.Count; ++i)
+                for (int i = 0; i < propertyEntries.Count; ++i)
                 {
-                    StateProperty property = propertyAndDefaultIndices[i].Key;
+                    StateProperty property = propertyEntries[i].property;
                     int groupSize = property.countOfValues * indexOffsetForProperties[i];
                     int currentGroupBaseIndex = index / groupSize * groupSize;
                     int followerIndex = (index + indexOffsetForProperties[i]) % groupSize + currentGroupBaseIndex;
@@ -187,9 +187,9 @@ namespace StarCube.Core.State
             {
                 Dictionary<StateProperty, ImmutableArray<S>> neighbours = new Dictionary<StateProperty, ImmutableArray<S>>();
                 // 为每个属性创建邻居列表
-                for (int pi = 0; pi < propertyAndDefaultIndices.Count; ++pi)
+                for (int pi = 0; pi < propertyEntries.Count; ++pi)
                 {
-                    StateProperty property = propertyAndDefaultIndices[pi].Key;
+                    StateProperty property = propertyEntries[pi].property;
                     ImmutableArray<S> neighboursForProperty;
 
                     // 如果已经创建过所需的 neighbour 列表了, 直接引用它, 而不是再创建一遍

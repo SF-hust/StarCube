@@ -17,7 +17,7 @@ namespace StarCube.Core.State.Data
                 if(dataProvider.TryLoadData(StateDefinitionData.DataRegistry, stateDefinerType, stateDefiner.ID, StateDefinitionData.DataReader, out StateDefinitionData? data))
                 {
                     StateDefinition<O, S>.Builder builder = new StateDefinition<O, S>.Builder(stateDefiner, stateFactory);
-                    builder.AddRange(data.propertyToDefaultValueIndex);
+                    builder.AddRange(data.propertyEntries);
                     stateDefiner.StateDefinition = builder.Build();
                 }
                 else

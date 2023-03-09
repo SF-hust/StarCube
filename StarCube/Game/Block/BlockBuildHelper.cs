@@ -29,9 +29,9 @@ namespace StarCube.Game.Block
             builder = StateDefinition<Block, BlockState>.Builder.Create(block, BlockState.Create);
         }
 
-        public BlockStateBuildHelper Add(StateProperty property, int index)
+        public BlockStateBuildHelper Add(string name, StateProperty property, int index)
         {
-            builder.AddPropertyAndDefaultIndex(property, index);
+            builder.AddPropertyAndDefaultIndex(name, property, index);
             return this;
         }
 
