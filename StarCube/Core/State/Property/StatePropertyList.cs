@@ -34,15 +34,15 @@ namespace StarCube.Core.State.Property
         /// </summary>
         public const int MAX_STATE_PROPERTY_COUNT = MAX_PACKED_BIT_COUNT;
 
+        /// <summary>
+        /// 一个对象的 State 数量的最大值
+        /// </summary>
         public const int MAX_STATE_VARIANTS = 1 << MAX_PACKED_BIT_COUNT;
+
 
         public static readonly StatePropertyList EMPTY = new StatePropertyList(ImmutableArray<StatePropertyEntry>.Empty);
 
-        private StatePropertyList(ImmutableArray<StatePropertyEntry> propertyEntries)
-        {
-            this.propertyEntries = propertyEntries;
-            CalculatePackedPropertiesAndBitCount(propertyEntries, out packedProperties, out packedProperties);
-        }
+
 
         /// <summary>
         /// 获取一个 StateProperty 在此列表中的值的下标, 若不存在给定的 StateProperty 则抛出 IndexOutOfRangeException
@@ -50,7 +50,7 @@ namespace StarCube.Core.State.Property
         /// <param name="property"></param>
         /// <returns></returns>
         /// <exception cref="IndexOutOfRangeException"></exception>
-        public int this[StateProperty property] => Get(property);
+        public int this[StateProperty property] => GetValueIndex(property);
 
         /// <summary>
         /// 根据下标返回 StateProperty 及其值的下标
@@ -69,43 +69,12 @@ namespace StarCube.Core.State.Property
         /// </summary>
         public IEnumerable<int> Indices => from propertyIndexPair in propertyEntries select propertyIndexPair.valueIndex;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly ImmutableArray<StatePropertyEntry> propertyEntries;
 
-        /// <summary>
-        /// 获取已有的 StateProperty 数量
-        /// </summary>
-        public int PropertyCount => propertyEntries.Length;
-
-
-        /// <summary>
-        /// 获取所有属性值打包成的整数
-        /// </summary>
-        public readonly int packedProperties;
-
-        /// <summary>
-        /// 获取属性值打包完成后所需占用的二进制位数
-        /// </summary>
-        public readonly int packedBitCount;
-
-        private static void CalculatePackedPropertiesAndBitCount(ImmutableArray<StatePropertyEntry> propertyIndexPairs, out int packed, out int bitCount)
+        public int IndexOf(StateProperty property)
         {
-            packed = 0;
-            bitCount = 0;
-            foreach (StatePropertyEntry entry in propertyIndexPairs)
+            for (int i = 0; i < propertyEntries.Length; i++)
             {
-                packed |= entry.valueIndex << bitCount;
-                bitCount += entry.property.bitCount;
-            }
-        }
-
-        public int FindProperty(StateProperty property)
-        {
-            for(int i = 0; i < propertyEntries.Length; i++)
-            {
-                if(propertyEntries[i].property == property)
+                if (propertyEntries[i].property == property)
                 {
                     return i;
                 }
@@ -113,9 +82,26 @@ namespace StarCube.Core.State.Property
             return -1;
         }
 
-        public bool ContainsProperty(StateProperty property)
+        public int IndexOf(string name)
         {
-            return FindProperty(property) != -1;
+            for (int i = 0; i < propertyEntries.Length; i++)
+            {
+                if (propertyEntries[i].name == name)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public bool Contains(StateProperty property)
+        {
+            return IndexOf(property) != -1;
+        }
+
+        public bool Contains(string name)
+        {
+            return IndexOf(name) != -1;
         }
 
         /// <summary>
@@ -123,9 +109,20 @@ namespace StarCube.Core.State.Property
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public int Get(StateProperty property)
+        public int GetValueIndex(StateProperty property)
         {
-            int i = FindProperty(property);
+            int i = IndexOf(property);
+            return propertyEntries[i].valueIndex;
+        }
+
+        /// <summary>
+        /// 获得表中一个 name 对应的取值的下标
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public int GetValueIndex(string name)
+        {
+            int i = IndexOf(name);
             return propertyEntries[i].valueIndex;
         }
 
@@ -134,23 +131,49 @@ namespace StarCube.Core.State.Property
             return packedProperties;
         }
 
+        private static void CalculatePackedPropertiesAndBitCount(ImmutableArray<StatePropertyEntry> propertyEntries, out int packed, out int bitCount)
+        {
+            packed = 0;
+            bitCount = 0;
+            foreach (StatePropertyEntry entry in propertyEntries)
+            {
+                packed |= entry.valueIndex << bitCount;
+                bitCount += entry.property.bitCount;
+            }
+        }
+
+        private StatePropertyList(ImmutableArray<StatePropertyEntry> propertyEntries)
+        {
+            this.propertyEntries = propertyEntries;
+            CalculatePackedPropertiesAndBitCount(propertyEntries, out packedProperties, out packedProperties);
+        }
+
+        /// <summary>
+        /// 所有的 StatePropertyEntry
+        /// </summary>
+        public readonly ImmutableArray<StatePropertyEntry> propertyEntries;
+
+        /// <summary>
+        /// StateProperty 数量
+        /// </summary>
+        public int Count => propertyEntries.Length;
+
+        /// <summary>
+        /// 所有属性值打包成的整数
+        /// </summary>
+        public readonly int packedProperties;
+
+        /// <summary>
+        /// 属性值打包完成后所需占用的二进制位数
+        /// </summary>
+        public readonly int packedBitCount;
+
+
         public class Builder
         {
             public static Builder Create()
             {
                 return new Builder();
-            }
-
-            private readonly List<KeyValuePair<string, StateProperty>> properties = new List<KeyValuePair<string, StateProperty>>();
-
-            private readonly List<int> valueIndices = new List<int>();
-
-            private bool isBuilding = false;
-
-            private int remainToBuild = 0;
-
-            public Builder()
-            {
             }
 
             /// <summary>
@@ -162,16 +185,19 @@ namespace StarCube.Core.State.Property
             {
                 if (isBuilding)
                 {
-                    throw new Exception("Can't add property when building");
+                    throw new Exception("Can't add property in building");
                 }
-                foreach (KeyValuePair<string, StateProperty> pair in properties)
+
+                // 检查是否有重复
+                foreach (KeyValuePair<string, StateProperty> pair in namePropertyList)
                 {
                     if(pair.Key == name || pair.Value == property)
                     {
                         throw new Exception($"StateProperty {name}, {property} already exists");
                     }
                 }
-                properties.Add(new KeyValuePair<string, StateProperty>(name, property));
+
+                namePropertyList.Add(new KeyValuePair<string, StateProperty>(name, property));
             }
 
             /// <summary>
@@ -181,12 +207,15 @@ namespace StarCube.Core.State.Property
             public void StartBuild()
             {
                 isBuilding = true;
+
                 remainToBuild = 1;
-                foreach (KeyValuePair<string, StateProperty> pair in properties)
+                foreach (KeyValuePair<string, StateProperty> pair in namePropertyList)
                 {
                     remainToBuild *= pair.Value.countOfValues;
                 }
-                if (properties.Count > MAX_STATE_PROPERTY_COUNT)
+
+                // 检查属性数量或者属性值数量是否过多
+                if (namePropertyList.Count > MAX_STATE_PROPERTY_COUNT)
                 {
                     throw new Exception($"A StatePropertyList can only hold at most {MAX_STATE_PROPERTY_COUNT} StateProperties");
                 }
@@ -194,7 +223,8 @@ namespace StarCube.Core.State.Property
                 {
                     throw new Exception($"An owner can only hold at most {MAX_STATE_VARIANTS} variants");
                 }
-                valueIndices.AddRange(Enumerable.Repeat(0, properties.Count));
+
+                valueIndexList.AddRange(Enumerable.Repeat(0, namePropertyList.Count));
             }
 
             /// <summary>
@@ -204,9 +234,9 @@ namespace StarCube.Core.State.Property
             public StatePropertyList BuildNext()
             {
                 List<StatePropertyEntry> list = new List<StatePropertyEntry>();
-                for (int k = 0; k < properties.Count; ++k)
+                for (int k = 0; k < namePropertyList.Count; ++k)
                 {
-                    list.Add(new StatePropertyEntry(properties[k].Key, properties[k].Value, valueIndices[k]));
+                    list.Add(new StatePropertyEntry(namePropertyList[k].Key, namePropertyList[k].Value, valueIndexList[k]));
                 }
 
                 UpdateValueIndices();
@@ -215,7 +245,7 @@ namespace StarCube.Core.State.Property
             }
 
             /// <summary>
-            /// 跳过此表的构建，暂时没用
+            /// 跳过当前表的构建，暂时没用
             /// </summary>
             public void SkipBuild()
             {
@@ -232,18 +262,30 @@ namespace StarCube.Core.State.Property
 
                 bool carry = true;
                 int i = 0;
-                while (carry && i < properties.Count)
+                while (carry && i < namePropertyList.Count)
                 {
-                    ++valueIndices[i];
+                    ++valueIndexList[i];
                     carry = false;
-                    if (valueIndices[i] == properties[i].Value.countOfValues)
+                    if (valueIndexList[i] == namePropertyList[i].Value.countOfValues)
                     {
-                        valueIndices[i] = 0;
+                        valueIndexList[i] = 0;
                         carry = true;
                     }
                     ++i;
                 }
             }
+            
+            public Builder()
+            {
+            }
+
+            private readonly List<KeyValuePair<string, StateProperty>> namePropertyList = new List<KeyValuePair<string, StateProperty>>();
+
+            private readonly List<int> valueIndexList = new List<int>();
+
+            private bool isBuilding = false;
+
+            private int remainToBuild = 0;
         }
     }
 }
