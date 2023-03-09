@@ -1,4 +1,5 @@
 ﻿using StarCube.Core.Mod;
+using StarCube.Mod;
 using StarCube.Utility;
 
 namespace Coremod
