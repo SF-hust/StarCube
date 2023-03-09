@@ -6,7 +6,7 @@ namespace StarCube.Utility.Container
     /// IdMap 提供了数字 id 与对象间的双向索引，其数字 id 的取值范围为 [0, Count-1]
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IIDMap<T> : IEnumerable<T>
+    public interface IIdMap<T> : IEnumerable<T>
         where T : class
     {
         /// <summary>

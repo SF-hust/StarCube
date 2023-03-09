@@ -6,13 +6,13 @@ using System.Text;
 
 namespace StarCube.Utility.Container
 {
-    public class HashIDMap<T> : IIDMap<T>
+    public class HashIdMap<T> : IIdMap<T>
         where T : class
     {
         protected readonly Dictionary<T, int> idByValue = new Dictionary<T, int>();
         protected readonly List<T> valueById = new List<T>();
 
-        public HashIDMap(IEnumerable<T> values)
+        public HashIdMap(IEnumerable<T> values)
         {
             valueById = values.ToList();
             for (int i = 0; i < valueById.Count; i++)
