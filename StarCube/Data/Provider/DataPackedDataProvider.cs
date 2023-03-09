@@ -7,12 +7,22 @@ namespace StarCube.Data.Provider
 {
     public class DataPackedDataProvider : IDataProvider
     {
-        public IEnumerable<IDataProvider.RawDataEntry> EnumerateData(StringID dataRegistry, IDataProvider.DataFilterMode filterMode)
+        void IDataProvider.EnumerateData(string registry, string direcotry, List<RawDataEntry> dataEntries)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryGet(StringID dataRegistry, string prefix, StringID id, [NotNullWhen(true)] out FileStream? stream)
+        void IDataProvider.EnumerateDataChain(string registry, string direcotry, List<List<RawDataEntry>> dataEntryChains)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IDataProvider.TryGetData(string modid, string registry, string directory, string entryName, out RawDataEntry dataEntry)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IDataProvider.TryGetDataChain(string modid, string registry, string directory, string entryName, List<RawDataEntry> dataEntryChain)
         {
             throw new NotImplementedException();
         }

@@ -65,7 +65,7 @@ namespace StarCube.Data.Provider
             return false;
         }
 
-        void IDataProvider.EnumerateData(string registry, string direcotry, List<RawDataEntry> dataEntries)
+        void IDataProvider.EnumerateData(string registry, string directory, List<RawDataEntry> dataEntries)
         {
             // 遍历所有符合 modid 格式的文件夹
             foreach (string directoryForModid in Directory.EnumerateDirectories(dataDirectoryPath))
@@ -77,12 +77,12 @@ namespace StarCube.Data.Provider
                 }
 
                 string registryPath = Path.Combine(directoryForModid, registry);
-                string directoryPath = Path.Combine(registryPath, direcotry);
+                string directoryPath = Path.Combine(directoryForModid, directory);
                 GetAllDataEntriesInDirectory(modid, registryPath, directoryPath, dataEntries);
             }
         }
 
-        void IDataProvider.EnumerateDataChain(string registry, string direcotry, List<List<RawDataEntry>> dataEntryChains)
+        void IDataProvider.EnumerateDataChain(string registry, string directory, List<List<RawDataEntry>> dataEntryChains)
         {
             throw new NotImplementedException();
         }
@@ -92,9 +92,9 @@ namespace StarCube.Data.Provider
         /// <summary>
         /// 递归查找文件夹及其子文件夹里的数据文件
         /// </summary>
-        /// <param name="directoryPath">数据文件夹的根路径</param>
         /// <param name="modid">模组 id</param>
-        /// <param name="filterMode">过滤设置</param>
+        /// <param name="registryPath">数据 registry 目录路径，用于计算数据的 id</param>
+        /// <param name="directoryPath">要遍历的目录路径</param>
         /// <param name="dataEntries">输出的数据项目</param>
         private void GetAllDataEntriesInDirectory(string modid, string registryPath, string directoryPath, List<RawDataEntry> dataEntries)
         {
@@ -107,7 +107,7 @@ namespace StarCube.Data.Provider
             foreach (string filePath in Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories))
             {
                 // 确认文件名合法
-                string filename = Path.GetRelativePath(directoryPath, filePath).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
+                string filename = Path.GetRelativePath(registryPath, filePath).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
                 int dotIndex = filename.IndexOf('.');
                 dotIndex = dotIndex == -1 ? filename.Length : dotIndex;
                 if (!StringID.IsValidPath(filename, 0, dotIndex))

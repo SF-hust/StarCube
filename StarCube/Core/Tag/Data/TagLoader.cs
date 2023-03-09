@@ -23,20 +23,21 @@ namespace StarCube.Core.Tag.Data
         }
 
         /// <summary>
-        /// 以单线程同步方式加载并解析 Tag 数据为 TagData
+        /// 加载并解析 Tag 数据为 TagData
         /// </summary>
         /// <param name="dataProvider"></param>
         /// <param name="loadedTagData"></param>
         private void LoadTagData(IDataProvider dataProvider, out List<TagData> loadedTagData)
         {
-            loadedTagData = new List<TagData>();
-            DataFilterMode filterMode = new DataFilterMode(tagHolderType + "/");
-            foreach (TagData data in dataProvider.EnumerateData(TagData.DataRegistry, filterMode, TagData.DataReader))
-            {
-                loadedTagData.Add(data);
-            }
+            loadedTagData = dataProvider.EnumerateData<TagData>(TagData.DataRegistry, tagHolderType + "/", TagData.DataReader);
         }
 
+        /// <summary>
+        /// 解析并构造 Tag
+        /// </summary>
+        /// <param name="unresolvedTagData"></param>
+        /// <param name="tags"></param>
+        /// <exception cref="Exception"></exception>
         private void BuildTags(List<TagData> unresolvedTagData, out List<Tag<T>> tags)
         {
             TagBuilder<T> blockTagBuilder = new TagBuilder<T>(tagHolderGetter);

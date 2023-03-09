@@ -1,6 +1,6 @@
-﻿using StarCube.Core.Mod;
+﻿using StarCube.Utility;
 using StarCube.Mod;
-using StarCube.Utility;
+using StarCube.Mod.Attributes;
 
 namespace Coremod
 {

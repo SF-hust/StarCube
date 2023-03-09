@@ -14,7 +14,7 @@ namespace StarCube.Core.Registry.Data
             IDataReader<RegistryData> dataReader = new DataReaderWrapper<RegistryData, JObject>(RawDataReaders.JSON, RegistryData.TryParseFromJson);
             StringID dataID = StringID.Create(modid, registry.Name);
 
-            if(!dataProvider.TryLoad(RegistryData.DataRegistry, dataID, dataReader, out RegistryData? registryData))
+            if(!dataProvider.TryLoadData(RegistryData.DataRegistry, dataID, dataReader, out RegistryData? registryData))
             {
                 return;
             }

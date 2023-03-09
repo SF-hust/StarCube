@@ -14,7 +14,7 @@ namespace StarCube.Core.State.Data
         {
             foreach (O stateDefiner in stateDefiners)
             {
-                if(dataProvider.TryLoad(StateDefinitionData.DataRegistry, prefix, stateDefiner.ID, StateDefinitionData.DataReader, out StateDefinitionData? data))
+                if(dataProvider.TryLoadData(StateDefinitionData.DataRegistry, stateDefinerType, stateDefiner.ID, StateDefinitionData.DataReader, out StateDefinitionData? data))
                 {
                     StateDefinition<O, S>.Builder builder = new StateDefinition<O, S>.Builder(stateDefiner, stateFactory);
                     builder.AddRange(data.propertyToDefaultValueIndex);
@@ -27,14 +27,14 @@ namespace StarCube.Core.State.Data
             }
         }
 
-        public StateDefinitionDataLoader(string prefix, IEnumerable<O> stateDefiners, StateHolder<O, S>.Factory stateFactory)
+        public StateDefinitionDataLoader(string stateDefinerType, IEnumerable<O> stateDefiners, StateHolder<O, S>.Factory stateFactory)
         {
-            this.prefix = prefix;
+            this.stateDefinerType = stateDefinerType;
             this.stateDefiners = stateDefiners;
             this.stateFactory = stateFactory;
         }
 
-        private readonly string prefix;
+        private readonly string stateDefinerType;
 
         private readonly IEnumerable<O> stateDefiners;
 
