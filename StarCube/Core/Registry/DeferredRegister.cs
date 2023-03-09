@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using StarCube.Data;
+using StarCube.Utility;
 
 namespace StarCube.Core.Registry
 {

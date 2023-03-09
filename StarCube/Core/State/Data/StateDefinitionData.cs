@@ -3,7 +3,6 @@
 using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
-using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Core.State.Property;
 using System.Diagnostics.CodeAnalysis;
@@ -14,7 +13,7 @@ namespace StarCube.Core.State.Data
     {
         public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "state_def");
 
-        public static readonly IDataReader<StateDefinitionData> DataReader = new DataReaderWrapper<StateDefinitionData, JObject>(RawDataReaders.JSON, TryParseFromJson);
+        public static readonly IDataReader<StateDefinitionData> DataReader = new DataReaderWrapper<StateDefinitionData, JObject>(JsonHelper.TryReadFromStreamSync, TryParseFromJson);
 
         public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out StateDefinitionData? data)
         {
@@ -29,7 +28,7 @@ namespace StarCube.Core.State.Data
                     return false;
                 }
 
-                if (!StringID.TryParse(item.Key, out StringID propertyID) || !StateProperty.TryGet(propertyID, out StateProperty? property))
+                if (!StringID.TryParse(item.Key, out StringID propertyID) || !StateProperties.TryGet(propertyID, out StateProperty? property))
                 {
                     return false;
                 }
@@ -53,8 +52,6 @@ namespace StarCube.Core.State.Data
             this.propertyToDefaultValueIndex = propertyToDefaultValueIndex;
         }
 
-        StringID IStringID.ID => id;
-
         /// <summary>
         /// 数据的 id，也是对应 RegistryEntry 的 id
         /// </summary>
@@ -64,5 +61,7 @@ namespace StarCube.Core.State.Data
         /// 属性与其默认值下标
         /// </summary>
         public readonly List<KeyValuePair<StateProperty, int>> propertyToDefaultValueIndex;
+
+        public StringID ID => id;
     }
 }

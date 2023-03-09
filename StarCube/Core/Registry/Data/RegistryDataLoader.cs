@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-
-using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Data.Provider;
+using StarCube.Utility;
 
 namespace StarCube.Core.Registry.Data
 {

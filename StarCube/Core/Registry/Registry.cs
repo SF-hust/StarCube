@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
 using StarCube.Utility.Container;
-using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {

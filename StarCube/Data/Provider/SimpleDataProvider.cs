@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 using StarCube.Data.Provider.DataSource;
+using StarCube.Utility;
 using static StarCube.Data.Provider.IDataProvider;
 
 namespace StarCube.Data.Provider
@@ -88,11 +89,11 @@ namespace StarCube.Data.Provider
             }
         }
 
-        public bool TryGet(StringID dataRegistry, string prefix, StringID id, [NotNullWhen(true)] out FileStream? stream)
+        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream)
         {
             stream = null;
 
-            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, id.namspace, dataRegistry.path, prefix, id.path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
+            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, id.namspace, dataRegistry.path, id.path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
             string directoryPath = Path.GetDirectoryName(filePathWithoutExtension);
             string searchPattern = Path.GetFileName(id.path) + "*";
 

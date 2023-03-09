@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-using StarCube.Utility;
-
-namespace StarCube.Data
+namespace StarCube.Utility
 {
     /// <summary>
     /// 表示一个资源的路径，既可以表示某个注册表、注册表中某个注册项，也可以表示磁盘上的某个文件

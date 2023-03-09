@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-
-using StarCube.Data;
+using StarCube.Utility;
 
 namespace StarCube.Core.State.Property
 {
@@ -38,7 +37,7 @@ namespace StarCube.Core.State.Property
         /// <param name="id"></param>
         /// <param name="stateProperty"></param>
         /// <returns></returns>
-        public static bool TryGet(StringID id, [NotNullWhen(true)] out StateProperty? stateProperty)
+        public static bool TryGetStatePropertyById(StringID id, [NotNullWhen(true)] out StateProperty? stateProperty)
         {
             return AllStateProperties.TryGetValue(id, out stateProperty);
         }
@@ -59,7 +58,7 @@ namespace StarCube.Core.State.Property
             countOfValues = valueCount;
 
             int bCount = 0;
-            int vCount = valueCount - 1;
+            int vCount = valueCount;
             while(vCount > 0)
             {
                 vCount >>= 1;
@@ -72,12 +71,12 @@ namespace StarCube.Core.State.Property
             AddStateProperty(this);
         }
 
-        StringID IStringID.ID => id;
-
         /// <summary>
         /// 属性的 id
         /// </summary>
         public readonly StringID id;
+
+        public StringID ID => id;
 
         /// <summary>
         /// 属性值的类型

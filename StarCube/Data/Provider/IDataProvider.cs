@@ -6,6 +6,7 @@ using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
 using StarCube.Data.Provider.DataSource;
 using System;
+using StarCube.Utility;
 
 namespace StarCube.Data.Provider
 {
@@ -37,13 +38,8 @@ namespace StarCube.Data.Provider
             }
         }
 
-        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream)
-        {
-            return TryGet(dataRegistry, string.Empty, id, out stream);
-        }
+        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream);
 
-        public bool TryGet(StringID dataRegistry, string prefix, StringID id, [NotNullWhen(true)] out FileStream? stream);
-        
         public bool TryGetDataChain(StringID dataRegistry, StringID id, [NotNullWhen(true)] out List<RawDataEntry> dataEntries)
         {
             throw new NotImplementedException();
@@ -69,13 +65,6 @@ namespace StarCube.Data.Provider
         {
             data = null;
             return dataProvider.TryGet(dataRegistry, id, out FileStream? stream) && dataReader.TryReadDataFrom(stream, id, out  data);
-        }
-
-        public static bool TryLoad<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
-            where T : class
-        {
-            data = null;
-            return dataProvider.TryGet(dataRegistry, prefix, id, out FileStream? stream) && dataReader.TryReadDataFrom(stream, id, out data);
         }
 
         public static Dictionary<StringID, T> LoadDataWithDependencies<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> ids, IDataReader<T> dataReader)

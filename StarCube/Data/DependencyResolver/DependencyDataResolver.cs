@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using StarCube.Utility;
 
 namespace StarCube.Data.DependencyResolver
 {
