@@ -1,5 +1,6 @@
 ﻿using StarCube.Utility;
 using StarCube.BootStrap.Attributes;
+using StarCube.Data;
 using StarCube.Core.Registry;
 
 namespace StarCube.Game.Item
@@ -7,7 +8,7 @@ namespace StarCube.Game.Item
     [ConstructInBootStrap]
     public class Items
     {
-        public static readonly Item Air = new Item();
+        public static Item Air = new Item();
 
         static Items()
         {

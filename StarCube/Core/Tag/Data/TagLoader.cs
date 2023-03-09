@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Data.Provider;
 using StarCube.Data.DependencyResolver;
 
 using static StarCube.Data.Provider.IDataProvider;
-using StarCube.Utility;
 
 namespace StarCube.Core.Tag.Data
 {

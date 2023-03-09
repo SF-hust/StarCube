@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using StarCube.Utility;
 
 namespace StarCube.Data.DependencyResolver
 {

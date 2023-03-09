@@ -5,34 +5,20 @@ using System.Diagnostics.CodeAnalysis;
 using StarCube.Utility;
 using StarCube.Utility.Enums;
 using StarCube.BootStrap.Attributes;
+using StarCube.Data;
 
 namespace StarCube.Core.State.Property
 {
     [ConstructInBootStrap]
     public class StateProperties
     {
-        public static readonly EnumStateProperty<Axis> AXIS = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis"));
+        public static readonly EnumStateProperty<Axis> AXIS = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis"), new Axis[3] {Axis.X, Axis.Y, Axis.Z});
 
+        public static readonly BooleanStateProperty NORTH = BooleanStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "north"));
+        public static readonly BooleanStateProperty SOUTH = BooleanStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "south"));
+        public static readonly BooleanStateProperty EAST = BooleanStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "east"));
+        public static readonly BooleanStateProperty WEST = BooleanStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "west"));
 
-        public static void Register(StateProperty property)
-        {
-            if(!stateProperties.TryAdd(property.id, property))
-            {
-                throw new ArgumentException($"re-register state property \"{property.id}\"");
-            }
-        }
-
-        public static bool TryGet(StringID id, [NotNullWhen(true)] out StateProperty? property)
-        {
-            return stateProperties.TryGetValue(id, out property);
-        }
-
-
-        private static readonly ConcurrentDictionary<StringID, StateProperty> stateProperties = new ConcurrentDictionary<StringID, StateProperty>();
-
-        static StateProperties()
-        {
-            Register(AXIS);
-        }
+        public static readonly IntegerStateProperty AGE4 = IntegerStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "age4"), 0, 3);
     }
 }

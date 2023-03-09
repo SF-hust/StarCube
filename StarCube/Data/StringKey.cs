@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using StarCube.Utility;
 
-namespace StarCube.Utility
+namespace StarCube.Data
 {
     /// <summary>
     /// 表示一个资源在游戏中的 唯一Key，不会存在两个值相同的 ResourceKey 对象

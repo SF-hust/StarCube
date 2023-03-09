@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using StarCube.Core.Registry;
-using StarCube.Utility;
+using StarCube.Data;
 
 namespace StarCube.Core.Component
 {

@@ -1,15 +1,15 @@
 ﻿using System;
 
-using StarCube.Utility;
+using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {
-    public interface IRegistryEntry : IStringID
+    public interface IRegistryEntry : IStringID, IIntegerID
     {
         /// <summary>
         /// 具体类型未知的 RegistryEntry 信息
         /// </summary>
-        public RegistryEntryData AbstractRegistryEntryData { get; }
+        public RegistryEntryData AbstractEntryRegistryData { get; }
 
         /// <summary>
         /// RegistryEntry的具体类型, 如 Block
@@ -23,32 +23,32 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象注册用的 Key
         /// </summary>
-        public StringKey Key => AbstractRegistryEntryData.key;
+        public StringKey Key => AbstractEntryRegistryData.key;
 
         /// <summary>
-        /// 该对象的 字符串id
+        /// 该对象的字符串 id
         /// </summary>
-        StringID IStringID.ID => AbstractRegistryEntryData.ID;
+        StringID IStringID.ID => AbstractEntryRegistryData.ID;
+
+        /// <summary>
+        /// 该对象的整数 id
+        /// </summary>
+        int IIntegerID.IntegerID => AbstractEntryRegistryData.integerID;
 
         /// <summary>
         /// 该对象的名称
         /// </summary>
-        public string Name => AbstractRegistryEntryData.Name;
+        public string Name => AbstractEntryRegistryData.Name;
 
         /// <summary>
         /// 该对象所属的 modid
         /// </summary>
-        public string Modid => AbstractRegistryEntryData.Modid;
-
-        /// <summary>
-        /// 该对象的 数字id
-        /// </summary>
-        public int NumID => AbstractRegistryEntryData.numID;
+        public string Modid => AbstractEntryRegistryData.Modid;
 
         /// <summary>
         /// 该对象的 Registry, 具体类型未知
         /// </summary>
-        public Registry AbstractRegistry => AbstractRegistryEntryData.AbstractRegistry;
+        public Registry AbstractRegistry => AbstractEntryRegistryData.AbstractRegistry;
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ namespace StarCube.Core.Registry
          * 无需 override 的默认实现
          */
 
-        RegistryEntryData IRegistryEntry.AbstractRegistryEntryData => RegistryEntryData;
+        RegistryEntryData IRegistryEntry.AbstractEntryRegistryData => RegistryEntryData;
 
         public Registry<T> Registry => RegistryEntryData.Registry;
     }

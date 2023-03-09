@@ -1,4 +1,4 @@
-﻿namespace StarCube.Utility
+﻿namespace StarCube.Data
 {
     public interface IStringID
     {

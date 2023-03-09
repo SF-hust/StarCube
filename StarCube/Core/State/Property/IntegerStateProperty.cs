@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using StarCube.Utility;
+
+using StarCube.Data;
 
 namespace StarCube.Core.State.Property
 {

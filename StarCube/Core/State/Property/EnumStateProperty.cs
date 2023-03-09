@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
-using StarCube.Utility;
+
+using StarCube.Data;
 
 namespace StarCube.Core.State.Property
 {
@@ -75,7 +76,7 @@ namespace StarCube.Core.State.Property
             {
                 string? key = Enum.GetName(typeof(T), values[i]);
                 Debug.Assert(key != null);
-                keys[i] = key;
+                keys[i] = key.ToLower();
             }
         }
 
@@ -157,13 +158,14 @@ namespace StarCube.Core.State.Property
             {
                 return cachedResult;
             }
-            bool checkResult = true;
+            bool checkResult;
             lock(type)
             {
                 if (EnumCache.TryGetValue(type, out checkResult))
                 {
                     return cachedResult;
                 }
+                checkResult = true;
                 HashSet<string> keys = new HashSet<string>();
                 foreach (string key in Enum.GetNames(type))
                 {

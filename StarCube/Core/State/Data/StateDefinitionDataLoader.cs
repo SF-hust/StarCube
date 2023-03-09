@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+
+using StarCube.Data;
 using StarCube.Data.Loading;
 using StarCube.Data.Provider;
-using StarCube.Utility;
 
 namespace StarCube.Core.State.Data
 {
@@ -13,27 +14,30 @@ namespace StarCube.Core.State.Data
         {
             foreach (O stateDefiner in stateDefiners)
             {
-                if(dataProvider.TryLoad(StateDefinitionData.DataRegistry, stateDefiner.ID, StateDefinitionData.DataReader, out StateDefinitionData? data))
+                if(dataProvider.TryLoad(StateDefinitionData.DataRegistry, prefix, stateDefiner.ID, StateDefinitionData.DataReader, out StateDefinitionData? data))
                 {
-                    StateDefinition<O, S>.Builder builder = new StateDefinition<O, S>.Builder(stateDefiner, factory);
+                    StateDefinition<O, S>.Builder builder = new StateDefinition<O, S>.Builder(stateDefiner, stateFactory);
                     builder.AddRange(data.propertyToDefaultValueIndex);
                     stateDefiner.StateDefinition = builder.Build();
                 }
                 else
                 {
-                    stateDefiner.StateDefinition = StateDefinition<O, S>.BuildSingle(stateDefiner, factory);
+                    stateDefiner.StateDefinition = StateDefinition<O, S>.BuildSingle(stateDefiner, stateFactory);
                 }
             }
         }
 
-        public StateDefinitionDataLoader(IEnumerable<O> stateDefiners, StateHolder<O, S>.Factory factory)
+        public StateDefinitionDataLoader(string prefix, IEnumerable<O> stateDefiners, StateHolder<O, S>.Factory stateFactory)
         {
+            this.prefix = prefix;
             this.stateDefiners = stateDefiners;
-            this.factory = factory;
+            this.stateFactory = stateFactory;
         }
+
+        private readonly string prefix;
 
         private readonly IEnumerable<O> stateDefiners;
 
-        private readonly StateHolder<O, S>.Factory factory;
+        private readonly StateHolder<O, S>.Factory stateFactory;
     }
 }
