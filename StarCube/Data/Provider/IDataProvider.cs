@@ -4,90 +4,127 @@ using System.IO;
 
 using StarCube.Data.Loading;
 using StarCube.Data.DependencyResolver;
-using StarCube.Data.Provider.DataSource;
-using System;
 
 namespace StarCube.Data.Provider
 {
     public interface IDataProvider
     {
-        public readonly struct RawDataEntry
-        {
-            public readonly StringID id;
-            public readonly FileStream stream;
-            public readonly IDataSource source;
+        /// <summary>
+        /// 找到相对路径为 {directory}/{entryName}.* 的数据文件项
+        /// </summary>
+        /// <param name="modid"></param>
+        /// <param name="registry"></param>
+        /// <param name="directory"></param>
+        /// <param name="entryName"></param>
+        /// <param name="dataEntry"></param>
+        /// <returns></returns>
+        internal bool TryGetData(string modid, string registry, string directory, string entryName, out RawDataEntry dataEntry);
 
-            public RawDataEntry(StringID id, FileStream stream, IDataSource source)
-            {
-                this.id = id;
-                this.stream = stream;
-                this.source = source;
-            }
-        }
+        /// <summary>
+        /// 找到相对路径为 {directory}/{entryName}.* 的数据文件项
+        /// </summary>
+        /// <param name="modid"></param>
+        /// <param name="registry"></param>
+        /// <param name="directory"></param>
+        /// <param name="entryName"></param>
+        /// <param name="dataEntryChain"></param>
+        /// <returns></returns>
+        internal bool TryGetDataChain(string modid, string registry, string directory, string entryName, List<RawDataEntry> dataEntryChain);
 
-        public class DataFilterMode
-        {
-            public static readonly DataFilterMode None = new DataFilterMode(string.Empty);
+        /// <summary>
+        /// 枚举目录 {modid}/{direcotry}/ 下的所有数据文件项
+        /// </summary>
+        /// <param name="registry"></param>
+        /// <param name="direcotry"></param>
+        /// <param name="dataEntries"></param>
+        internal void EnumerateData(string registry, string direcotry, List<RawDataEntry> dataEntries);
 
-            public readonly string directoryPrefix;
-
-            public DataFilterMode(string directoryPrefix)
-            {
-                this.directoryPrefix = directoryPrefix;
-            }
-        }
-
-        public bool TryGet(StringID dataRegistry, StringID id, [NotNullWhen(true)] out FileStream? stream)
-        {
-            return TryGet(dataRegistry, string.Empty, id, out stream);
-        }
-
-        public bool TryGet(StringID dataRegistry, string prefix, StringID id, [NotNullWhen(true)] out FileStream? stream);
-        
-        public bool TryGetDataChain(StringID dataRegistry, StringID id, [NotNullWhen(true)] out List<RawDataEntry> dataEntries)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<List<RawDataEntry>> EnumerateDataChains(StringID dataRegistry, DataFilterMode filterMode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry)
-        {
-            return EnumerateData(dataRegistry, DataFilterMode.None);
-        }
-
-        public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode);
+        /// <summary>
+        /// 枚举目录 {modid}/{direcotry}/ 下的所有数据文件项
+        /// </summary>
+        /// <param name="registry"></param>
+        /// <param name="direcotry"></param>
+        /// <param name="dataEntryChains"></param>
+        internal void EnumerateDataChain(string registry, string direcotry, List<List<RawDataEntry>> dataEntryChains);
     }
 
     public static class DataProviderExtension
     {
-        public static bool TryLoad<T>(this IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
+        public static bool TryLoadData<T>(this IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
             where T : class
         {
+            string modidRegistry = Path.Combine(id.namspace, dataRegistry.path);
+            string directory = Path.Combine(modidRegistry, id.path);
+            string entryName = id.path;
             data = null;
-            return dataProvider.TryGet(dataRegistry, id, out FileStream? stream) && dataReader.TryReadDataFrom(stream, id, out  data);
+            return dataProvider.TryGetData(modidRegistry, directory, entryName, out RawDataEntry dataEntry) &&
+                dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out data);
         }
 
-        public static bool TryLoad<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
+        public static bool TryLoadData<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
             where T : class
         {
+            string modidRegistry = Path.Combine(id.namspace, dataRegistry.path);
+            string directory = Path.Combine(modidRegistry, prefix, id.path);
+            string entryName = id.path;
             data = null;
-            return dataProvider.TryGet(dataRegistry, prefix, id, out FileStream? stream) && dataReader.TryReadDataFrom(stream, id, out data);
+            return dataProvider.TryGetData(modidRegistry, directory, entryName, out RawDataEntry dataEntry) &&
+                dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out data);
         }
 
-        public static Dictionary<StringID, T> LoadDataWithDependencies<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> ids, IDataReader<T> dataReader)
+
+        public static List<T> EnumrateData<T>(this IDataProvider dataProvider, StringID dataRegistry, IDataReader<T> dataReader)
+            where T : class
+        {
+            string registry = dataRegistry.path;
+            List<RawDataEntry> dataEntries = new List<RawDataEntry>();
+            List<T> dataList = new List<T>();
+            dataProvider.EnumerateData(registry, registry, dataEntries);
+            foreach (RawDataEntry dataEntry in dataEntries)
+            {
+                if (dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out T? data))
+                {
+                    dataList.Add(data);
+                }
+            }
+            return dataList;
+        }
+
+        public static List<T> EnumrateData<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, IDataReader<T> dataReader)
+            where T : class
+        {
+            string registry = dataRegistry.path;
+            string directory = Path.Combine(registry, prefix);
+            List<RawDataEntry> dataEntries = new List<RawDataEntry>();
+            List<T> dataList = new List<T>();
+            dataProvider.EnumerateData(registry, directory, dataEntries);
+            foreach (RawDataEntry dataEntry in dataEntries)
+            {
+                if (dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out T? data))
+                {
+                    dataList.Add(data);
+                }
+            }
+            return dataList;
+        }
+
+
+        public static Dictionary<StringID, T> LoadDataWithDependencies<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> dataIDs, IDataReader<T> dataReader)
             where T : class, IUnresolvedData<T>
         {
             Dictionary<StringID, T> idToData = new Dictionary<StringID, T>();
 
-            foreach (StringID id in ids)
+            foreach (StringID id in dataIDs)
             {
+                if(idToData.ContainsKey(id))
+                {
+                    continue;
+                }
+
                 void LoadWithDependency(StringID dataID)
                 {
-                    if(!dataProvider.TryLoad(dataRegistry, dataID, dataReader, out T? data))
+
+                    if(!dataProvider.TryLoadData(dataRegistry, dataID, dataReader, out T? data))
                     {
                         return;
                     }
@@ -118,20 +155,6 @@ namespace StarCube.Data.Provider
             }
 
             return idToData;
-        }
-
-        public static IEnumerable<T> EnumerateData<T>(this IDataProvider dataProvider, StringID dataRegistry, IDataProvider.DataFilterMode filterMode, IDataReader<T> dataReader)
-            where T : class, IStringID
-        {
-            List<T> dataList = new List<T>();
-            foreach (IDataProvider.RawDataEntry entry in dataProvider.EnumerateData(dataRegistry, filterMode))
-            {
-                if(dataReader.TryReadDataFrom(entry.stream, entry.id, out T? data))
-                {
-                    dataList.Add(data);
-                }
-            }
-            return dataList;
         }
     }
 }

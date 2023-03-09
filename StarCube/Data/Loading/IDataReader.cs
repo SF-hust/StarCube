@@ -14,6 +14,6 @@ namespace StarCube.Data.Loading
         /// <param name="id"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public bool TryReadDataFrom(FileStream fileStream, StringID id, [NotNullWhen(true)] out T? data);
+        public bool TryReadDataFrom(Stream stream, StringID id, [NotNullWhen(true)] out T? data);
     }
 }

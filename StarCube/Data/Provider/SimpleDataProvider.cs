@@ -1,20 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 using StarCube.Data.Provider.DataSource;
-using static StarCube.Data.Provider.IDataProvider;
 
 namespace StarCube.Data.Provider
 {
     public class SimpleDataProvider : IDataProvider
     {
         // ~ IDataProvider 接口实现 start
-        public IEnumerable<RawDataEntry> EnumerateData(StringID dataRegistry, DataFilterMode filterMode)
+        bool IDataProvider.TryGetData(string modid, string registry, string directory, string entryName, out RawDataEntry dataEntry)
         {
-            List<RawDataEntry> dataEntries = new List<RawDataEntry>();
-            // 遍历所有以 modid 命名的文件夹
+            dataEntry = new RawDataEntry();
+
+            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, directory, entryName).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
+            string directoryPath = Path.GetDirectoryName(filePathWithoutExtension);
+            string searchPattern = Path.GetFileName(entryName) + "*";
+
+            bool found = false;
+            string foundFilePath = string.Empty;
+            foreach (string filePath in Directory.EnumerateFiles(directoryPath, searchPattern, SearchOption.TopDirectoryOnly))
+            {
+                if (filePath.StartsWith(filePathWithoutExtension, StringComparison.Ordinal) &&
+                    (filePath.Length == filePathWithoutExtension.Length ||
+                    filePath.IndexOf('.') == filePathWithoutExtension.Length))
+                {
+                    // 多个文件命名冲突，视为不存在这个文件
+                    if (found)
+                    {
+                        return false;
+                    }
+
+                    found = true;
+                    foundFilePath = filePath;
+                }
+            }
+
+            if (!found)
+            {
+                return false;
+            }
+
+            string registryPath = Path.Combine(dataDirectoryPath, modid, registry);
+            string entryPath = Path.GetRelativePath(registryPath, filePathWithoutExtension).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
+
+            if (!StringID.TryCreate(modid, entryPath, out StringID id))
+            {
+                return false;
+            }
+            Stream stream = new FileStream(foundFilePath, FileMode.Open);
+            IDataSource source = new FileDataSource(foundFilePath);
+            dataEntry = new RawDataEntry(id, stream, source);
+
+            return true;
+        }
+
+        bool IDataProvider.TryGetDataChain(string modid, string registry, string directory, string entryName, List<RawDataEntry> dataEntryChain)
+        {
+            if((this as IDataProvider).TryGetData(modid, registry, directory, entryName, out RawDataEntry dataEntry))
+            {
+                dataEntryChain.Add(dataEntry);
+                return true;
+            }
+            return false;
+        }
+
+        void IDataProvider.EnumerateData(string registry, string direcotry, List<RawDataEntry> dataEntries)
+        {
+            // 遍历所有符合 modid 格式的文件夹
             foreach (string directoryForModid in Directory.EnumerateDirectories(dataDirectoryPath))
             {
                 string modid = Path.GetFileName(directoryForModid);
@@ -23,12 +76,18 @@ namespace StarCube.Data.Provider
                     continue;
                 }
 
-                string directoryPath = Path.Combine(directoryForModid, dataRegistry.path);
-                GetAllDataEntriesInDirectory(directoryPath, modid, filterMode, dataEntries);
+                string registryPath = Path.Combine(directoryForModid, registry);
+                string directoryPath = Path.Combine(registryPath, direcotry);
+                GetAllDataEntriesInDirectory(modid, registryPath, directoryPath, dataEntries);
             }
-
-            return dataEntries;
         }
+
+        void IDataProvider.EnumerateDataChain(string registry, string direcotry, List<List<RawDataEntry>> dataEntryChains)
+        {
+            throw new NotImplementedException();
+        }
+
+        // ~ IDataProvider 接口实现 end
 
         /// <summary>
         /// 递归查找文件夹及其子文件夹里的数据文件
@@ -37,7 +96,7 @@ namespace StarCube.Data.Provider
         /// <param name="modid">模组 id</param>
         /// <param name="filterMode">过滤设置</param>
         /// <param name="dataEntries">输出的数据项目</param>
-        private void GetAllDataEntriesInDirectory(string directoryPath, string modid, DataFilterMode filterMode, List<RawDataEntry> dataEntries)
+        private void GetAllDataEntriesInDirectory(string modid, string registryPath, string directoryPath, List<RawDataEntry> dataEntries)
         {
             // 合法的文件名到其路径的映射
             Dictionary<string, string> fileToPath = new Dictionary<string, string>();
@@ -45,8 +104,7 @@ namespace StarCube.Data.Provider
             HashSet<string> conflictFilenames = new HashSet<string>();
 
             // 查找本文件夹下的所有数据文件
-            string searchPattern = filterMode.directoryPrefix.Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar) + "*";
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath, searchPattern, SearchOption.AllDirectories))
+            foreach (string filePath in Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories))
             {
                 // 确认文件名合法
                 string filename = Path.GetRelativePath(directoryPath, filePath).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
@@ -87,44 +145,6 @@ namespace StarCube.Data.Provider
                 dataEntries.Add(new RawDataEntry(id, stream, source));
             }
         }
-
-        public bool TryGet(StringID dataRegistry, string prefix, StringID id, [NotNullWhen(true)] out FileStream? stream)
-        {
-            stream = null;
-
-            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, id.namspace, dataRegistry.path, prefix, id.path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
-            string directoryPath = Path.GetDirectoryName(filePathWithoutExtension);
-            string searchPattern = Path.GetFileName(id.path) + "*";
-
-            bool found = false;
-            string foundFilePath = string.Empty;
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath, searchPattern, SearchOption.TopDirectoryOnly))
-            {
-                if (filePath.StartsWith(filePathWithoutExtension, StringComparison.Ordinal) &&
-                    (filePath.Length == filePathWithoutExtension.Length ||
-                    filePath.IndexOf('.') == filePathWithoutExtension.Length))
-                {
-                    // 多个文件命名冲突，视为不存在这个文件
-                    if (found)
-                    {
-                        return false;
-                    }
-
-                    found = true;
-                    foundFilePath = filePath;
-                }
-            }
-
-            if (!found)
-            {
-                return false;
-            }
-
-            stream = new FileStream(foundFilePath, FileMode.Open);
-
-            return true;
-        }
-        // ~ IDataProvider 接口实现 end
 
         public SimpleDataProvider(string dataDirectoryPath)
         {

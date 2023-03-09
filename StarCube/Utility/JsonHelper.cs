@@ -301,12 +301,12 @@ namespace StarCube.Utility
             return true;
         }
 
-        public static JObject ReadFromStreamSync(FileStream stream)
+        public static JObject ReadFromStreamSync(Stream stream)
         {
             return JObject.Load(new JsonTextReader(new StreamReader(stream)));
         }
 
-        public static bool TryReadFromStreamSync(FileStream stream, [NotNullWhen(true)] out JObject? json)
+        public static bool TryReadFromStreamSync(Stream stream, [NotNullWhen(true)] out JObject? json)
         {
             try
             {

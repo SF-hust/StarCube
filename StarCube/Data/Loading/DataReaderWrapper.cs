@@ -8,11 +8,11 @@ namespace StarCube.Data.Loading
     /// 从文件流中读取数据并转换为原始类型数据格式
     /// </summary>
     /// <typeparam name="R"></typeparam>
-    /// <param name="fileStream"></param>
-    /// <param name="id"></param>
+    /// <param name="stream"></param>
+    /// <param name="length"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public delegate bool RawDataReader<R>(FileStream fileStream, [NotNullWhen(true)] out R? data)
+    public delegate bool RawDataReader<R>(Stream stream, [NotNullWhen(true)] out R? data)
         where R : class;
 
     /// <summary>
@@ -38,10 +38,10 @@ namespace StarCube.Data.Loading
         where D : class
         where R : class
     {
-        public bool TryReadDataFrom(FileStream fileStream, StringID id, [NotNullWhen(true)] out D? data)
+        public bool TryReadDataFrom(Stream Stream, StringID id, [NotNullWhen(true)] out D? data)
         {
             data = null;
-            return TryReadFromStream(fileStream, out R? structuredData) && TryParse(structuredData, id, out data);
+            return TryReadFromStream(Stream, out R? rawData) && TryParse(rawData, id, out data);
         }
 
         public DataReaderWrapper(RawDataReader<R> rawDataReader, DataParser<D, R> dataParser)
