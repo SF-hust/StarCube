@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StarCube.Mod.Attributes
+namespace StarCube.Core.Mod
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class ModAttribute : Attribute

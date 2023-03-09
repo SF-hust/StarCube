@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace StarCube.Mod
+namespace StarCube.Core.Mod
 {
     public class ModInfo
     {
