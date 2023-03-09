@@ -58,10 +58,10 @@ namespace StarCube.Core.State.Data
             return true;
         }
 
-        public StateDefinitionData(StringID id, List<StatePropertyEntry> propertyToDefaultValueIndex)
+        public StateDefinitionData(StringID id, List<StatePropertyEntry> propertyEntries)
         {
             this.id = id;
-            this.propertyEntries = propertyToDefaultValueIndex;
+            this.propertyEntries = propertyEntries;
         }
 
         StringID IStringID.ID => id;
