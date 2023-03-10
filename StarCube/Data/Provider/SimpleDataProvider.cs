@@ -23,6 +23,13 @@ namespace StarCube.Data.Provider
 
             bool found = false;
             string foundFilePath = string.Empty;
+
+            // 要先检查目录是否存在，否则可能抛异常
+            if(!Directory.Exists(directory))
+            {
+                return false;
+            }
+
             foreach (string filePath in Directory.EnumerateFiles(directory, searchPattern, SearchOption.TopDirectoryOnly))
             {
                 // 判断文件是否匹配
@@ -69,6 +76,11 @@ namespace StarCube.Data.Provider
 
         void IDataProvider.EnumerateData(string registry, string directory, List<RawDataEntry> dataEntries)
         {
+            if(!Directory.Exists(dataDirectoryPath))
+            {
+                return;
+            }
+
             // 遍历所有符合 modid 格式的文件夹
             foreach (string modidDirectory in Directory.EnumerateDirectories(dataDirectoryPath))
             {
@@ -108,6 +120,11 @@ namespace StarCube.Data.Provider
             Dictionary<string, string> entryToFilePath = new Dictionary<string, string>();
             // 因文件名冲突而被排除的文件
             HashSet<string> conflictFiles = new HashSet<string>();
+
+            if(!Directory.Exists(searchDirectory))
+            {
+                return;
+            }
 
             // 遍历本文件夹下的所有文件
             foreach (string filePath in Directory.EnumerateFiles(searchDirectory, "*", SearchOption.AllDirectories))
