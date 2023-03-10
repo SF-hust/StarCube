@@ -1,7 +1,6 @@
 ﻿using System;
 
 using StarCube.Utility;
-using StarCube.Data;
 
 namespace StarCube.Core.Registry
 {
@@ -29,12 +28,12 @@ namespace StarCube.Core.Registry
         /// <summary>
         /// 该对象的字符串 id
         /// </summary>
-        StringID IStringID.ID => AbstractEntryRegistryData.ID;
+        public new StringID ID => AbstractEntryRegistryData.ID;
 
         /// <summary>
         /// 该对象的整数 id
         /// </summary>
-        int IIntegerID.IntegerID => AbstractEntryRegistryData.integerID;
+        public new int IntegerID => AbstractEntryRegistryData.integerID;
 
         /// <summary>
         /// 该对象的名称
@@ -42,7 +41,7 @@ namespace StarCube.Core.Registry
         public string Name => AbstractEntryRegistryData.Name;
 
         /// <summary>
-        /// 该对象所属的 modid
+        /// 该对象所属的 mod 的 modid
         /// </summary>
         public string Modid => AbstractEntryRegistryData.Modid;
 
@@ -50,6 +49,10 @@ namespace StarCube.Core.Registry
         /// 该对象的 Registry, 具体类型未知
         /// </summary>
         public Registry AbstractRegistry => AbstractEntryRegistryData.AbstractRegistry;
+
+        StringID IStringID.ID => ID;
+
+        int IIntegerID.IntegerID => IntegerID;
     }
 
     /// <summary>
