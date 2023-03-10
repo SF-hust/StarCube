@@ -16,7 +16,7 @@ namespace StarCube.Data.Provider
             dataEntry = new RawDataEntry();
 
             // 文件相对于 directory 目录的路径去掉扩展名
-            string entryPath = Path.Combine(modid, registry, path);
+            string entryPath = Path.Combine(modid, registry, path).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
 
             if(!entryPathToZipEntry.TryGetValue(entryPath, out ZipArchiveEntry? zipEntry))
             {
@@ -28,9 +28,9 @@ namespace StarCube.Data.Provider
                 return false;
             }
 
-            dataEntry = new RawDataEntry(id, zipEntry.Open(), dataSource);
+            dataEntry = new RawDataEntry(id, zipEntry.Open(), zipEntry.Length, dataSource);
 
-            return false;
+            return true;
         }
 
         bool IDataProvider.TryGetDataChain(string modid, string registry, string path, List<RawDataEntry> dataEntryChain)
@@ -63,7 +63,7 @@ namespace StarCube.Data.Provider
                     continue;
                 }
 
-                RawDataEntry dataEntry = new RawDataEntry(id, pair.Value.Open(), dataSource);
+                RawDataEntry dataEntry = new RawDataEntry(id, pair.Value.Open(), pair.Value.Length, dataSource);
                 dataEntries.Add(dataEntry);
             }
         }
@@ -87,7 +87,7 @@ namespace StarCube.Data.Provider
             foreach (ZipArchiveEntry zipEntry in zip.Entries)
             {
                 // 文件相对于 zip 文档根目录路径去掉扩展名
-                string filePath = Path.GetFileNameWithoutExtension(zipEntry.Name).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
+                string filePath = Path.ChangeExtension(zipEntry.FullName, null).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
 
                 if(!filePath.StartsWith(directory, StringComparison.Ordinal))
                 {
@@ -95,7 +95,7 @@ namespace StarCube.Data.Provider
                 }
 
                 // 文件相对于 directory 路径去掉扩展名
-                string entryPath = Path.GetRelativePath(directory, filePath);
+                string entryPath = Path.GetRelativePath(directory, filePath).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
 
                 // 检查冲突
                 if(conflictEntryPaths.Contains(entryPath))

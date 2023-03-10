@@ -18,14 +18,20 @@ namespace StarCube.Data.Provider
         public readonly Stream stream;
 
         /// <summary>
+        /// 数据的字节长度
+        /// </summary>
+        public readonly long length;
+
+        /// <summary>
         /// 数据的来源
         /// </summary>
         public readonly IDataSource source;
 
-        public RawDataEntry(StringID id, Stream stream, IDataSource source)
+        public RawDataEntry(StringID id, Stream stream, long length, IDataSource source)
         {
             this.id = id;
             this.stream = stream;
+            this.length = length;
             this.source = source;
         }
     }

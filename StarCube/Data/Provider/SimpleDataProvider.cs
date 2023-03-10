@@ -14,10 +14,8 @@ namespace StarCube.Data.Provider
         {
             dataEntry = new RawDataEntry();
 
-            // registry 文件夹的绝对路径
-            string registryPath = Path.Combine(dataDirectoryPath, modid, registry);
             // 数据文件绝对路径去掉扩展名
-            string filePathWithoutExtension = Path.Combine(registryPath, path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
+            string filePathWithoutExtension = Path.Combine(dataDirectoryPath, modid, registry, path).Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar);
             // 数据文件所在文件夹绝对路径
             string directory = Path.GetDirectoryName(filePathWithoutExtension);
             // 数据文件名去掉扩展名 + "*"
@@ -51,9 +49,10 @@ namespace StarCube.Data.Provider
             {
                 return false;
             }
-            Stream stream = new FileStream(foundFilePath, FileMode.Open);
+            FileStream stream = new FileStream(foundFilePath, FileMode.Open);
+            long length = stream.Length;
             IDataSource source = new FileDataSource(foundFilePath);
-            dataEntry = new RawDataEntry(id, stream, source);
+            dataEntry = new RawDataEntry(id, stream, length, source);
 
             return true;
         }
@@ -149,8 +148,9 @@ namespace StarCube.Data.Provider
 
                 StringID id = StringID.Create(modid, entryPath);
                 FileStream stream = new FileStream(filePath, FileMode.Open);
+                long length = stream.Length;
                 IDataSource source = new FileDataSource(filePath);
-                dataEntries.Add(new RawDataEntry(id, stream, source));
+                dataEntries.Add(new RawDataEntry(id, stream, length, source));
             }
         }
 

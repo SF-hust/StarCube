@@ -54,16 +54,16 @@ namespace StarCube.Data.Provider
         {
             data = null;
             return dataProvider.TryGetData(id.namspace, dataRegistry.path, id.path, out RawDataEntry dataEntry) &&
-                dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out data);
+                dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out data);
         }
 
         public static bool TryLoadData<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
             where T : class
         {
-            string path = Path.Combine(prefix, id.path);
+            string path = Path.Combine(prefix, id.path).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
             data = null;
             return dataProvider.TryGetData(id.namspace, dataRegistry.path, path, out RawDataEntry dataEntry) &&
-                dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out data);
+                dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out data);
         }
 
 
@@ -76,7 +76,7 @@ namespace StarCube.Data.Provider
             List<T> dataList = new List<T>();
             foreach (RawDataEntry dataEntry in dataEntries)
             {
-                if (dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out T? data))
+                if (dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out T? data))
                 {
                     dataList.Add(data);
                 }
@@ -94,7 +94,7 @@ namespace StarCube.Data.Provider
             List<T> dataList = new List<T>();
             foreach (RawDataEntry dataEntry in dataEntries)
             {
-                if (dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.id, out T? data))
+                if (dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out T? data))
                 {
                     dataList.Add(data);
                 }

@@ -13,7 +13,7 @@ namespace StarCube.Data.Loading
     /// <param name="length"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public delegate bool RawDataReader<R>(Stream stream, [NotNullWhen(true)] out R? data)
+    public delegate bool RawDataReader<R>(Stream stream, long length, [NotNullWhen(true)] out R? data)
         where R : class;
 
     /// <summary>
@@ -39,10 +39,10 @@ namespace StarCube.Data.Loading
         where D : class
         where R : class
     {
-        public bool TryReadDataFrom(Stream Stream, StringID id, [NotNullWhen(true)] out D? data)
+        public bool TryReadDataFrom(Stream Stream, long length, StringID id, [NotNullWhen(true)] out D? data)
         {
             data = null;
-            return TryReadFromStream(Stream, out R? rawData) && TryParse(rawData, id, out data);
+            return TryReadFromStream(Stream, length, out R? rawData) && TryParse(rawData, id, out data);
         }
 
         public DataReaderWrapper(RawDataReader<R> rawDataReader, DataParser<D, R> dataParser)

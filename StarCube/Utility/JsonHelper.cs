@@ -305,6 +305,10 @@ namespace StarCube.Utility
         {
             return JObject.Load(new JsonTextReader(new StreamReader(stream)));
         }
+        public static bool TryReadFromStreamSync(Stream stream, long length, [NotNullWhen(true)] out JObject? json)
+        {
+            return TryReadFromStreamSync(stream, out json);
+        }
 
         public static bool TryReadFromStreamSync(Stream stream, [NotNullWhen(true)] out JObject? json)
         {

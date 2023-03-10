@@ -11,11 +11,11 @@ namespace StarCube.Data.Loading
         /// <summary>
         /// 从文件流中读取数据并解析成特定格式
         /// </summary>
-        /// <param name="fileStream"></param>
-        /// <param name="dataRegistry"></param>
+        /// <param name="stream"></param>
+        /// <param name="length"></param>
         /// <param name="id"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public bool TryReadDataFrom(Stream stream, StringID id, [NotNullWhen(true)] out T? data);
+        public bool TryReadDataFrom(Stream stream, long length, StringID id, [NotNullWhen(true)] out T? data);
     }
 }
