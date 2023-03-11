@@ -97,40 +97,46 @@ namespace StarCube.Data.Provider
                     continue;
                 }
 
-                void LoadWithDependency(StringID dataID)
-                {
-
-                    if(!dataProvider.TryLoadData(dataRegistry, dataID, dataReader, out T? data))
-                    {
-                        return;
-                    }
-
-                    idToData.Add(dataID, data);
-
-                    foreach (StringID depID in data.RequiredDependencies)
-                    {
-                        if(idToData.ContainsKey(depID))
-                        {
-                            continue;
-                        }
-
-                        LoadWithDependency(depID);
-                    }
-                    foreach (StringID depID in data.OptionalDependencies)
-                    {
-                        if (idToData.ContainsKey(depID))
-                        {
-                            continue;
-                        }
-
-                        LoadWithDependency(depID);
-                    }
-                }
-
-                LoadWithDependency(id);
+                LoadDataWithDependency(dataProvider, dataRegistry, id, dataReader, idToData);
             }
 
             return idToData;
+        }
+
+        private static void LoadDataWithDependency<T>(this IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, Dictionary<StringID, T> idToData)
+            where T : class, IUnresolvedData<T>
+        {
+            if (idToData.ContainsKey(id))
+            {
+                return;
+            }
+
+            if (!dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
+            {
+                return;
+            }
+
+            idToData.Add(id, data);
+
+            foreach (StringID depID in data.RequiredDependencies)
+            {
+                if (idToData.ContainsKey(depID))
+                {
+                    continue;
+                }
+
+                LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, idToData);
+            }
+
+            foreach (StringID depID in data.OptionalDependencies)
+            {
+                if (idToData.ContainsKey(depID))
+                {
+                    continue;
+                }
+
+                LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, idToData);
+            }
         }
     }
 }
