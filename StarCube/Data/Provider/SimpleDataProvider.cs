@@ -64,16 +64,6 @@ namespace StarCube.Data.Provider
             return true;
         }
 
-        bool IDataProvider.TryGetDataChain(string modid, string registry, string path, List<RawDataEntry> dataEntryChain)
-        {
-            if((this as IDataProvider).TryGetData(modid, registry, path, out RawDataEntry dataEntry))
-            {
-                dataEntryChain.Add(dataEntry);
-                return true;
-            }
-            return false;
-        }
-
         void IDataProvider.EnumerateData(string registry, string directory, List<RawDataEntry> dataEntries)
         {
             if(!Directory.Exists(dataDirectoryPath))
@@ -98,11 +88,6 @@ namespace StarCube.Data.Provider
 
                 GetAllDataEntriesInDirectory(modid, registryPath, searchDirectory, dataEntries);
             }
-        }
-
-        void IDataProvider.EnumerateDataChain(string registry, string directory, List<List<RawDataEntry>> dataEntryChains)
-        {
-            throw new NotImplementedException();
         }
         /* ~ IDataProvider 接口实现 end ~ */
 

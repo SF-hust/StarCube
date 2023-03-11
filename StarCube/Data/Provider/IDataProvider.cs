@@ -21,30 +21,12 @@ namespace StarCube.Data.Provider
         internal protected bool TryGetData(string modid, string registry, string path, out RawDataEntry dataEntry);
 
         /// <summary>
-        /// 找到相对数据根路径为 {modid}/{registry}/{path}.* 的数据文件
-        /// </summary>
-        /// <param name="modid"> 数据 id 的 modid </param>
-        /// <param name="registry"> 数据 registry 的 path </param>
-        /// <param name="path"> 数据 id 的 path </param>
-        /// <param name="dataEntryChain"></param>
-        /// <returns></returns>
-        internal protected bool TryGetDataChain(string modid, string registry, string path, List<RawDataEntry> dataEntryChain);
-
-        /// <summary>
         /// 枚举目录 {modid}/{directory}/ 下的所有数据文件
         /// </summary>
         /// <param name="registry">数据 registry 的 path</param>
         /// <param name="directory">要遍历的文件夹相对 modid 文件夹的相对路径</param>
         /// <param name="dataEntries"></param>
         internal protected void EnumerateData(string registry, string directory, List<RawDataEntry> dataEntries);
-
-        /// <summary>
-        /// 枚举目录 {modid}/{directory}/ 下的所有数据文件
-        /// </summary>
-        /// <param name="registry">数据 registry 的 path</param>
-        /// <param name="directory">要遍历的文件夹相对 modid 文件夹的相对路径</param>
-        /// <param name="dataEntryChains"></param>
-        internal protected void EnumerateDataChain(string registry, string directory, List<List<RawDataEntry>> dataEntryChains);
     }
 
     public static class DataProviderExtension

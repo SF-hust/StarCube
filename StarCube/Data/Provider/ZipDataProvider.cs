@@ -33,16 +33,6 @@ namespace StarCube.Data.Provider
             return true;
         }
 
-        bool IDataProvider.TryGetDataChain(string modid, string registry, string path, List<RawDataEntry> dataEntryChain)
-        {
-            if ((this as IDataProvider).TryGetData(modid, registry, path, out RawDataEntry dataEntry))
-            {
-                dataEntryChain.Add(dataEntry);
-                return true;
-            }
-            return false;
-        }
-
         void IDataProvider.EnumerateData(string registry, string directory, List<RawDataEntry> dataEntries)
         {
             foreach (var pair in entryPathToZipEntry)
@@ -66,11 +56,6 @@ namespace StarCube.Data.Provider
                 RawDataEntry dataEntry = new RawDataEntry(id, pair.Value.Open(), pair.Value.Length, dataSource);
                 dataEntries.Add(dataEntry);
             }
-        }
-
-        void IDataProvider.EnumerateDataChain(string registry, string directory, List<List<RawDataEntry>> dataEntryChains)
-        {
-            throw new NotImplementedException();
         }
         /* ~ IDataProvider 接口实现 end ~ */
 
