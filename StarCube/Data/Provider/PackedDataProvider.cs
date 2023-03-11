@@ -11,17 +11,7 @@ namespace StarCube.Data.Provider
             throw new NotImplementedException();
         }
 
-        bool IDataProvider.TryGetDataChain(string modid, string registry, string path, List<RawDataEntry> dataEntryChain)
-        {
-            throw new NotImplementedException();
-        }
-
         void IDataProvider.EnumerateData(string registry, string direcotry, List<RawDataEntry> dataEntries)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IDataProvider.EnumerateDataChain(string registry, string direcotry, List<List<RawDataEntry>> dataEntryChains)
         {
             throw new NotImplementedException();
         }
