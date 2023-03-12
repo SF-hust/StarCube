@@ -15,7 +15,7 @@ namespace StarCube.Game.Block.Data
 
         public static bool TryParseFromJson(JObject json, out BlockStatePropertyMatcher matcher)
         {
-            matcher = BlockStatePropertyMatcher.EMPTY;
+            matcher = EMPTY;
 
             List<KeyValuePair<string, List<string>>> propertyNameToValueStrings = new List<KeyValuePair<string, List<string>>>();
             foreach (var pair in json)
@@ -56,7 +56,7 @@ namespace StarCube.Game.Block.Data
 
 
         /// <summary>
-        /// 尝试将某个 BlockState 的属性与对应的值与这个 Matcher 进行匹配
+        /// 尝试将某个 BlockState 的属性与这个 Matcher 进行匹配
         /// </summary>
         /// <param name="blockState"></param>
         /// <returns>匹配是否成功</returns>

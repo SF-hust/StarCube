@@ -107,15 +107,11 @@ namespace StarCube.Data.Provider
             where T : class, IUnresolvedData<T>
         {
             List<T> loadedData = new List<T>();
+            // 已加载过的数据的 id 记录，防止重复加载
             HashSet<StringID> loadedDataID = new HashSet<StringID>();
 
             foreach (StringID id in dataIDs)
             {
-                if (loadedDataID.Contains(id))
-                {
-                    continue;
-                }
-
                 static void LoadDataWithDependency(IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, HashSet<StringID> loadedDataID, List<T> loadedData)
                 {
                     if (loadedDataID.Contains(id))
@@ -123,14 +119,13 @@ namespace StarCube.Data.Provider
                         return;
                     }
 
+                    // 先加载自身
                     if (!dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
                     {
                         return;
                     }
 
-                    loadedDataID.Add(id);
-                    loadedData.Add(data);
-
+                    // 再处理依赖
                     foreach (StringID depID in data.RequiredDependencies)
                     {
                         if (loadedDataID.Contains(depID))
@@ -140,7 +135,6 @@ namespace StarCube.Data.Provider
 
                         LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
                     }
-
                     foreach (StringID depID in data.OptionalDependencies)
                     {
                         if (loadedDataID.Contains(depID))
@@ -151,6 +145,14 @@ namespace StarCube.Data.Provider
                         LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
                     }
 
+                    // 最后将自身放进表中，即被依赖项总是在依赖项之前
+                    loadedDataID.Add(id);
+                    loadedData.Add(data);
+                }
+
+                if (loadedDataID.Contains(id))
+                {
+                    continue;
                 }
 
                 LoadDataWithDependency(dataProvider, dataRegistry, id, dataReader, loadedDataID, loadedData);

@@ -11,7 +11,7 @@ namespace StarCube.Utility.Json
             public IJson Parse(string jsonString);
         }
 
-        public static IFactory factory;
+        public static IFactory factory = null!;
 
         public static IJson Create()
         {
