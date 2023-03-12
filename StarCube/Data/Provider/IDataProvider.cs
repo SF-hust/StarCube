@@ -128,6 +128,7 @@ namespace StarCube.Data.Provider
                         return;
                     }
 
+                    loadedDataID.Add(id);
                     loadedData.Add(data);
 
                     foreach (StringID depID in data.RequiredDependencies)
