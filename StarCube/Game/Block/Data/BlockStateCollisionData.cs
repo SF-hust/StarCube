@@ -21,6 +21,9 @@ namespace StarCube.Game.Block.Data
             data = null;
             List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry = new List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>>();
 
+            // 是否是多部分组成的
+            json.TryGetBoolean("multipart", out bool multipart);
+
             // 获取本文件中定义的默认值
             CollisionDataEntry defaultEntry = CollisionDataEntry.ParseFromJson(json, CollisionDataEntry.DEFAULT);
 
@@ -48,7 +51,7 @@ namespace StarCube.Game.Block.Data
             // 在最后添加一个空的匹配规则与默认值
             matcherToEntry.Add(new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.EMPTY, defaultEntry));
 
-            data = new BlockStateCollisionData(id, matcherToEntry);
+            data = new BlockStateCollisionData(id, multipart, matcherToEntry);
             return true;
         }
 
@@ -95,7 +98,7 @@ namespace StarCube.Game.Block.Data
 
 
         /// <summary>
-        /// 获取此
+        /// 获取与给定 BlockState 匹配的碰撞数据项
         /// </summary>
         /// <param name="blockState"></param>
         /// <returns></returns>
@@ -113,16 +116,23 @@ namespace StarCube.Game.Block.Data
                 if(pair.Key.Match(blockState))
                 {
                     matchingEntries.Add(pair.Value);
+                    if (!isMultipart)
+                    {
+                        break;
+                    }
                 }
             }
 
             return matchingEntries;
         }
 
-        public BlockStateCollisionData(StringID id, List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry) : base(id)
+        public BlockStateCollisionData(StringID id, bool isMultipart, List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry) : base(id)
         {
+            this.isMultipart = isMultipart;
             this.matcherToEntry = matcherToEntry;
         }
+
+        public readonly bool isMultipart;
 
         public readonly List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry;
     }
