@@ -4,8 +4,10 @@ using StarCube.Utility.Physics;
 
 namespace StarCube.Core.Collision.Data
 {
-    public class CollisionData
+    public class CollisionData : IStringID
     {
+        StringID IStringID.ID => id;
+
         public CollisionData(StringID id, List<BoxColliderData> boxColliders, List<SphereColliderData> sphereColliders, List<CapsuleColliderData> capsuleColliders)
         {
             this.id = id;
