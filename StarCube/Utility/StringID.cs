@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace StarCube.Utility
@@ -140,6 +141,15 @@ namespace StarCube.Utility
             return true;
         }
 
+        /// <summary>
+        /// 判断一个 string id 是否有效，即非空且不为 Failed
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static bool Valid( [NotNullWhen(true)] StringID? id)
+        {
+            return id != null && id != Failed;
+        }
 
         /// <summary>
         /// 判断一个字符串是否是合法的 StringID
