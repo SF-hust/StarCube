@@ -19,6 +19,31 @@ namespace StarCube.Core.Collision.Data
 
         public static readonly IDataReader<RawCollisionData> DataReader = new DataReaderWrapper<RawCollisionData, JObject>(RawDataReaders.JSON, TryParseFromJson);
 
+        public static readonly StringID AIR_COLLISION_ID = StringID.Create(Constants.DEFAULT_NAMESPACE, "block/air");
+
+        public static readonly StringID CUBE_COLLISION_ID = StringID.Create(Constants.DEFAULT_NAMESPACE, "block/cube");
+
+        /// <summary>
+        /// 无碰撞
+        /// </summary>
+        public static readonly RawCollisionData AIR = new RawCollisionData(
+            AIR_COLLISION_ID,
+            null,
+            new List<BoxColliderData> { BoxColliderData.FULLCUBE },
+            new List<SphereColliderData>(),
+            new List<CapsuleColliderData>());
+
+        /// <summary>
+        /// 完整方块的碰撞
+        /// </summary>
+        public static readonly RawCollisionData CUBE = new RawCollisionData(
+            CUBE_COLLISION_ID,
+            null,
+            new List<BoxColliderData> { BoxColliderData.FULLCUBE },
+            new List<SphereColliderData>(),
+            new List<CapsuleColliderData>());
+
+
         public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out RawCollisionData? data)
         {
             data = null;
@@ -187,7 +212,7 @@ namespace StarCube.Core.Collision.Data
 
         StringID IStringID.ID => id;
 
-        public RawCollisionData(StringID id, StringID parent, List<BoxColliderData> boxColliders, List<SphereColliderData> sphereColliders, List<CapsuleColliderData> capsuleColliders)
+        public RawCollisionData(StringID id, StringID? parent, List<BoxColliderData> boxColliders, List<SphereColliderData> sphereColliders, List<CapsuleColliderData> capsuleColliders)
         {
             this.id = id;
             this.parent = StringID.Valid(parent) ? parent : null;
