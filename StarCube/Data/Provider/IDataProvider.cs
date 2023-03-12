@@ -103,6 +103,61 @@ namespace StarCube.Data.Provider
             return idToData;
         }
 
+        public static List<T> LoadDataWithDependency<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> dataIDs, IDataReader<T> dataReader)
+            where T : class, IUnresolvedData<T>
+        {
+            List<T> loadedData = new List<T>();
+            HashSet<StringID> loadedDataID = new HashSet<StringID>();
+
+            foreach (StringID id in dataIDs)
+            {
+                if (loadedDataID.Contains(id))
+                {
+                    continue;
+                }
+
+                static void LoadDataWithDependency(IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, HashSet<StringID> loadedDataID, List<T> loadedData)
+                {
+                    if (loadedDataID.Contains(id))
+                    {
+                        return;
+                    }
+
+                    if (!dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
+                    {
+                        return;
+                    }
+
+                    loadedData.Add(data);
+
+                    foreach (StringID depID in data.RequiredDependencies)
+                    {
+                        if (loadedDataID.Contains(depID))
+                        {
+                            continue;
+                        }
+
+                        LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
+                    }
+
+                    foreach (StringID depID in data.OptionalDependencies)
+                    {
+                        if (loadedDataID.Contains(depID))
+                        {
+                            continue;
+                        }
+
+                        LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
+                    }
+
+                }
+
+                LoadDataWithDependency(dataProvider, dataRegistry, id, dataReader, loadedDataID, loadedData);
+            }
+
+            return loadedData;
+        }
+
         private static void LoadDataWithDependency<T>(this IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, Dictionary<StringID, T> idToData)
             where T : class, IUnresolvedData<T>
         {
