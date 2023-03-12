@@ -13,10 +13,7 @@ namespace StarCube.Game.Block
         {
         }
 
-        /*
-         * 作为 RegistryEntry
-         */
-
+        /* ~ IRegistryEntry<Block> 接口实现 start ~ */
         public RegistryEntryData<Block> RegistryEntryData
         {
             get => IRegistryEntry<Block>.RegistryEntryGetHelper(regData);
@@ -25,14 +22,17 @@ namespace StarCube.Game.Block
         private RegistryEntryData<Block>? regData = null;
 
         public virtual Type AsEntryType => typeof(Block);
+        /* ~ IRegistryEntry<Block> 接口实现 end ~ */
 
-        /*
-         * 作为 StateDefiner
-         */
-
-        public StateDefinition<Block, BlockState> StateDefinition { get => stateDefinition!; set => stateDefinition ??= value; }
+        /* ~ IStateDefiner<Block, BlockState> 接口实现 start ~ */
+        public StateDefinition<Block, BlockState> StateDefinition
+        {
+            get => stateDefinition!;
+            set => stateDefinition ??= value;
+        }
 
         private StateDefinition<Block, BlockState>? stateDefinition;
+        /* ~ IStateDefiner<Block, BlockState> 接口实现 start ~ */
 
         public override int GetHashCode()
         {
