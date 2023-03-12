@@ -63,6 +63,14 @@ namespace StarCube.Utility
             return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToString(out value);
         }
 
+        public static bool TryGetStringID(this JObject json, string propertyName, out StringID value)
+        {
+            value = StringID.Failed;
+            return json.TryGetValue(propertyName, out JToken? token) &&
+                token.TryConvertToString(out string idString) &&
+                StringID.TryParse(idString, out value);
+        }
+
         public static bool TryGetArray(this JObject json, string propertyName, [NotNullWhen(true)] out JArray? array)
         {
             if (json.TryGetValue(propertyName, out JToken? token) && token is JArray arr)
