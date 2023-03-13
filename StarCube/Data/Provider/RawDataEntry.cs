@@ -1,7 +1,7 @@
 ﻿using System.IO;
 
 using StarCube.Utility;
-using StarCube.Data.Provider.DataSource;
+using StarCube.Data.DataSource;
 
 namespace StarCube.Data.Provider
 {

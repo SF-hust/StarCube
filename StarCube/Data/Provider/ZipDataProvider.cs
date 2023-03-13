@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 
 using StarCube.Utility;
-using StarCube.Data.Provider.DataSource;
+using StarCube.Data.DataSource;
 
 namespace StarCube.Data.Provider
 {
