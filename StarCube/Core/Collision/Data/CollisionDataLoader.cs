@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using StarCube.Utility;
 using StarCube.Data.Loading;
 using StarCube.Data.Provider;
-using StarCube.Data.DependencyResolver;
 
 namespace StarCube.Core.Collision.Data
 {
@@ -12,25 +11,19 @@ namespace StarCube.Core.Collision.Data
     {
         public void Run(IDataProvider dataProvider)
         {
-            List<RawCollisionData> rawCollisionData = dataProvider.LoadDataWithDependency(RawCollisionData.DataRegistry, dataIDs, RawCollisionData.DataReader);
-            DependencyDataResolver<RawCollisionData, CollisionData> resolver =
-                new DependencyDataResolver<RawCollisionData, CollisionData>(rawCollisionData, new CollisionDataBuilder());
-            if(!resolver.TryBuildResolvedData(out Dictionary<StringID, CollisionData>? collisionData))
-            {
-                throw new Exception("collision data resolve failed");
-            }
+            List<StringID> missingDataIDs = dataProvider.LoadDataDictionary(CollisionData.DataRegistry, dataIDs, CollisionData.DataReader, out Dictionary<StringID, CollisionData> collisionDataList);
 
-            consumeData(collisionData);
+            consumeResult(collisionDataList, missingDataIDs);
         }
 
-        public CollisionDataLoader(IEnumerable<StringID> dataIDs, Action<Dictionary<StringID, CollisionData>> dataConsumer)
+        public CollisionDataLoader(IEnumerable<StringID> dataIDs, Action<Dictionary<StringID, CollisionData>, List<StringID>> resultConsumer)
         {
             this.dataIDs = dataIDs;
-            consumeData = dataConsumer;
+            consumeResult = resultConsumer;
         }
 
         private readonly IEnumerable<StringID> dataIDs;
 
-        private readonly Action<Dictionary<StringID, CollisionData>> consumeData;
+        private readonly Action<Dictionary<StringID, CollisionData>, List<StringID>> consumeResult;
     }
 }
