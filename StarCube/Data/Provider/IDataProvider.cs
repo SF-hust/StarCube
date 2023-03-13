@@ -48,6 +48,45 @@ namespace StarCube.Data.Provider
                 dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out data);
         }
 
+        public static List<StringID> LoadDataList<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> ids, IDataReader<T> dataReader, out List<T> dataList)
+            where T : class
+        {
+            List<StringID> missingDataIDs = new List<StringID>();
+            dataList = new List<T>();
+
+            foreach (StringID id in ids)
+            {
+                if(dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
+                {
+                    dataList.Add(data);
+                }
+                else
+                {
+                    missingDataIDs.Add(id);
+                }
+            }
+            return missingDataIDs;
+        }
+
+        public static List<StringID> LoadDataDictionary<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> ids, IDataReader<T> dataReader, out Dictionary<StringID, T> dataDictionary)
+            where T : class
+        {
+            List<StringID> missingDataIDs = new List<StringID>();
+            dataDictionary = new Dictionary<StringID, T>();
+
+            foreach (StringID id in ids)
+            {
+                if (dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
+                {
+                    dataDictionary.Add(id, data);
+                }
+                else
+                {
+                    missingDataIDs.Add(id);
+                }
+            }
+            return missingDataIDs;
+        }
 
         public static List<T> EnumerateData<T>(this IDataProvider dataProvider, StringID dataRegistry, IDataReader<T> dataReader)
             where T : class
