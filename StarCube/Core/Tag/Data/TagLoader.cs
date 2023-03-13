@@ -7,8 +7,6 @@ using StarCube.Data.Loading;
 using StarCube.Data.Provider;
 using StarCube.Data.DependencyResolver;
 
-using static StarCube.Data.Provider.IDataProvider;
-
 namespace StarCube.Core.Tag.Data
 {
     public class TagLoader<T> : IDataLoader
@@ -19,7 +17,7 @@ namespace StarCube.Core.Tag.Data
             LoadTagData(dataProvider, out List<TagData> allTagData);
             BuildTags(allTagData, out List<Tag<T>> tags);
             TagManager<T> tagManager = new TagManager<T>(tags);
-            consumeTagManager(tagManager);
+            consumeResult(tagManager);
         }
 
         /// <summary>
@@ -29,7 +27,7 @@ namespace StarCube.Core.Tag.Data
         /// <param name="loadedTagData"></param>
         private void LoadTagData(IDataProvider dataProvider, out List<TagData> loadedTagData)
         {
-            loadedTagData = dataProvider.EnumerateData<TagData>(TagData.DataRegistry, tagHolderType + "/", TagData.DataReader);
+            loadedTagData = dataProvider.EnumerateData(TagData.DataRegistry, tagHolderType, TagData.DataReader);
         }
 
         /// <summary>
@@ -53,17 +51,17 @@ namespace StarCube.Core.Tag.Data
             }
         }
 
-        public TagLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>> tagManagerConsumer)
+        public TagLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>> resultConsumer)
         {
             this.tagHolderType = tagHolderType;
             this.tagHolderGetter = tagHolderGetter;
-            consumeTagManager = tagManagerConsumer;
+            consumeResult = resultConsumer;
         }
 
         private readonly string tagHolderType;
 
         private readonly TagBuilder<T>.TagHolderGetter tagHolderGetter;
 
-        private readonly Action<TagManager<T>> consumeTagManager;
+        private readonly Action<TagManager<T>> consumeResult;
     }
 }
