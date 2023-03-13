@@ -329,6 +329,10 @@ namespace StarCube.Utility
                 json = null;
                 return false;
             }
+            finally
+            {
+                stream.Dispose();
+            }
 
             return true;
         }
