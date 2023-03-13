@@ -24,7 +24,7 @@ namespace StarCube.Game.Block.Data
             foreach (var pair in json)
             {
                 List<string> valueStrings = new List<string>();
-                // 为字符串，这个属性只匹配一个值
+                // 为单个值，这个属性只匹配一个值
                 if (pair.Value is JValue singleValue)
                 {
                     valueStrings.Add(singleValue.ToString());

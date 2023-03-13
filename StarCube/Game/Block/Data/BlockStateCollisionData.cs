@@ -29,7 +29,7 @@ namespace StarCube.Game.Block.Data
         public static BlockStateCollisionData CreateDefault(StringID id)
         {
             KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry> pair = 
-                new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.ANY, CollisionDataEntry.FULLCUBE);
+                new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.ANY, CollisionDataEntry.SOLID);
             return new BlockStateCollisionData(id, false, new List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> { pair });
         }
 
@@ -39,24 +39,31 @@ namespace StarCube.Game.Block.Data
             List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry = new List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>>();
 
             // 是否是多部分组成的
-            json.TryGetBoolean("multipart", out bool multipart);
+            if (!json.TryGetBoolean("multipart", out bool multipart))
+            {
+                multipart = false;
+            }
 
             // 获取本文件中定义的默认值
-            CollisionDataEntry defaultEntry = CollisionDataEntry.ParseFromJson(json, CollisionDataEntry.DEFAULT);
+            CollisionDataEntry defaultEntry = CollisionDataEntry.ParseFromJson(json, CollisionDataEntry.AIR);
 
             // 按顺序遍历解析出所有匹配规则与其对应的值
             if (json.TryGetArray("match", out JArray? matcherToEntryArray))
             {
                 foreach (JToken token in matcherToEntryArray)
                 {
-                    if(!(token is JObject matcherToEntryObject))
+                    if ((token is JObject matcherToEntryObject) == false)
                     {
                         return false;
                     }
 
-                    if(!BlockStatePropertyMatcher.TryParseFromJson(matcherToEntryObject, out BlockStatePropertyMatcher matcher))
+                    BlockStatePropertyMatcher matcher = BlockStatePropertyMatcher.ANY;
+                    if (matcherToEntryObject.TryGetJObject("properties", out JObject? matcherObject))
                     {
-                        return false;
+                        if(!BlockStatePropertyMatcher.TryParseFromJson(matcherObject, out matcher))
+                        {
+                            return false;
+                        }
                     }
 
                     CollisionDataEntry entry = CollisionDataEntry.ParseFromJson(matcherToEntryObject, defaultEntry);
@@ -81,12 +88,12 @@ namespace StarCube.Game.Block.Data
             /// <summary>
             /// 默认情况无碰撞，且不会要求在这里终止匹配
             /// </summary>
-            public static readonly CollisionDataEntry DEFAULT = new CollisionDataEntry(CollisionData.AIR_COLLISION_ID, false, 0, 0, 0);
+            public static readonly CollisionDataEntry AIR = new CollisionDataEntry(CollisionData.AIR_COLLISION_ID, false, 0, 0, 0);
 
             /// <summary>
             /// 完整方块碰撞
             /// </summary>
-            public static readonly CollisionDataEntry FULLCUBE = new CollisionDataEntry(CollisionData.CUBE_COLLISION_ID, false, 0, 0, 0);
+            public static readonly CollisionDataEntry SOLID = new CollisionDataEntry(CollisionData.CUBE_COLLISION_ID, false, 0, 0, 0);
 
             public static CollisionDataEntry ParseFromJson(JObject json, in CollisionDataEntry defaultEntry)
             {
@@ -163,6 +170,18 @@ namespace StarCube.Game.Block.Data
             }
 
             return matchingEntries;
+        }
+
+        /// <summary>
+        /// 获取此数据中所引用的所有碰撞数据 id
+        /// </summary>
+        /// <param name="ids"></param>
+        public void GetCollisionDataReferences(HashSet<StringID> ids)
+        {
+            foreach (var pair in matcherToEntry)
+            {
+                ids.Add(pair.Value.collisionID);
+            }
         }
 
         public BlockStateCollisionData(StringID id, bool isMultipart, List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry) : base(id)
