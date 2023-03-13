@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using StarCube.Utility;
 using StarCube.Data.Loading;
@@ -11,25 +12,17 @@ namespace StarCube.Game.Block.Data
     {
         public void Run(IDataProvider dataProvider)
         {
-            List<BlockStateCollisionData> dataList = new List<BlockStateCollisionData>();
-            List<StringID> missingDataIDs = new List<StringID>();
+            IEnumerable<StringID> blockIDs = from block in blocks select block.RegistryEntryData.ID;
 
-            foreach(Block block in blocks)
-            {
-                if(dataProvider.TryLoadData(BlockStateCollisionData.DataRegistry, block.RegistryEntryData.ID, BlockStateCollisionData.DataReader, out BlockStateCollisionData? data))
-                {
-                    dataList.Add(data);
-                }
-                else
-                {
-                    missingDataIDs.Add(block.RegistryEntryData.ID);
-                }
-            }
+            List<StringID> missingDataIDs = dataProvider.LoadDataDictionary(
+                BlockStateCollisionData.DataRegistry,
+                blockIDs, BlockStateCollisionData.DataReader,
+                out Dictionary<StringID, BlockStateCollisionData>? dataDictionary);
 
-            consumeResult(dataList, missingDataIDs);
+            consumeResult(dataDictionary, missingDataIDs);
         }
 
-        public BlockStateCollisionDataLoader(IEnumerable<Block> blocks, Action<List<BlockStateCollisionData>, List<StringID>> resultConsumer)
+        public BlockStateCollisionDataLoader(IEnumerable<Block> blocks, Action<Dictionary<StringID, BlockStateCollisionData>, List<StringID>> resultConsumer)
         {
             this.blocks = blocks;
             consumeResult = resultConsumer;
@@ -37,6 +30,6 @@ namespace StarCube.Game.Block.Data
 
         private readonly IEnumerable<Block> blocks;
 
-        private readonly Action<List<BlockStateCollisionData>, List<StringID>> consumeResult;
+        private readonly Action<Dictionary<StringID, BlockStateCollisionData>, List<StringID>> consumeResult;
     }
 }
