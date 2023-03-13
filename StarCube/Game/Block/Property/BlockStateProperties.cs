@@ -11,7 +11,7 @@ namespace StarCube.Game.Block.Property
     {
         public static readonly EnumStateProperty<Axis> AXIS_XYZ = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis_xyz"), new Axis[3] { Axis.X, Axis.Y, Axis.Z });
 
-        public static readonly EnumStateProperty<Axis> AXIS_XZ = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis_xyz"), new Axis[2] { Axis.X, Axis.Z });
+        public static readonly EnumStateProperty<Axis> AXIS_XZ = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis_xz"), new Axis[2] { Axis.X, Axis.Z });
 
         public static readonly BooleanStateProperty FENCE_NORTH = BooleanStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "fence_north"));
         public static readonly BooleanStateProperty FENCE_SOUTH = BooleanStateProperty.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "fence_south"));
