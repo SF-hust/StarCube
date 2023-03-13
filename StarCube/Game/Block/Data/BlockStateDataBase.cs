@@ -11,6 +11,9 @@ namespace StarCube.Game.Block.Data
             this.id = id;
         }
 
+        /// <summary>
+        /// 数据的 id，也是对应方块的 id
+        /// </summary>
         public readonly StringID id;
     }
 }

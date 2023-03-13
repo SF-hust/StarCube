@@ -9,12 +9,29 @@ using StarCube.Core.Collision.Data;
 
 namespace StarCube.Game.Block.Data
 {
+    /// <summary>
+    /// 定义 Block 的每个 BlockState 所使用的碰撞资源
+    /// </summary>
     public class BlockStateCollisionData : BlockStateDataBase
     {
+        /// <summary>
+        /// "starcube:blockstate/collision"
+        /// </summary>
         public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "blockstate/collision");
 
         public static readonly IDataReader<BlockStateCollisionData> DataReader = new DataReaderWrapper<BlockStateCollisionData, JObject>(RawDataReaders.JSON, TryParseFromJson);
 
+        /// <summary>
+        /// 创建一份默认的数据，对任意状态有一个完整方块的碰撞体
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static BlockStateCollisionData CreateDefault(StringID id)
+        {
+            KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry> pair = 
+                new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.ANY, CollisionDataEntry.FULLCUBE);
+            return new BlockStateCollisionData(id, false, new List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> { pair });
+        }
 
         public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out BlockStateCollisionData? data)
         {
@@ -49,22 +66,38 @@ namespace StarCube.Game.Block.Data
             }
 
             // 在最后添加一个空的匹配规则与默认值
-            matcherToEntry.Add(new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.EMPTY, defaultEntry));
+            matcherToEntry.Add(new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.ANY, defaultEntry));
 
             data = new BlockStateCollisionData(id, multipart, matcherToEntry);
             return true;
         }
 
 
+        /// <summary>
+        /// 其中包含对 CollisionData 的引用，以及旋转信息
+        /// </summary>
         public readonly struct CollisionDataEntry
         {
-            public static readonly CollisionDataEntry DEFAULT = new CollisionDataEntry(RawCollisionData.AIR_COLLISION_ID, 0, 0, 0);
+            /// <summary>
+            /// 默认情况无碰撞，且不会要求在这里终止匹配
+            /// </summary>
+            public static readonly CollisionDataEntry DEFAULT = new CollisionDataEntry(CollisionData.AIR_COLLISION_ID, false, 0, 0, 0);
+
+            /// <summary>
+            /// 完整方块碰撞
+            /// </summary>
+            public static readonly CollisionDataEntry FULLCUBE = new CollisionDataEntry(CollisionData.CUBE_COLLISION_ID, false, 0, 0, 0);
 
             public static CollisionDataEntry ParseFromJson(JObject json, in CollisionDataEntry defaultEntry)
             {
                 if(!json.TryGetStringID("collision", out StringID collisionID))
                 {
                     collisionID = defaultEntry.collisionID;
+                }
+                // 是否要在某个 matcher 里停下是各个节点单独定义的，不从默认值继承
+                if (!json.TryGetBoolean("stop", out bool stop))
+                {
+                    stop = false;
                 }
                 if (!json.TryGetInt32("x", out int xRot))
                 {
@@ -79,18 +112,23 @@ namespace StarCube.Game.Block.Data
                     zRot = defaultEntry.zRot;
                 }
 
-                return new CollisionDataEntry(collisionID, xRot, yRot, zRot);
+                return new CollisionDataEntry(collisionID, stop, xRot, yRot, zRot);
             }
 
-            public CollisionDataEntry(StringID collisionID, int xRot, int yRot, int zRot)
+            public CollisionDataEntry(StringID collisionID, bool stop, int xRot, int yRot, int zRot)
             {
                 this.collisionID = collisionID;
+                this.stop = stop;
                 this.xRot = xRot;
                 this.yRot = yRot;
                 this.zRot = zRot;
             }
 
             public readonly StringID collisionID;
+            /// <summary>
+            /// 匹配到此项时是否要停止匹配
+            /// </summary>
+            public readonly bool stop;
             public readonly int xRot;
             public readonly int yRot;
             public readonly int zRot;
@@ -116,7 +154,8 @@ namespace StarCube.Game.Block.Data
                 if(pair.Key.Match(blockState))
                 {
                     matchingEntries.Add(pair.Value);
-                    if (!isMultipart)
+                    // 如果没有 multipart 标记，或此项要求在此停下，则停止匹配
+                    if (!isMultipart || pair.Value.stop)
                     {
                         break;
                     }
@@ -132,6 +171,9 @@ namespace StarCube.Game.Block.Data
             this.matcherToEntry = matcherToEntry;
         }
 
+        /// <summary>
+        /// 是否允许匹配多个节点
+        /// </summary>
         public readonly bool isMultipart;
 
         public readonly List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> matcherToEntry;

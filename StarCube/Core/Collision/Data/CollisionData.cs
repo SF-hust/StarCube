@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
@@ -14,28 +13,35 @@ namespace StarCube.Core.Collision.Data
 {
     public class CollisionData : IStringID
     {
+        /// <summary>
+        /// "starcube:collision"
+        /// </summary>
         public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "collision");
 
         public static readonly IDataReader<CollisionData> DataReader = new DataReaderWrapper<CollisionData, JObject>(RawDataReaders.JSON, TryParseFromJson);
 
+        /// <summary>
+        /// "starcube:block/air"
+        /// </summary>
         public static readonly StringID AIR_COLLISION_ID = StringID.Create(Constants.DEFAULT_NAMESPACE, "block/air");
 
+        /// <summary>
+        /// "starcube:block/cube"
+        /// </summary>
         public static readonly StringID CUBE_COLLISION_ID = StringID.Create(Constants.DEFAULT_NAMESPACE, "block/cube");
 
         /// <summary>
         /// 无碰撞
         /// </summary>
-        public static readonly CollisionData AIR = new CollisionData(
-            AIR_COLLISION_ID,
-            new List<BoxColliderData> { BoxColliderData.FULLCUBE },
+        public static readonly CollisionData AIR = new CollisionData(AIR_COLLISION_ID,
+            new List<BoxColliderData>(),
             new List<SphereColliderData>(),
             new List<CapsuleColliderData>());
 
         /// <summary>
         /// 完整方块的碰撞
         /// </summary>
-        public static readonly CollisionData CUBE = new CollisionData(
-            CUBE_COLLISION_ID,
+        public static readonly CollisionData CUBE = new CollisionData(CUBE_COLLISION_ID,
             new List<BoxColliderData> { BoxColliderData.FULLCUBE },
             new List<SphereColliderData>(),
             new List<CapsuleColliderData>());

@@ -11,11 +11,14 @@ namespace StarCube.Game.Block.Data
     /// </summary>
     public readonly struct BlockStatePropertyMatcher
     {
-        public static readonly BlockStatePropertyMatcher EMPTY = new BlockStatePropertyMatcher(new List<KeyValuePair<string, List<string>>>());
+        /// <summary>
+        /// 空匹配，可以匹配任意 BlockState
+        /// </summary>
+        public static readonly BlockStatePropertyMatcher ANY = new BlockStatePropertyMatcher(new List<KeyValuePair<string, List<string>>>());
 
         public static bool TryParseFromJson(JObject json, out BlockStatePropertyMatcher matcher)
         {
-            matcher = EMPTY;
+            matcher = ANY;
 
             List<KeyValuePair<string, List<string>>> propertyNameToValueStrings = new List<KeyValuePair<string, List<string>>>();
             foreach (var pair in json)
