@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.16" />
-    <PackageReference Include="MongoDB.Bson" Version="2.18.0" />
     <PackageReference Include="Nett" Version="0.15.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
