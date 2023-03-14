@@ -41,7 +41,7 @@ namespace StarCube.Core.Tag.Data
             TagBuilder<T> blockTagBuilder = new TagBuilder<T>(tagHolderGetter);
             DependencyDataResolver<TagData, Tag<T>> dependencyResolver =
                 new DependencyDataResolver<TagData, Tag<T>>(unresolvedTagData, blockTagBuilder);
-            if (dependencyResolver.TryBuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, false))
+            if (dependencyResolver.TryBuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, out List<TagData> failedTagDataList, false))
             {
                 tags = resolvedData.Values.ToList();
             }

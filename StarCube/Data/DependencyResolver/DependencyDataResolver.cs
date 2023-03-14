@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
 
@@ -23,24 +22,21 @@ namespace StarCube.Data.DependencyResolver
         /// <param name="useMultiThread"></param>
         /// <param name="resolvedData"></param>
         /// <returns>如果数据间有重复 key、循环引用或者缺失引用，返回 false</returns>
-        public bool TryBuildResolvedData([NotNullWhen(true)] out Dictionary<StringID, RD>? resolvedData, bool useMultiThread = false)
+        public bool TryBuildResolvedData(out Dictionary<StringID, RD> resolvedData, out List<UD> failedDataList, bool useMultiThread = false)
         {
-            resolvedData = null;
+            failedDataList = new List<UD>();
             ConcurrentDictionary<StringID, RD> tempResolvedData = new ConcurrentDictionary<StringID, RD>();
-            if (!ResolvedDataDependencies(out List<List<UD>> phases))
-            {
-                return false;
-            }
+            ResolvedDataDependencies(out List<List<UD>> phases, failedDataList);
 
             foreach (List<UD> phase in phases)
             {
                 if (useMultiThread)
                 {
-                    BuildPhaseMultiThread(phase, tempResolvedData);
+                    BuildPhaseMultiThread(phase, tempResolvedData, failedDataList);
                 }
                 else
                 {
-                    BuildPhaseSingleThread(phase, tempResolvedData);
+                    BuildPhaseSingleThread(phase, tempResolvedData, failedDataList);
                 }
             }
 
@@ -50,15 +46,16 @@ namespace StarCube.Data.DependencyResolver
                 resolvedData.Add(pairs.Key, pairs.Value);
             }
 
-            return true;
+            return failedDataList.Count == 0;
         }
 
         /// <summary>
         /// 解析数据间的引用
         /// </summary>
         /// <param name="resolvedPhases">分层的数据间的依赖关系，其中每一个 phase 都只依赖于前面 phase 的数据</param>
+        /// <param name="failedDataList"></param>
         /// <returns>如果数据间有重复 key、循环依赖或者缺失依赖，返回 false</returns>
-        private bool ResolvedDataDependencies(out List<List<UD>> resolvedPhases)
+        private bool ResolvedDataDependencies(out List<List<UD>> resolvedPhases, List<UD> failedDataList)
         {
             Dictionary<StringID, UD> unresolved = new Dictionary<StringID, UD>();
             resolvedPhases = new List<List<UD>>();
@@ -68,6 +65,8 @@ namespace StarCube.Data.DependencyResolver
             {
                 if (!unresolved.TryAdd(data.ID, data))
                 {
+                    // 有重复 key，直接拒绝解析
+                    failedDataList.AddRange(unresolvedData);
                     return false;
                 }
             }
@@ -84,6 +83,7 @@ namespace StarCube.Data.DependencyResolver
                 foreach (UD data in unresolved.Values)
                 {
                     // 是否所有必需依赖都已解析过
+                    bool resolveFailed = false;
                     bool allRequiredDependencyResolved = true;
                     foreach (StringID key in data.RequiredDependencies)
                     {
@@ -91,13 +91,22 @@ namespace StarCube.Data.DependencyResolver
                         {
                             continue;
                         }
-                        // 出现缺失的必需依赖则解析失败
+
+                        allRequiredDependencyResolved = false;
+                        // 出现缺失的必需依赖则无法解析此数据
                         if (!unresolved.ContainsKey(key))
                         {
-                            return false;
+                            resolveFailed = true;
+                            failedDataList.Add(data);
+                            unresolved.Remove(data.ID);
                         }
-                        allRequiredDependencyResolved = false;
                         break;
+                    }
+
+                    // 当前数据已解析失败，进行下一份数据的解析
+                    if(resolveFailed)
+                    {
+                        continue;
                     }
 
                     // 是否所有非必需依赖都已解析过，或者是无效引用
@@ -117,9 +126,11 @@ namespace StarCube.Data.DependencyResolver
                     }
                 }
 
-                // 存在循环依赖则失败
+                // 剩余的数据均存在循环依赖
                 if (newPhase.Count == 0)
                 {
+                    failedDataList.AddRange(unresolved.Values);
+                    unresolved.Clear();
                     return false;
                 }
 
@@ -135,21 +146,26 @@ namespace StarCube.Data.DependencyResolver
             return true;
         }
 
-        private bool BuildPhaseSingleThread(List<UD> phase, IDictionary<StringID, RD> resolvedData)
+        private bool BuildPhaseSingleThread(List<UD> phase, IDictionary<StringID, RD> resolvedData, List<UD> failedDataList)
         {
+            bool success = true;
             foreach (UD data in phase)
             {
-                if (!resolvedDataBuilder.BuildResolvedData(data, resolvedData.TryGetValue, out RD? resolved))
+                if (resolvedDataBuilder.BuildResolvedData(data, resolvedData.TryGetValue, out RD? resolved))
                 {
-                    return false;
+                    resolvedData.TryAdd(data.ID, resolved);
                 }
-                resolvedData.TryAdd(data.ID, resolved);
+                else
+                {
+                    failedDataList.Add(data);
+                    success = false;
+                }
             }
 
-            return true;
+            return success;
         }
 
-        private bool BuildPhaseMultiThread(List<UD> phase, IDictionary<StringID, RD> resolvedData)
+        private bool BuildPhaseMultiThread(List<UD> phase, IDictionary<StringID, RD> resolvedData, List<UD> failedDataList)
         {
             throw new NotImplementedException();
         }
