@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
 
@@ -6,31 +7,33 @@ namespace StarCube.Game.Level.Chunk
 {
     public interface IChunkSource
     {
-        public bool Get(int x, int y, int z, [NotNullWhen(true)] out IChunk? chunk);
-        public bool Get(ChunkPos pos, [NotNullWhen(true)] out IChunk? chunk)
+        public bool TryGetChunkSync(ChunkPos pos, [NotNullWhen(true)] out IChunk? chunk);
+
+        public bool TryGetChunkSync(int x, int y, int z, [NotNullWhen(true)] out IChunk? chunk)
         {
-            return Get(pos.x, pos.y, pos.z, out chunk);
+            return TryGetChunkSync(new ChunkPos(x, y, z), out chunk);
         }
 
-        public bool Exist(int x, int y, int z);
-        public bool Exist(ChunkPos pos)
-        {
-            return Exist(pos.x, pos.y, pos.z);
-        }
-    }
+        public bool ExistSync(ChunkPos pos);
 
-    public interface IWritableChunkSource : IChunkSource
-    {
-        public void Set(int x, int y, int z, IChunk chunk);
-        public void Set(ChunkPos pos, IChunk chunk)
+        public bool ExistSync(int x, int y, int z)
         {
-            Set(pos.x, pos.y, pos.z, chunk);
+            return ExistSync(new ChunkPos(x, y, z));
         }
 
-        public bool Remove(int x, int y, int z);
-        public bool Remove(ChunkPos pos)
+
+        public Task<IChunk?> GetChunkAsync(ChunkPos pos);
+
+        public Task<IChunk?> GetChunkAsync(int x, int y, int z)
         {
-            return Remove(pos.x, pos.y, pos.z);
+            return GetChunkAsync(new ChunkPos(x, y, z));
+        }
+
+        public Task<bool> ExistAsync(ChunkPos pos);
+
+        public Task<bool> ExistAsync(int x, int y, int z)
+        {
+            return ExistAsync(new ChunkPos(x, y, z));
         }
     }
 }
