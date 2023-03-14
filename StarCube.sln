@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCubeServer", "StarCubeS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Coremod", "Coremod\Coremod.csproj", "{7DBC9E9B-A508-48E8-BACC-D1AFC6CE49F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{5C22FEE9-A554-4259-8404-A762DB6E8452}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{5C22FEE9-A554-4259-8404-A762DB6E8452}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
