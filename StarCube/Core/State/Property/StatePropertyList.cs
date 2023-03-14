@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace StarCube.Core.State.Property
     /// <summary>
     /// 一个不可变的 StateProperty 与对应值下标列表
     /// </summary>
-    public class StatePropertyList
+    public class StatePropertyList : IEnumerable<StatePropertyEntry>
     {
         /// <summary>
         /// 一个 StatePropertyList 中所有 StateProperty 所需二进制位数之和的最大值
@@ -141,6 +142,19 @@ namespace StarCube.Core.State.Property
                 bitCount += entry.property.bitCount;
             }
         }
+
+
+        /* ~ IEnumerable<StatePropertyEntry> 接口实现 start ~ */
+        public IEnumerator<StatePropertyEntry> GetEnumerator()
+        {
+            return (propertyEntries as IEnumerable<StatePropertyEntry>).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+        /* ~ IEnumerable<StatePropertyEntry> 接口实现 end ~ */
 
         private StatePropertyList(ImmutableArray<StatePropertyEntry> propertyEntries)
         {
