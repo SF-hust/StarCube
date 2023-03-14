@@ -34,58 +34,33 @@ namespace StarCube.Game.Level.Chunk
         public bool Writable { get; }
 
         /// <summary>
-        /// Chunk 是否为空
+        /// Chunk 是否为空，即所有 BlockState 均为空气 (index = 0)
         /// </summary>
         public bool IsEmpty { get; }
 
-        /// <summary>
-        /// 如果 Chunk 不可写, 什么也不做
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <param name="blockState"></param>
         public void SetBlockState(int x, int y, int z, BlockState blockState);
 
-        /// <summary>
-        /// 如果 Chunk 不可写, 什么也不做
-        /// </summary>
-        /// <param name="pos"></param>
-        /// <param name="blockState"></param>
         public void SetBlockState(BlockPos pos, BlockState blockState)
         {
             SetBlockState(pos.x, pos.y, pos.z, blockState);
         }
 
-        /// <summary>
-        /// 获取 Chunk 中的某个 BlockState, 坐标为 Chunk 本地坐标
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <returns></returns>
+        public BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState);
+
+        public BlockState GetAndSetBlockState(BlockPos pos, BlockState blockState)
+        {
+            return GetAndSetBlockState(pos.x, pos.y, pos.z, blockState);
+        }
+
         public BlockState GetBlockState(int x, int y, int z);
 
-        /// <summary>
-        /// 获取 Chunk 中的某个 BlockState, 坐标为 Chunk 本地坐标
-        /// </summary>
-        /// <param name="pos"></param>
-        /// <returns></returns>
         public BlockState GetBlockState(BlockPos pos)
         {
             return GetBlockState(pos.x, pos.y, pos.z);
         }
 
-        /// <summary>
-        /// 将 Chunk 中的 BlockState 数据存储到一个 BlockState 数组中
-        /// </summary>
-        /// <param name="array"></param>
         public void CopyToArray(BlockState[] array);
 
-        /// <summary>
-        /// 将 Chunk 中的 BlockState 的下标数据存储到一个 int 数组中
-        /// </summary>
-        /// <param name="array"></param>
         public void CopyToArray(int[] array);
     }
 }
