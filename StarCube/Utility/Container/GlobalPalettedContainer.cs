@@ -31,7 +31,7 @@ namespace StarCube.Utility.Container
             data = new int[size];
         }
 
-        public int[] data;
+        public readonly int[] data;
 
         private readonly IIdMap<T> idMap;
     }

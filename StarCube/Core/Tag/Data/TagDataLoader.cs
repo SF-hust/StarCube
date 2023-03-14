@@ -9,7 +9,7 @@ using StarCube.Data.DependencyResolver;
 
 namespace StarCube.Core.Tag.Data
 {
-    public class TagLoader<T> : IDataLoader
+    public class TagDataLoader<T> : IDataLoader
         where T : class, IStringID
     {
         public void Run(IDataProvider dataProvider)
@@ -51,7 +51,7 @@ namespace StarCube.Core.Tag.Data
             }
         }
 
-        public TagLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>> resultConsumer)
+        public TagDataLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>> resultConsumer)
         {
             this.tagHolderType = tagHolderType;
             this.tagHolderGetter = tagHolderGetter;
