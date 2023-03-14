@@ -38,5 +38,10 @@ namespace StarCube.Game.Block
         {
             return base.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return regData == null ? "[undefined]" : regData.ID.ToString();
+        }
     }
 }

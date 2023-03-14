@@ -40,6 +40,11 @@ namespace StarCube.Game.Block
             this.integerID = integerID;
         }
 
+        public override string ToString()
+        {
+            return Block.ToString() + " " + integerID.ToString();
+        }
+
         private BlockState(Block block, StatePropertyList properties)
             : base(block, properties)
         {

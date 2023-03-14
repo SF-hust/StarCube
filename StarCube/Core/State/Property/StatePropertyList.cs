@@ -12,6 +12,11 @@ namespace StarCube.Core.State.Property
         public readonly StateProperty property;
         public readonly int valueIndex;
 
+        public override string ToString()
+        {
+            return name + ", " + property.ToString() + ", " + property.IndexToString(valueIndex);
+        }
+
         public StatePropertyEntry(string name, StateProperty property, int valueIndex)
         {
             this.name = name;
