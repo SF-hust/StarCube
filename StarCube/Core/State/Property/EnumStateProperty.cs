@@ -130,11 +130,6 @@ namespace StarCube.Core.State.Property
             int index = GetIndexByValue(value);
             return index == -1 ? $"[undefined value(= {value})]" : keys[index];
         }
-
-        public override string ToString()
-        {
-            return base.ToString() + $", values = {from v in values select Enum.GetName(typeof(T), v).ToLower()}";
-        }
     }
 
     /// <summary>

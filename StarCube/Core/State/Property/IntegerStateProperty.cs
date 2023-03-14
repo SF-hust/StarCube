@@ -72,10 +72,5 @@ namespace StarCube.Core.State.Property
         {
             return ValueIsValid(value) ? value.ToString() : "!# " + value.ToString();
         }
-
-        public override string ToString()
-        {
-            return base.ToString() + $" , values: [{from}, {to}]";
-        }
     }
 }

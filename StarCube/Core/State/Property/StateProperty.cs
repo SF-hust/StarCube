@@ -121,7 +121,7 @@ namespace StarCube.Core.State.Property
 
         public override string ToString()
         {
-            return  $"StateProperty ( id = \"{id}\", value type = {ValuesType} )";
+            return  id.ToString();
         }
 
         public abstract string IndexToString(int index);
