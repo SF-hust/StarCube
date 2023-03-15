@@ -98,7 +98,6 @@ namespace StarCube.Data.DependencyResolver
                         {
                             resolveFailed = true;
                             failedDataList.Add(data);
-                            unresolved.Remove(data.ID);
                         }
                         break;
                     }
@@ -137,6 +136,11 @@ namespace StarCube.Data.DependencyResolver
                 foreach (UD data in newPhase)
                 {
                     resolved.Add(data.ID, data);
+                    unresolved.Remove(data.ID);
+                }
+
+                foreach (UD data in failedDataList)
+                {
                     unresolved.Remove(data.ID);
                 }
 
