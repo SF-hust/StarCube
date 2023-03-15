@@ -123,25 +123,6 @@ namespace StarCube.Data.Provider
             return dataList;
         }
 
-
-        public static Dictionary<StringID, T> LoadDataWithDependencies<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> dataIDs, IDataReader<T> dataReader)
-            where T : class, IUnresolvedData<T>
-        {
-            Dictionary<StringID, T> idToData = new Dictionary<StringID, T>();
-
-            foreach (StringID id in dataIDs)
-            {
-                if(idToData.ContainsKey(id))
-                {
-                    continue;
-                }
-
-                LoadDataWithDependency(dataProvider, dataRegistry, id, dataReader, idToData);
-            }
-
-            return idToData;
-        }
-
         public static List<T> LoadDataWithDependency<T>(this IDataProvider dataProvider, StringID dataRegistry, IEnumerable<StringID> dataIDs, IDataReader<T> dataReader)
             where T : class, IUnresolvedData<T>
         {
@@ -151,43 +132,6 @@ namespace StarCube.Data.Provider
 
             foreach (StringID id in dataIDs)
             {
-                static void LoadDataWithDependency(IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, HashSet<StringID> loadedDataID, List<T> loadedData)
-                {
-                    if (loadedDataID.Contains(id))
-                    {
-                        return;
-                    }
-
-                    // 先加载自身
-                    if (!dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
-                    {
-                        return;
-                    }
-
-                    // 再处理依赖
-                    foreach (StringID depID in data.RequiredDependencies)
-                    {
-                        if (loadedDataID.Contains(depID))
-                        {
-                            continue;
-                        }
-
-                        LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
-                    }
-                    foreach (StringID depID in data.OptionalDependencies)
-                    {
-                        if (loadedDataID.Contains(depID))
-                        {
-                            continue;
-                        }
-
-                        LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
-                    }
-
-                    // 最后将自身放进表中，即被依赖项总是在依赖项之前
-                    loadedDataID.Add(id);
-                    loadedData.Add(data);
-                }
 
                 if (loadedDataID.Contains(id))
                 {
@@ -200,40 +144,43 @@ namespace StarCube.Data.Provider
             return loadedData;
         }
 
-        private static void LoadDataWithDependency<T>(this IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, Dictionary<StringID, T> idToData)
+        private static void LoadDataWithDependency<T>(IDataProvider dataProvider, StringID dataRegistry, StringID id, IDataReader<T> dataReader, HashSet<StringID> loadedDataID, List<T> loadedData)
             where T : class, IUnresolvedData<T>
         {
-            if (idToData.ContainsKey(id))
+            if (loadedDataID.Contains(id))
             {
                 return;
             }
 
+            // 先加载自身
             if (!dataProvider.TryLoadData(dataRegistry, id, dataReader, out T? data))
             {
                 return;
             }
 
-            idToData.Add(id, data);
-
+            // 再处理依赖
             foreach (StringID depID in data.RequiredDependencies)
             {
-                if (idToData.ContainsKey(depID))
+                if (loadedDataID.Contains(depID))
                 {
                     continue;
                 }
 
-                LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, idToData);
+                LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
             }
-
             foreach (StringID depID in data.OptionalDependencies)
             {
-                if (idToData.ContainsKey(depID))
+                if (loadedDataID.Contains(depID))
                 {
                     continue;
                 }
 
-                LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, idToData);
+                LoadDataWithDependency(dataProvider, dataRegistry, depID, dataReader, loadedDataID, loadedData);
             }
+
+            // 最后将自身放进表中，即被依赖项总是在依赖项之前
+            loadedDataID.Add(id);
+            loadedData.Add(data);
         }
     }
 }
