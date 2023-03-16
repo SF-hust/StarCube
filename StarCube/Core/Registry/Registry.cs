@@ -65,7 +65,7 @@ namespace StarCube.Core.Registry
     /// 注册表类，保存了一系列的 RegistryEntry，可以向其注册游戏对象，或查找已注册的游戏对象
     /// </summary>
     /// <typeparam name="T">RegistryEntry 的类型</typeparam>
-    public class Registry<T> : Registry, IIdMap<T>
+    public class Registry<T> : Registry, IIDMap<T>
         where T : class, IRegistryEntry<T>
     {
         public static Registry<T> Create(string modid, string name)

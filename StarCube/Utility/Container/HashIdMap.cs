@@ -6,26 +6,25 @@ using System.Text;
 
 namespace StarCube.Utility.Container
 {
-    public class HashIdMap<T> : IIdMap<T>
+    public class HashIDMap<T> : IIDMap<T>
         where T : class
     {
-        protected readonly Dictionary<T, int> idByValue = new Dictionary<T, int>();
-        protected readonly List<T> valueById = new List<T>();
+        public int Count => idToValue.Count;
 
-        public HashIdMap(IEnumerable<T> values)
+        public bool Add(T value)
         {
-            valueById = values.ToList();
-            for (int i = 0; i < valueById.Count; i++)
+            if(!valueToID.TryAdd(value, Count))
             {
-                idByValue.Add(valueById[i], i);
+                return false;
             }
-        }
 
-        public int Count => valueById.Count;
+            idToValue.Add(value);
+            return true;
+        }
 
         public int IdFor(T value)
         {
-            if (idByValue.TryGetValue(value, out int id))
+            if (valueToID.TryGetValue(value, out int id))
             {
                 return id;
             }
@@ -34,21 +33,33 @@ namespace StarCube.Utility.Container
 
         public T ValueFor(int id)
         {
-            if (id < 0 || id >= Count)
-            {
-                throw new IndexOutOfRangeException();
-            }
-            return valueById[id];
+            return idToValue[id];
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return valueById.GetEnumerator();
+            return idToValue.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
+
+        public HashIDMap()
+        {
+        }
+
+        public HashIDMap(IEnumerable<T> values)
+        {
+            idToValue = values.ToList();
+            for (int i = 0; i < idToValue.Count; i++)
+            {
+                valueToID.Add(idToValue[i], i);
+            }
+        }
+
+        private readonly Dictionary<T, int> valueToID = new Dictionary<T, int>();
+        private readonly List<T> idToValue = new List<T>();
     }
 }

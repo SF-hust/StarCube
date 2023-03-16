@@ -50,7 +50,7 @@ namespace StarCube.Game.Level.Chunk
             return oldState;
         }
 
-        public Chunk(Level level, ChunkPos chunkPos, IIdMap<BlockState> globalBlockStateMap, BlockState initState)
+        public Chunk(Level level, ChunkPos chunkPos, IIDMap<BlockState> globalBlockStateMap, BlockState initState)
         {
             this.level = level;
             this.chunkPos = chunkPos;

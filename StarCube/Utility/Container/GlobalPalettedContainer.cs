@@ -25,7 +25,7 @@ namespace StarCube.Utility.Container
             return GetEnumerator();
         }
 
-        public GlobalPalettedContainer(IIdMap<T> idMap, int size)
+        public GlobalPalettedContainer(IIDMap<T> idMap, int size)
         {
             this.idMap = idMap;
             data = new int[size];
@@ -33,6 +33,6 @@ namespace StarCube.Utility.Container
 
         public readonly int[] data;
 
-        private readonly IIdMap<T> idMap;
+        private readonly IIDMap<T> idMap;
     }
 }

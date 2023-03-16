@@ -6,7 +6,7 @@ using System.Text;
 
 namespace StarCube.Utility.Container
 {
-    public class IntegerIDMap<T> : IIdMap<T>
+    public class IntegerIDMap<T> : IIDMap<T>
         where T : class, IIntegerID
     {
         public int Count => values.Count;
