@@ -31,6 +31,9 @@ namespace StarCube.Utility
         public static readonly StringID Failed = new StringID("_", "_");
 
 
+        public int Length => namspace.Length + 1 + path.Length;
+
+
         public readonly string namspace;
         public readonly string path;
 

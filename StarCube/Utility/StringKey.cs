@@ -29,6 +29,8 @@ namespace StarCube.Utility
         public static readonly StringKey Failed = DoCreate("_", "_", "_", "_", "_:_/_:_");
 
 
+        public int Length => keyString.Length;
+
         public readonly StringID registry;
         public readonly StringID location;
 
