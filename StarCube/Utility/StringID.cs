@@ -482,8 +482,8 @@ namespace StarCube.Utility
         {
             this.idString = string.Intern(idString);
             this.separatorIndex = separatorIndex;
-            this.cachedModidString = string.Intern(cachedModidString);
-            this.cachedNameString = string.Intern(cachedNameString);
+            this.cachedModidString = cachedModidString == null ? null : string.Intern(cachedModidString);
+            this.cachedNameString = cachedNameString == null ? null : string.Intern(cachedNameString);
         }
 
         public readonly string idString;
