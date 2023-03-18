@@ -1,8 +1,8 @@
 ﻿using System;
 
+using StarCube.Utility;
 using StarCube.Core.Registry;
 using StarCube.Core.State;
-using StarCube.Utility;
 
 namespace StarCube.Game.Block
 {
@@ -23,7 +23,7 @@ namespace StarCube.Game.Block
         private RegistryEntryData<Block>? regData = null;
 
         public virtual Type AsEntryType => typeof(Block);
-        public Registry Registry => regData!.registry;
+        public Registry<Block> Registry => regData!.registry;
         public StringID ID => regData!.id;
         public int IntegerID => regData!.integerID;
         public string Modid => regData!.Modid;

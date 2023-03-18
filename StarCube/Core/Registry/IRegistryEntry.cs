@@ -49,7 +49,7 @@ namespace StarCube.Core.Registry
      *     private RegistryEntryData<T>? regData = null;
      *     public Type AsEntryType => typeof(T);
      *     public virtual Type AsEntryType => typeof(T);
-     *     public Registry Registry => regData!.registry;
+     *     public Registry<T> Registry => regData!.registry;
      *     public StringID ID => regData!.id;
      *     public int IntegerID => regData!.integerID;
      *     public string Modid => regData!.Modid;

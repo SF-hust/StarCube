@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using StarCube.Core.Registry;
 
 using StarCube.Utility;
+using StarCube.Core.Registry;
 
 namespace StarCube.Core.Component
 {
     public abstract class ComponentType : IRegistryEntry<ComponentType>
     {
-        /*
-         * 作为 RegistryEntry
-         */
-
+        /* ~ IRegistryEntry<ComponentType> 接口实现 start ~ */
         public RegistryEntryData<ComponentType> RegistryEntryData
         {
             get => IRegistryEntry<ComponentType>.RegistryEntryGetHelper(regData);
             set => IRegistryEntry<ComponentType>.RegistryEntrySetHelper(ref regData, value);
         }
         private RegistryEntryData<ComponentType>? regData = null;
+        public virtual Type AsEntryType => typeof(ComponentType);
+        public Registry<ComponentType> Registry => regData!.registry;
+        public StringID ID => regData!.id;
+        public int IntegerID => regData!.integerID;
+        public string Modid => regData!.Modid;
+        public string Name => regData!.Name;
+        /* ~ IRegistryEntry<ComponentType> 接口实现 end ~ */
 
-        public Type AsEntryType => typeof(ComponentType);
-
-        /*
-         * 作为 ComponentType
-         */
 
         /// <summary>
         /// 此 ComponentType 的 component 可附加到的类型
