@@ -149,7 +149,7 @@ namespace StarCube.Game.Block.Data
         {
             List<CollisionDataEntry> matchingEntries = new List<CollisionDataEntry>();
 
-            if (!blockState.Block.RegistryEntryData.ID.Equals(id))
+            if (!blockState.Block.ID.Equals(id))
             {
                 return matchingEntries;
             }

@@ -5,7 +5,7 @@ using System.Linq;
 namespace StarCube.Core.Tag
 {
     public class TagManager<T>
-        where T : class
+        where T : class, ITagHolder<T>
     {
         public static readonly IEnumerable<Tag<T>> EMPTY_TAGS = Enumerable.Empty<Tag<T>>();
 
@@ -61,14 +61,5 @@ namespace StarCube.Core.Tag
         private readonly List<Tag<T>> tags;
 
         private readonly Dictionary<T, HashSet<Tag<T>>> elementToTags;
-    }
-
-    public static class TagManagerExtension
-    {
-        public static bool HasTag<T>(this T element, Tag<T> tag)
-            where T : class
-        {
-            return TagManager<T>.Instance.ElementHasTag(element, tag);
-        }
     }
 }

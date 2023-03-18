@@ -16,25 +16,6 @@ namespace StarCube.Core.Registry
         /// </summary>
         public Type AsEntryType { get; }
 
-        /*
-         * 无需 override 的默认实现
-         */
-
-        /// <summary>
-        /// 该对象注册用的 Key
-        /// </summary>
-        public StringKey Key => AbstractEntryRegistryData.key;
-
-        /// <summary>
-        /// 该对象的字符串 id
-        /// </summary>
-        public new StringID ID => AbstractEntryRegistryData.ID;
-
-        /// <summary>
-        /// 该对象的整数 id
-        /// </summary>
-        public new int IntegerID => AbstractEntryRegistryData.integerID;
-
         /// <summary>
         /// 该对象的名称
         /// </summary>
@@ -55,6 +36,30 @@ namespace StarCube.Core.Registry
         int IIntegerID.IntegerID => IntegerID;
     }
 
+    /*
+     * 对 IRegistryEntry<T> 接口的典型实现如下 :
+     * 
+     * public class T : IRegistryEntry<T>
+     * {
+     *     public RegistryEntryData<T> RegistryData
+     *     {
+     *         get => IRegistryEntry<T>.RegistryEntryGetHelper(regData);
+     *         set => IRegistryEntry<T>.RegistryEntrySetHelper(ref regData, value);
+     *     }
+     *     private RegistryEntryData<T>? regData = null;
+     *     public Type AsEntryType => typeof(T);
+     *     public virtual Type AsEntryType => typeof(T);
+     *     public Registry Registry => regData!.registry;
+     *     public StringID ID => regData!.id;
+     *     public int IntegerID => regData!.integerID;
+     *     public string Modid => regData!.Modid;
+     *     public string Name => regData!.Name;
+     *     ...
+     * }
+     * 
+     * 将其中的 T 换成你自己的 RegistryEntry 的类型
+     */
+
     /// <summary>
     /// 所有需要被注册到 Registry 的对象的类应实现该接口
     /// </summary>
@@ -62,24 +67,6 @@ namespace StarCube.Core.Registry
     public interface IRegistryEntry<T> : IRegistryEntry
         where T : class, IRegistryEntry<T>
     {
-        /*
-         * 对本接口的实现应为如下形式 :
-         * 
-         * public class T : IRegistryEntry<T>
-         * {
-         *     public RegistryEntryData<T> RegistryData
-         *     {
-         *         get => IRegistryEntry<T>.RegistryEntryGetHelper(regData);
-         *         set => IRegistryEntry<T>.RegistryEntrySetHelper(ref regData, value);
-         *     }
-         *     private RegistryEntryData<T>? regData = null;
-         *     public Type AsEntryType => typeof(T);
-         *     ...
-         * }
-         * 
-         * 将其中的 T 换成你自己的 RegistryEntry 的类型
-         */
-
         protected static RegistryEntryData<T> RegistryEntryGetHelper(RegistryEntryData<T>? data)
         {
             return data ?? throw new NullReferenceException($"RegistryEntry (type = {typeof(T).FullName}) has not been constructed");
@@ -90,17 +77,14 @@ namespace StarCube.Core.Registry
             data ??= value;
         }
 
+
         /// <summary>
         /// RegistryEntry 的信息
         /// </summary>
         public RegistryEntryData<T> RegistryEntryData { get; set; }
 
-        /*
-         * 无需 override 的默认实现
-         */
-
         RegistryEntryData IRegistryEntry.AbstractEntryRegistryData => RegistryEntryData;
 
-        public Registry<T> Registry => RegistryEntryData.Registry;
+        public Registry<T> Registry => RegistryEntryData.registry;
     }
 }

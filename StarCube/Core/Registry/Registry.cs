@@ -22,7 +22,6 @@ namespace StarCube.Core.Registry
         public Registry(StringID id)
         {
             this.id = id;
-            key = StringKey.Create(RegistryRegistry, id);
         }
 
         /// <summary>
@@ -31,28 +30,28 @@ namespace StarCube.Core.Registry
         public abstract Type EntryType { get; }
 
         /// <summary>
-        /// Registry 的名字
+        /// Registry 所属的 modid
         /// </summary>
-        public string Name => id.path;
+        public string Modid => id.ModidString;
+
+        /// <summary>
+        /// Registry 的 name
+        /// </summary>
+        public string Name => id.NameString;
 
         /// <summary>
         /// Registry 的 id
         /// </summary>
         public readonly StringID id;
 
-        public StringID ID => id;
+        StringID IStringID.ID => id;
 
         /// <summary>
-        /// Registry 的 key
+        /// 使用 StringID 获取对应 entry 的 IntegerID
         /// </summary>
-        public readonly StringKey key;
-
-        /// <summary>
-        /// 使用字符串 id 获取对应的数字 id
-        /// </summary>
-        /// <param name="location"></param>
+        /// <param name="id"></param>
         /// <returns>若对应的字符串 id 不存在返回 -1</returns>
-        public abstract int GetNumIdByStringId(StringID location);
+        public abstract int GetIntegerIDByStringID(StringID id);
 
         /// <summary>
         /// 触发注册事件, 仅供游戏框架内部使用
@@ -78,12 +77,12 @@ namespace StarCube.Core.Registry
         }
 
 
-        /* Registry 抽象类实现 start */
+        /* ~ Registry 抽象类实现 start ~ */
         public override Type EntryType => typeof(T);
 
-        public override int GetNumIdByStringId(StringID location)
+        public override int GetIntegerIDByStringID(StringID location)
         {
-            if (numIdByStringId.TryGetValue(location, out int id))
+            if (stringIDToIntegerID.TryGetValue(location, out int id))
             {
                 return id;
             }
@@ -98,7 +97,7 @@ namespace StarCube.Core.Registry
             isLocked = true;
             return eventArg.isRegisterComplete;
         }
-        /* Registry 抽象类实现 end */
+        /* ~ Registry 抽象类实现 end ~ */
 
 
 
@@ -109,11 +108,11 @@ namespace StarCube.Core.Registry
 
         protected readonly List<T> entries = new List<T>();
 
-        protected readonly Dictionary<StringID, int> numIdByStringId = new Dictionary<StringID, int>();
+        protected readonly Dictionary<StringID, int> stringIDToIntegerID = new Dictionary<StringID, int>();
 
         public bool TryGet(StringID id, [NotNullWhen(true)] out T? entry)
         {
-            if (numIdByStringId.TryGetValue(id, out int i))
+            if (stringIDToIntegerID.TryGetValue(id, out int i))
             {
                 entry = entries[i];
                 return true;
@@ -122,33 +121,25 @@ namespace StarCube.Core.Registry
             return false;
         }
 
-        public bool TryGet(int numId, [NotNullWhen(true)] out T? entry)
+        public bool TryGet(int integerID, [NotNullWhen(true)] out T? entry)
         {
-            if (numId < entries.Count)
+            if (integerID < entries.Count)
             {
-                entry = entries[numId];
+                entry = entries[integerID];
                 return true;
             }
             entry = null;
             return false;
         }
 
-        public T Get(int numId)
+        public T Get(int integerID)
         {
-            if(TryGet(numId, out T? entry))
-            {
-                return entry;
-            }
-            throw new IndexOutOfRangeException();
+            return entries[integerID];
         }
 
         public T Get(StringID id)
         {
-            if (TryGet(id, out T? entry))
-            {
-                return entry;
-            }
-            throw new IndexOutOfRangeException();
+            return entries[stringIDToIntegerID.GetValueOrDefault(id, -1)];
         }
         
         /// <summary>
@@ -178,18 +169,17 @@ namespace StarCube.Core.Registry
                 return false;
             }
 
-            if(numIdByStringId.ContainsKey(id))
+            if(stringIDToIntegerID.ContainsKey(id))
             {
                 throw new Exception("");
             }
 
-            int numId = entries.Count;
-            StringID registryId = this.id;
-            RegistryEntryData<T> data = new RegistryEntryData<T>(numId, StringKey.Create(registryId, id), this, entry);
+            int integerID = entries.Count;
+            RegistryEntryData<T> data = new RegistryEntryData<T>(integerID, id, this, entry);
             entry.RegistryEntryData = data;
 
             entries.Add(entry);
-            numIdByStringId.Add(id, numId);
+            stringIDToIntegerID.Add(id, integerID);
 
             OnEntryAddEvent?.Invoke(this, new RegistryEntryAddEventArgs(entry));
 
@@ -207,19 +197,17 @@ namespace StarCube.Core.Registry
         public event EventHandler<EventArgs>? OnEntryAddEvent;
 
 
-        /* IIdMap<T> 接口实现 start */
+        /* ~ IIdMap<T> 接口实现 start ~ */
         public int Count => entries.Count;
-
         public int IdFor(T value)
         {
-            return GetNumIdByStringId(value.ID);
+            return GetIntegerIDByStringID(value.ID);
         }
-
         public T ValueFor(int id)
         {
             return Get(id);
         }
-        /* IIdMap<T> 接口实现 end */
+        /* ~ IIdMap<T> 接口实现 end ~ */
 
 
         /* IEnumrable<T> 接口实现 start */
@@ -227,7 +215,6 @@ namespace StarCube.Core.Registry
         {
             return entries.GetEnumerator();
         }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

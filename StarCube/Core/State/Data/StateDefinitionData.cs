@@ -24,7 +24,7 @@ namespace StarCube.Core.State.Data
             foreach (KeyValuePair<string, JToken?> item in json)
             {
                 string name = item.Key;
-                if(!StringID.IsValidNamespace(name))
+                if(!StringID.IsValidModid(name))
                 {
                     return false;
                 }

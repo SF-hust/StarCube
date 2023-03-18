@@ -76,7 +76,7 @@ namespace StarCube.Data.Provider
             {
                 // 获取并检查文件夹名字是否符合 modid 格式
                 string modid = Path.GetFileName(modidDirectory);
-                if (!StringID.IsValidNamespace(modid))
+                if (!StringID.IsValidModid(modid))
                 {
                     continue;
                 }
@@ -119,7 +119,7 @@ namespace StarCube.Data.Provider
                 int length = entryFileName.IndexOf('.');
                 length = length == -1 ? entryFileName.Length : length;
                 // 检查文件名是否合法
-                if (!StringID.IsValidPath(entryFileName, 0, length))
+                if (!StringID.IsValidName(entryFileName.AsSpan(0, length)))
                 {
                     continue;
                 }

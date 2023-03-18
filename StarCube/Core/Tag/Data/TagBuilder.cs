@@ -10,7 +10,7 @@ namespace StarCube.Core.Tag.Data
     /// 用来构造 Tag 对象
     /// </summary>
     public class TagBuilder<T> : IResolvedDataBuilder<TagData, Tag<T>>
-        where T : class
+        where T : class, ITagHolder<T>
     {
         public delegate bool TagHolderGetter(StringID id, [NotNullWhen(true)] out T? tagHolder);
 
@@ -19,9 +19,9 @@ namespace StarCube.Core.Tag.Data
             resolvedData = null;
             List<T> elements = new List<T>();
 
-            foreach (TagData.Entry entry in unresolvedData.entries)
+            foreach (TagDataEntry entry in unresolvedData.entries)
             {
-                if (entry.entryType == TagData.Entry.EntryType.Element)
+                if (entry.type == TagDataEntry.EntryType.Element)
                 {
                     if(!tryGetTagHolder(entry.id, out T? element))
                     {
@@ -32,7 +32,7 @@ namespace StarCube.Core.Tag.Data
                     continue;
                 }
 
-                if (entry.entryType == TagData.Entry.EntryType.Tag)
+                if (entry.type == TagDataEntry.EntryType.Tag)
                 {
                     if(!tryGetResolvedData(entry.id, out Tag<T>? tag))
                     {

@@ -71,7 +71,7 @@ namespace StarCube.Mod
                 }
 
                 modid = modAttribute.modid;
-                if (!StringID.IsValidNamespace(modAttribute.modid))
+                if (!StringID.IsValidModid(modAttribute.modid))
                 {
                     throw new Exception($"modid \"{modid}\" is invalid");
                 }

@@ -35,7 +35,7 @@ namespace StarCube.Game.Block
         {
             if(this.integerID != -1)
             {
-                throw new InvalidOperationException($"integerID of BlockState of Block (\"{Block.RegistryEntryData.ID}\") is already set");
+                throw new InvalidOperationException($"integerID of BlockState of Block (\"{Block.ID}\") is already set");
             }
             this.integerID = integerID;
         }

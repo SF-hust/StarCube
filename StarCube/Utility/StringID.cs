@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace StarCube.Utility
 {
     /// <summary>
-    /// 表示一个资源的路径，既可以表示某个注册表、注册表中某个注册项，也可以表示磁盘上的某个文件
+    /// 以字符串表示的 id ，既可以表示某个注册表、注册表中某个注册项，也可以表示磁盘上的某个文件
     /// </summary>
-    /// 一个 ResourceLocation 含有两个字符串成员 : namspace 和 path
+    /// 一个 StringID 含有两个字符串成员 : modid 和 path
     /// 它们各有所必须满足的格式
-    /// ResourceLocation 用字符串表示为 $"{namspace}:{path}"
+    /// StringID 用字符串表示为 $"{modid}:{name}"
     public sealed class StringID : IComparable<StringID>, IEquatable<StringID>
     {
         /// <summary>
@@ -21,239 +21,381 @@ namespace StarCube.Utility
         public const char SEPARATOR_CHAR = ':';
         public const char PATH_SEPARATOR_CHAR = '/';
 
-        public const string NAMESPACE_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*";
-        public const string PATH_PATTERN = "[a-z0-9_]+(-[a-z0-9_]+)*(/[a-z0-9_]+(-[a-z0-9_]+)*)*";
+        /// <summary>
+        /// 失败时会返回这个空的 StringID，注意这个 StringID 并不合法
+        /// </summary>
+        public static readonly StringID Failed = InternelCreate(string.Empty, -1);
 
 
         /// <summary>
-        /// 占位符，解析或创建失败时会返回这个 ResourceLocation
+        /// 创建一个 StringID，如果参数不符合要求则抛出异常
         /// </summary>
-        public static readonly StringID Failed = new StringID("_", "_");
-
-
-        public int Length => namspace.Length + 1 + path.Length;
-
-
-        public readonly string namspace;
-        public readonly string path;
-
-        private static readonly Regex NamespaceRegex = new Regex(NAMESPACE_PATTERN, RegexOptions.Compiled);
-        private static readonly Regex PathRegex = new Regex(PATH_PATTERN, RegexOptions.Compiled);
-
-
-        /// <summary>
-        /// 创建一个 ResourceLocation，如果参数不符合要求则抛出异常
-        /// </summary>
-        /// <param name="namspace"></param>
-        /// <param name="path"></param>
+        /// <param name="modid"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static StringID Create(string namspace, string path)
+        public static StringID Create(string modid, string name)
         {
-            if (!IsValidNamespace(namspace))
+            if (!IsValidModid(modid))
             {
-                throw new ArgumentException($"Fail to create ResourceLocation : namespace \"{namspace}\" is invalid");
+                throw new ArgumentException($"Fail to create ResourceLocation : modid \"{modid}\" is invalid");
             }
-            if (!IsValidPath(path))
+            if (!IsValidName(name))
             {
-                throw new ArgumentException($"Fail to create ResourceLocation : path \"{path}\" is invalid");
+                throw new ArgumentException($"Fail to create ResourceLocation : name \"{name}\" is invalid");
             }
-            return new StringID(namspace, path);
+
+            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
+                .Append(modid)
+                .Append(SEPARATOR_CHAR)
+                .Append(name);
+
+            return InternelCreate(builder.ToString(), modid.Length, modid, name);
         }
 
 
         /// <summary>
-        /// 尝试创建一个 ResourceLocation
+        /// 创建一个 StringID，如果参数不符合要求则抛出异常
         /// </summary>
-        /// <param name="namspace"></param>
-        /// <param name="path"></param>
-        /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
-        public static bool TryCreate(string namspace, string path, out StringID location)
+        /// <param name="modid"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static StringID Create(ReadOnlySpan<char> modid, ReadOnlySpan<char> name)
         {
-            if (!IsValidNamespace(namspace) || !IsValidPath(path))
+            if (!IsValidModid(modid))
             {
-                location = Failed;
+                throw new ArgumentException($"Fail to create ResourceLocation : modid \"{modid.ToString()}\" is invalid");
+            }
+            if (!IsValidName(name))
+            {
+                throw new ArgumentException($"Fail to create ResourceLocation : name \"{name.ToString()}\" is invalid");
+            }
+
+            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
+                .Append(modid)
+                .Append(SEPARATOR_CHAR)
+                .Append(name);
+
+            return InternelCreate(builder.ToString(), modid.Length);
+        }
+
+
+        /// <summary>
+        /// 尝试创建一个 StringID
+        /// </summary>
+        /// <param name="modid"></param>
+        /// <param name="name"></param>
+        /// <returns>如果失败则返回 StringID.Failed</returns>
+        public static bool TryCreate(string modid, string name, out StringID id)
+        {
+            if (!IsValidModid(modid) || !IsValidName(name))
+            {
+                id = Failed;
                 return false;
             }
-            location = new StringID(namspace, path);
+
+            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
+                .Append(modid)
+                .Append(SEPARATOR_CHAR)
+                .Append(name);
+
+            id = InternelCreate(builder.ToString(), modid.Length, modid, name);
             return true;
         }
 
 
         /// <summary>
-        /// 尝试从 "{namspace}:{path}" 形式的字符串解析并创建一个 ResourceLocation，如果参数不符合要求则抛出异常
+        /// 尝试创建一个 StringID
         /// </summary>
-        /// <param name="locationString"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static StringID Parse(string locationString)
+        /// <param name="modid"></param>
+        /// <param name="name"></param>
+        /// <returns>如果失败则返回 StringID.Failed</returns>
+        public static bool TryCreate(ReadOnlySpan<char> modid, ReadOnlySpan<char> name, out StringID id)
         {
-            if (TryParse(locationString, out StringID location))
+            if (!IsValidModid(modid) || !IsValidName(name))
             {
-                return location;
-            }
-            throw new ArgumentException($"Fail to parse ResourceLocation \"{locationString}\"");
-        }
-
-
-        /// <summary>
-        /// 解析并创建一个 ResourceLocation，如果参数不符合要求则抛出异常，可指定起始位置和长度
-        /// </summary>
-        /// <param name="locationString"></param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static StringID Parse(string locationString, int start, int length)
-        {
-            if (TryParse(locationString, out StringID location, start, length))
-            {
-                return location;
-            }
-            throw new ArgumentException($"Fail to parse ResourceLocation \"{locationString[start..(length + start)]}\"");
-        }
-
-
-        /// <summary>
-        /// 尝试从 "{namspace}:{path}" 形式的字符串解析并创建一个 ResourceLocation
-        /// </summary>
-        /// <param name="locationString"></param>
-        /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
-        public static bool TryParse(string locationString, out StringID location)
-        {
-            return TryParse(locationString, out location, 0, locationString.Length);
-        }
-
-
-        /// <summary>
-        /// 尝试解析并创建一个 ResourceLocation，可指定起始位置和长度
-        /// </summary>
-        /// <param name="locationString"></param>
-        /// <param name="location"></param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
-        /// <returns>如果失败则返回 ResourceLocation.Failed</returns>
-        public static bool TryParse(string locationString, out StringID location, int start, int length)
-        {
-            if (!IsValidStringID(locationString, out int i, start, length))
-            {
-                location = Failed;
+                id = Failed;
                 return false;
             }
-            location = Create(locationString[start..i], locationString[(i + 1)..(start + length)]);
+
+            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
+                .Append(modid)
+                .Append(SEPARATOR_CHAR)
+                .Append(name);
+
+            id = InternelCreate(builder.ToString(), modid.Length);
             return true;
         }
 
+
+        private static StringID InternelCreate(string idString, int separatorIndex, string? modid = null, string? name = null)
+        {
+            return new StringID(idString, separatorIndex, modid, name);
+        }
+
+
         /// <summary>
-        /// 判断一个 string id 是否有效，即非空且不为 Failed
+        /// 尝试从 "{modid}:{name}" 形式的字符串解析并创建一个 StringID，如果参数不符合要求则抛出异常
+        /// </summary>
+        /// <param name="idString"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static StringID Parse(string idString)
+        {
+            if (TryParse(idString, out StringID id))
+            {
+                return id;
+            }
+            throw new ArgumentException($"Fail to parse StringID \"{idString}\"");
+        }
+
+
+        /// <summary>
+        /// 解析并创建一个 StringID，如果参数不符合要求则抛出异常
+        /// </summary>
+        /// <param name="idString"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static StringID Parse(ReadOnlySpan<char> idString)
+        {
+            if (TryParse(idString, out StringID id))
+            {
+                return id;
+            }
+            throw new ArgumentException($"Fail to parse StringID \"{idString.ToString()}\"");
+        }
+
+
+        /// <summary>
+        /// 尝试从 "{modid}:{name}" 形式的字符串解析并创建一个 StringID
+        /// </summary>
+        /// <param name="idString"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static bool TryParse(string idString, out StringID id)
+        {
+            if(IsValidID(idString, out int separatorIndex))
+            {
+                id = InternelCreate(idString, separatorIndex);
+                return true;
+            }
+            id = Failed;
+            return false;
+        }
+
+
+        /// <summary>
+        /// 尝试从 "{modid}:{name}" 形式的字符串解析并创建一个 StringID
+        /// </summary>
+        /// <param name="idString"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static bool TryParse(ReadOnlySpan<char> idString, out StringID id)
+        {
+            if (IsValidID(idString, out int separatorIndex))
+            {
+                id = InternelCreate(idString.ToString(), separatorIndex);
+                return true;
+            }
+            id = Failed;
+            return false;
+        }
+
+
+        /// <summary>
+        /// 判断一个 string id 是否有效，即非 null 且不为 Failed
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public static bool Valid( [NotNullWhen(true)] StringID? id)
         {
-            return id != null && id != Failed;
-        }
-
-        /// <summary>
-        /// 判断一个字符串是否是合法的 StringID
-        /// </summary>
-        /// <param name="idString"></param>
-        /// <param name="i">分隔符在 idString 中的下标</param>
-        /// <returns></returns>
-        public static bool IsValidStringID(string idString, out int i)
-        {
-            return IsValidStringID(idString, out i, 0, idString.Length);
+            return id != null && id.idString.Length != 0;
         }
 
 
         /// <summary>
-        /// 判断一个字符串是否是合法的 StringID，可指定起始位置和长度
+        /// 检查给定内容是否为合法的 modid
         /// </summary>
-        /// <param name="idString"></param>
-        /// <param name="i">分隔符在 idString 中的下标</param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
+        /// <param name="modid"></param>
         /// <returns></returns>
-        public static bool IsValidStringID(string idString, out int i, int start, int length)
+        public static bool IsValidModid(ReadOnlySpan<char> modid)
         {
-            i = idString.SimpleIndexOf(SEPARATOR_CHAR, start, length);
-            if (i < 0 ||
-                !IsValidNamespace(idString, start, i - start) ||
-                !IsValidPath(idString, i + 1, length + start - i - 1))
+            if (modid.Length == 0 || modid[^1] == '-')
             {
                 return false;
             }
+
+            char firstChar = modid[0];
+            if (!(char.IsLower(firstChar) || firstChar == '_'))
+            {
+                return false;
+            }
+
+            int lastMinus = -1;
+            for (int i = 1; i < modid.Length; i++)
+            {
+                char c = modid[i];
+                if (char.IsLower(c) || c == '_' || char.IsNumber(c))
+                {
+                    continue;
+                }
+                if (c == '-')
+                {
+                    if (lastMinus == i - 1)
+                    {
+                        return false;
+                    }
+                    lastMinus = i;
+                    continue;
+                }
+
+                return false;
+            }
+
             return true;
         }
 
 
         /// <summary>
-        /// 检查某个 namespace 是否符合格式要求
+        /// 检查给定内容是否为合法的 name
         /// </summary>
-        /// <param name="namspace"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public static bool IsValidNamespace(string namspace)
+        public static bool IsValidName(ReadOnlySpan<char> name)
         {
-            Match match = NamespaceRegex.Match(namspace);
-            return match.Success && match.Index == 0 && match.Length == namspace.Length;
+            if (name.Length == 0 || name[^1] == PATH_SEPARATOR_CHAR || name[^1] == '-')
+            {
+                return false;
+            }
+
+            int start = 0;
+            while(start < name.Length)
+            {
+                int len = 0;
+                int i;
+                for (i = start; i < name.Length; ++i)
+                {
+                    if (name[i] == PATH_SEPARATOR_CHAR)
+                    {
+                        len = i - start;
+                        break;
+                    }
+                }
+                if(i >= name.Length)
+                {
+                    len = name.Length - start;
+                }
+
+                ReadOnlySpan<char> slice = name.Slice(start, len);
+                if (!IsValidModid(slice))
+                {
+                    return false;
+                }
+
+                start = start + len + 1;
+                if(start > name.Length)
+                {
+                    break;
+                }
+            }
+
+            return true;
         }
 
 
         /// <summary>
-        /// 检查某个 namespace 是否符合格式要求，可指定起始位置和长度
+        /// 检查给定内容是否为合法的 StringID
         /// </summary>
-        /// <param name="namspace"></param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public static bool IsValidNamespace(string namspace, int start, int length)
+        public static bool IsValidID(ReadOnlySpan<char> id)
         {
-            Match match = NamespaceRegex.Match(namspace, start);
-            return match.Success && match.Index == start && match.Length == length;
+            int separatorIndex = id.IndexOf(SEPARATOR_CHAR);
+
+            if (separatorIndex < 0)
+            {
+                return false;
+            }
+
+            return IsValidModid(id[..separatorIndex]) && IsValidName(id[(separatorIndex + 1)..]);
         }
 
 
         /// <summary>
-        /// 检查某个 path 是否符合格式要求
+        /// 检查给定内容是否为合法的 StringID，并返回分隔符的下标
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="id"></param>
+        /// <param name="separatorIndex"></param>
         /// <returns></returns>
-        public static bool IsValidPath(string path)
+        public static bool IsValidID(ReadOnlySpan<char> id, out int separatorIndex)
         {
-            Match match = PathRegex.Match(path);
-            return match.Success && match.Index == 0 && match.Length == path.Length;
+            separatorIndex = id.IndexOf(SEPARATOR_CHAR);
+
+            if (separatorIndex < 0)
+            {
+                return false;
+            }
+
+            return IsValidModid(id[..separatorIndex]) && IsValidName(id[(separatorIndex + 1)..]);
+        }
+
+
+
+        /* 以下两个属性最多只在第一次调用才会创建 string 对象，且创建后会自动 intern */
+
+        /// <summary>
+        /// 此 StringID 的 modid 的 string
+        /// </summary>
+        public string ModidString
+        {
+            get
+            {
+                cachedModidString ??= string.Intern(Modid.ToString());
+                return cachedModidString;
+            }
         }
 
 
         /// <summary>
-        /// 检查某个 path 是否符合格式要求，可指定起始位置和长度
+        /// 此 StringID 的 name 的 string
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        public static bool IsValidPath(string path, int start, int length)
+        public string NameString
         {
-            Match match = PathRegex.Match(path, start);
-            return match.Success && match.Index == start && match.Length == length;
-        }
-
-
-        internal StringID(string namspace, string path)
-        {
-            this.namspace = namspace;
-            this.path = path;
+            get
+            {
+                cachedNameString ??= string.Intern(Name.ToString());
+                return cachedNameString;
+            }
         }
 
 
         /// <summary>
-        /// 比较两个 ResourceLocation，这个方法先比较 path 再比较 namspace
+        /// StringID 的 modid
+        /// </summary>
+        public ReadOnlySpan<char> Modid => idString.AsSpan(0, separatorIndex);
+
+
+        /// <summary>
+        /// StringID 的 name
+        /// </summary>
+        public ReadOnlySpan<char> Name => idString.AsSpan(separatorIndex + 1);
+
+
+        /// <summary>
+        /// id string 的长度
+        /// </summary>
+        public int Length => idString.Length;
+
+
+        /// <summary>
+        /// 比较两个 StringID，这个方法先比较 name 再比较 modid
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
         public int CompareTo(StringID? other)
         {
-            if (this == other)
+            if (ReferenceEquals(this, other))
             {
                 return 0;
             }
@@ -261,21 +403,26 @@ namespace StarCube.Utility
             {
                 return -1;
             }
-            int rns = path.CompareTo(other?.path);
+            if (ReferenceEquals(idString, other.idString))
+            {
+                return 0;
+            }
+
+            int rns = Name.CompareTo(other.Name, StringComparison.Ordinal);
             if (rns != 0)
             {
                 return rns;
             }
-            return namspace.CompareTo(other?.namspace);
+            return Modid.CompareTo(other.Modid, StringComparison.Ordinal);
         }
 
 
         /// <summary>
-        /// 比较两个 ResourceLocation，这个方法先比较 namspace 再比较 path
+        /// 比较两个 StringID，这个方法先比较 modid 再比较 name
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public int CompareNamespaceFirst(StringID? other)
+        public int CompareModidFirst(StringID? other)
         {
             if (this == other)
             {
@@ -285,58 +432,64 @@ namespace StarCube.Utility
             {
                 return -1;
             }
-            int rns = namspace.CompareTo(other?.namspace);
-            if (rns != 0)
-            {
-                return rns;
-            }
-            return path.CompareTo(other?.path);
-        }
-
-
-        public override int GetHashCode()
-        {
-            return 31 * namspace.GetHashCode() + path.GetHashCode();
+            return string.Compare(idString, other.idString, StringComparison.Ordinal);
         }
 
 
         /// <summary>
-        /// 返回一个 "{namspace}:{path}" 形式的字符串
+        /// 返回 id string 的 HashCode
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return idString.GetHashCode();
+        }
+
+
+        /// <summary>
+        /// 返回 id string
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return namspace + SEPARATOR_CHAR + path;
+            return idString;
         }
 
 
         /// <summary>
-        /// 比较两个 ResourceLocation 是否相等，这会比较两者的两个字符串成员
+        /// 比较两个 StringID 是否相等，这会比较两者的字符串
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
         public override bool Equals(object? obj)
         {
-            if (obj == null)
-            {
-                return false;
-            }
             return obj is StringID other && Equals(other);
         }
 
 
         /// <summary>
-        /// 比较两个 ResourceLocation 是否相等，这会比较两者的两个字符串成员
+        /// 比较两个 StringID 是否相等，这会比较两者的字符串
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
         public bool Equals(StringID other)
         {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return path.Equals(other.path, StringComparison.Ordinal) && namspace.Equals(other.namspace, StringComparison.Ordinal);
+            return idString.Equals(other.idString, StringComparison.Ordinal);
         }
+
+
+        private StringID(string idString, int separatorIndex, string? cachedModidString, string? cachedNameString)
+        {
+            this.idString = string.Intern(idString);
+            this.separatorIndex = separatorIndex;
+            this.cachedModidString = string.Intern(cachedModidString);
+            this.cachedNameString = string.Intern(cachedNameString);
+        }
+
+        public readonly string idString;
+        public readonly int separatorIndex;
+
+        private string? cachedModidString = null;
+        private string? cachedNameString = null;
     }
 }

@@ -7,14 +7,7 @@ namespace StarCube.Core.Registry
 {
     public class RootRegistry
     {
-
         public IEnumerable<Registry> Registries => registryList;
-
-        internal RootRegistry()
-        {
-        }
-
-        public static readonly StringKey key = StringKey.Create(Registry.RegistryRegistry, Registry.RegistryRegistry);
 
         public bool Register(Registry registry)
         {
@@ -51,6 +44,10 @@ namespace StarCube.Core.Registry
             {
                 registry.FireRegisterEvent();
             }
+        }
+
+        internal RootRegistry()
+        {
         }
 
         private readonly Dictionary<StringID, Registry> registries = new Dictionary<StringID, Registry>();

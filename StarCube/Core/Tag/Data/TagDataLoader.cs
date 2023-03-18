@@ -10,48 +10,24 @@ using StarCube.Data.DependencyResolver;
 namespace StarCube.Core.Tag.Data
 {
     public class TagDataLoader<T> : IDataLoader
-        where T : class, IStringID
+        where T : class, ITagHolder<T>, IStringID
     {
         public void Run(IDataProvider dataProvider)
         {
-            LoadTagData(dataProvider, out List<TagData> allTagData);
-            BuildTags(allTagData, out List<Tag<T>> tags);
-            TagManager<T> tagManager = new TagManager<T>(tags);
-            consumeResult(tagManager);
-        }
+            List<TagData> tagDataList = dataProvider.EnumerateData(TagData.DataRegistry, tagHolderType, TagData.DataReader);
 
-        /// <summary>
-        /// 加载并解析 Tag 数据为 TagData
-        /// </summary>
-        /// <param name="dataProvider"></param>
-        /// <param name="loadedTagData"></param>
-        private void LoadTagData(IDataProvider dataProvider, out List<TagData> loadedTagData)
-        {
-            loadedTagData = dataProvider.EnumerateData(TagData.DataRegistry, tagHolderType, TagData.DataReader);
-        }
-
-        /// <summary>
-        /// 解析并构造 Tag
-        /// </summary>
-        /// <param name="unresolvedTagData"></param>
-        /// <param name="tags"></param>
-        /// <exception cref="Exception"></exception>
-        private void BuildTags(List<TagData> unresolvedTagData, out List<Tag<T>> tags)
-        {
             TagBuilder<T> blockTagBuilder = new TagBuilder<T>(tagHolderGetter);
             DependencyDataResolver<TagData, Tag<T>> dependencyResolver =
-                new DependencyDataResolver<TagData, Tag<T>>(unresolvedTagData, blockTagBuilder);
-            if (dependencyResolver.TryBuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, out List<TagData> failedTagDataList, false))
-            {
-                tags = resolvedData.Values.ToList();
-            }
-            else
-            {
-                throw new Exception("");
-            }
+                new DependencyDataResolver<TagData, Tag<T>>(tagDataList, blockTagBuilder);
+
+            dependencyResolver.TryBuildResolvedData(out Dictionary<StringID, Tag<T>>? resolvedData, out List<TagData> failedTagDataList, false);
+            List<Tag<T>> tags = resolvedData.Values.ToList();
+
+            TagManager<T> tagManager = new TagManager<T>(tags);
+            consumeResult(tagManager, (from tagData in failedTagDataList select tagData.id).ToList());
         }
 
-        public TagDataLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>> resultConsumer)
+        public TagDataLoader(string tagHolderType, TagBuilder<T>.TagHolderGetter tagHolderGetter, Action<TagManager<T>, List<StringID>> resultConsumer)
         {
             this.tagHolderType = tagHolderType;
             this.tagHolderGetter = tagHolderGetter;
@@ -62,6 +38,6 @@ namespace StarCube.Core.Tag.Data
 
         private readonly TagBuilder<T>.TagHolderGetter tagHolderGetter;
 
-        private readonly Action<TagManager<T>> consumeResult;
+        private readonly Action<TagManager<T>, List<StringID>> consumeResult;
     }
 }

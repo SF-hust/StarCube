@@ -12,7 +12,7 @@ namespace StarCube.Game.Block.Data
     {
         public void Run(IDataProvider dataProvider)
         {
-            IEnumerable<StringID> blockIDs = from block in blocks select block.RegistryEntryData.ID;
+            IEnumerable<StringID> blockIDs = from block in blocks select block.ID;
 
             List<StringID> missingDataIDs = dataProvider.LoadDataDictionary(
                 BlockStateCollisionData.DataRegistry,

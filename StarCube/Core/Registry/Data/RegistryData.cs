@@ -23,7 +23,7 @@ namespace StarCube.Core.Registry.Data
 
             foreach (string entry in entriesArray)
             {
-                if(!StringID.IsValidPath(entry))
+                if(!StringID.IsValidName(entry))
                 {
                     return false;
                 }

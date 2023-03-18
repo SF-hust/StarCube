@@ -54,7 +54,7 @@ namespace StarCube.Core.Registry
         {
             foreach(var pair in entries)
             {
-                if(pair.Key.path == name)
+                if(pair.Key.Name.Equals(name, StringComparison.Ordinal))
                 {
                     return true;
                 }

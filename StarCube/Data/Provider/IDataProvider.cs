@@ -35,16 +35,16 @@ namespace StarCube.Data.Provider
             where T : class
         {
             data = null;
-            return dataProvider.TryGetData(id.namspace, dataRegistry.path, id.path, out RawDataEntry dataEntry) &&
+            return dataProvider.TryGetData(id.Modid.ToString(), dataRegistry.Name.ToString(), id.Name.ToString(), out RawDataEntry dataEntry) &&
                 dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out data);
         }
 
         public static bool TryLoadData<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, StringID id, IDataReader<T> dataReader, [NotNullWhen(true)] out T? data)
             where T : class
         {
-            string path = Path.Combine(prefix, id.path).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
+            string path = Path.Combine(prefix, id.Name.ToString()).Replace(Path.DirectorySeparatorChar, StringID.PATH_SEPARATOR_CHAR);
             data = null;
-            return dataProvider.TryGetData(id.namspace, dataRegistry.path, path, out RawDataEntry dataEntry) &&
+            return dataProvider.TryGetData(id.Modid.ToString(), dataRegistry.Name.ToString(), path, out RawDataEntry dataEntry) &&
                 dataReader.TryReadDataFrom(dataEntry.stream, dataEntry.length, dataEntry.id, out data);
         }
 
@@ -92,7 +92,7 @@ namespace StarCube.Data.Provider
             where T : class
         {
             List<RawDataEntry> dataEntries = new List<RawDataEntry>();
-            dataProvider.EnumerateData(dataRegistry.path, dataRegistry.path, dataEntries);
+            dataProvider.EnumerateData(dataRegistry.Name.ToString(), dataRegistry.Name.ToString(), dataEntries);
 
             List<T> dataList = new List<T>();
             foreach (RawDataEntry dataEntry in dataEntries)
@@ -108,9 +108,9 @@ namespace StarCube.Data.Provider
         public static List<T> EnumerateData<T>(this IDataProvider dataProvider, StringID dataRegistry, string prefix, IDataReader<T> dataReader)
             where T : class
         {
-            string directory = Path.Combine(dataRegistry.path, prefix);
+            string directory = Path.Combine(dataRegistry.Name.ToString(), prefix);
             List<RawDataEntry> dataEntries = new List<RawDataEntry>();
-            dataProvider.EnumerateData(dataRegistry.path, directory, dataEntries);
+            dataProvider.EnumerateData(dataRegistry.Name.ToString(), directory, dataEntries);
 
             List<T> dataList = new List<T>();
             foreach (RawDataEntry dataEntry in dataEntries)
