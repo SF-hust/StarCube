@@ -1,61 +1,61 @@
-﻿using System;
+﻿using LiteDB;
 
 namespace StarCube.Core.Component
 {
-    /// <summary>
-    /// 组件的接口, 一般情况下应继承 Component<T> 类来创建新组件
-    /// </summary>
-    /// 也可以使用结构体继承此接口并实现其中属性和方法
-    public interface IComponent
+    public interface IComponent<O>
+        where O : class, IComponentHolder<O>
     {
         /// <summary>
-        /// Component 所适用的 Owner 的类型
+        /// 组件的类型
         /// </summary>
-        public Type OwnerType { get; }
+        public ComponentType Type => Variant.type;
 
         /// <summary>
-        /// Component 的类型
+        /// 组件的 variant
         /// </summary>
         public ComponentVariant Variant { get; }
 
-        public ComponentType ComponentType => Variant.type;
 
-        /// <summary>
-        /// 是否允许一个 Owner 拥有多个 ComponentType 与此相同的组件
-        /// </summary>
-        /// 注意，所有 ComponentType 相同的组件，这个值也需要相同
-        /// 目前这个属性恒为 false
-        public bool AllowMultiple { get; }
-    }
-
-    public interface IComponent<T> : IComponent
-        where T : class, IComponentHolder<T>
-    {
-        /// <summary>
-        /// 该组件附着到的 owner
-        /// </summary>
-        public T Owner { get; }
-
-        /// <summary>
-        /// 该组件是否被附着到一个 owner 上
-        /// </summary>
-        public bool IsAttached { get; }
+        /* ~ 组件 owner start ~ */
+        public bool HasOwner { get; }
+        public O Owner { get; }
 
         /// <summary>
         /// 当 component 被添加到某容器中后调用此方法
         /// </summary>
         /// <param name="newOwner"></param>
-        public void OnAddToOwner(T newOwner);
+        public void OnAddToOwner(O newOwner);
 
         /// <summary>
         /// 当 component 从某容器中删除后调用此方法
         /// </summary>
         public void OnRemoveFromOwner();
+        /* ~ 组件 owner start ~ */
+
+
+
+        /* ~ 组件保存与重建 start ~ */
+        public bool Modified { get; }
 
         /// <summary>
-        /// 复制自身但不包含 Owner 信息
+        /// 显示标记此组件需要被保存
         /// </summary>
+        public void Modify();
+
+        /// <summary>
+        /// 将组件的属性存储到 bson 中
+        /// </summary>
+        /// <param name="bson"></param>
+        public void StoreTo(BsonDocument bson);
+
+        /// <summary>
+        /// 从 bson 中重建组件
+        /// </summary>
+        /// <param name="bson"></param>
         /// <returns></returns>
-        public IComponent<T> CloneWithoutOwner();
+        public bool RestoreFrom(BsonDocument bson);
+        /* ~ 组件保存与重建 end ~ */
+
+
     }
 }

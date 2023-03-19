@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
+using LiteDB;
+
 namespace StarCube.Utility
 {
     public static class BsonHelper

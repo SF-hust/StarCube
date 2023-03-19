@@ -1,34 +1,48 @@
 ﻿using System;
 using System.Diagnostics;
 
+using LiteDB;
+
 namespace StarCube.Core.Component
 {
-    public abstract class Component<T> : IComponent<T>
-        where T : class, IComponentHolder<T>
+    public abstract class Component<O> : IComponent<O>
+        where O : class, IComponentHolder<O>
     {
-        public Type OwnerType => typeof(T);
+        public Type OwnerType => typeof(O);
+
 
         public abstract ComponentVariant Variant { get; }
 
-        public bool AllowMultiple => false;
 
-        public T Owner => owner ?? throw new NullReferenceException();
+        public bool HasOwner => owner != null;
 
-        private T? owner = null;
+        public O Owner => owner ?? throw new NullReferenceException();
 
-        public bool IsAttached => owner != null;
 
-        public Component()
+        public bool Modified => modified;
+
+        public void Modify()
         {
+            modified = true;
         }
 
-        public virtual void OnAddToOwner(T newOwner)
+        public virtual void StoreTo(BsonDocument bosn)
+        {
+            modified = false;
+        }
+
+        public virtual bool RestoreFrom(BsonDocument bosn)
+        {
+            return true;
+        }
+
+
+        public virtual void OnAddToOwner(O newOwner)
         {
             if (newOwner == owner)
             {
                 return;
             }
-            Debug.Assert(owner == null);
             owner = newOwner;
         }
 
@@ -41,6 +55,14 @@ namespace StarCube.Core.Component
             owner = null;
         }
 
-        public abstract IComponent<T> CloneWithoutOwner();
+
+
+        public Component()
+        {
+        }
+
+        private O? owner = null;
+
+        private bool modified = false;
     }
 }

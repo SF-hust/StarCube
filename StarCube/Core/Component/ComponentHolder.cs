@@ -3,14 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace StarCube.Core.Component
 {
-    public class ComponentHolder<T>
-        where T : class, IComponentHolder<T>
+    public class ComponentHolder<O>
+        where O : class, IComponentHolder<O>
     {
-        private readonly Dictionary<ComponentType, IComponent<T>> componentsByType = new Dictionary<ComponentType, IComponent<T>>();
+        private readonly Dictionary<ComponentType, IComponent<O>> componentsByType = new Dictionary<ComponentType, IComponent<O>>();
 
-        private readonly T owner;
+        private readonly O owner;
 
-        public ComponentHolder(T owner)
+        public ComponentHolder(O owner)
         {
             this.owner = owner;
         }
@@ -18,11 +18,11 @@ namespace StarCube.Core.Component
         /// <summary>
         /// 容器中所有组件的集合
         /// </summary>
-        public IEnumerable<IComponent> Values => componentsByType.Values;
+        public IEnumerable<IComponent<O>> Values => componentsByType.Values;
 
-        public IComponent<T> this[ComponentType type]
+        public IComponent<O> this[ComponentType type]
         {
-            get => TryGet(type, out IComponent<T>? component) ? component : throw new KeyNotFoundException();
+            get => TryGet(type, out IComponent<O>? component) ? component : throw new KeyNotFoundException();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace StarCube.Core.Component
         /// <param name="componentType"></param>
         /// <param name="component"></param>
         /// <returns></returns>
-        public bool TryGet(ComponentType type, [NotNullWhen(true)] out IComponent<T>? component)
+        public bool TryGet(ComponentType type, [NotNullWhen(true)] out IComponent<O>? component)
         {
             return componentsByType.TryGetValue(type, out component);
         }
@@ -41,9 +41,9 @@ namespace StarCube.Core.Component
         /// </summary>
         /// <param name="component"></param>
         /// <returns>若容器中已存在相同类型的组件，则返回 false</returns>
-        public bool TryAdd(IComponent<T> component)
+        public bool TryAdd(IComponent<O> component)
         {
-            bool result = componentsByType.TryAdd(component.ComponentType, component);
+            bool result = componentsByType.TryAdd(component.Type, component);
             if(result)
             {
                 component.OnAddToOwner(owner);
@@ -56,14 +56,14 @@ namespace StarCube.Core.Component
         /// </summary>
         /// <param name="component"></param>
         /// <returns>若容器中不存在相同类型的组件，或替换前后组件是同一对象，则返回 false</returns>
-        public bool TryUpdate(IComponent<T> component)
+        public bool TryUpdate(IComponent<O> component)
         {
-            if (!componentsByType.TryGetValue(component.ComponentType, out IComponent<T> oldComp) ||
+            if (!componentsByType.TryGetValue(component.Type, out IComponent<O> oldComp) ||
                 object.ReferenceEquals(oldComp, component))
             {
                 return false;
             }
-            componentsByType[component.ComponentType] = component;
+            componentsByType[component.Type] = component;
             oldComp.OnRemoveFromOwner();
             component.OnAddToOwner(owner);
             return true;
@@ -73,31 +73,32 @@ namespace StarCube.Core.Component
         /// 直接设置某类型的 component, 不管同类组件是否已经在容器中存在
         /// </summary>
         /// <param name="component"></param>
-        public void Set(IComponent<T> component)
+        public void Set(IComponent<O> component)
         {
-            if (componentsByType.TryGetValue(component.ComponentType, out IComponent<T> oldComp))
+            if (componentsByType.TryGetValue(component.Type, out IComponent<O> oldComp))
             {
                 if (object.ReferenceEquals(oldComp, component))
                 {
                     return;
                 }
-                componentsByType[component.ComponentType] = component;
+                componentsByType[component.Type] = component;
                 oldComp.OnRemoveFromOwner();
                 component.OnAddToOwner(owner);
             }
             else
             {
-                componentsByType[component.ComponentType] = component;
+                componentsByType[component.Type] = component;
                 component.OnAddToOwner(owner);
             }
         }
+
 
         /// <summary>
         /// 检测容器中是否存在某类型组件
         /// </summary>
         /// <param name="componentType"></param>
         /// <returns></returns>
-        public bool ContainsType(ComponentType type)
+        public bool Contains(ComponentType type)
         {
             return componentsByType.ContainsKey(type);
         }
@@ -107,10 +108,11 @@ namespace StarCube.Core.Component
         /// </summary>
         /// <param name="component"></param>
         /// <returns></returns>
-        public bool ContainsSameType(IComponent<T> component)
+        public bool Contains(IComponent<O> component)
         {
-            return ContainsType(component.ComponentType);
+            return Contains(component.Type);
         }
+
 
         /// <summary>
         /// 尝试删除指定类型的 component
@@ -119,9 +121,9 @@ namespace StarCube.Core.Component
         /// <returns>如果不存在此类型的 component 则返回 false</returns>
         public bool Remove(ComponentType type)
         {
-            if (componentsByType.Remove(type, out IComponent<T>? com))
+            if (componentsByType.Remove(type, out IComponent<O>? component))
             {
-                com.OnRemoveFromOwner();
+                component.OnRemoveFromOwner();
                 return true;
             }
             return false;
