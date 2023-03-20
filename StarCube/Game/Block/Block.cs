@@ -3,17 +3,15 @@
 using StarCube.Utility;
 using StarCube.Core.Registry;
 using StarCube.Core.State;
+using StarCube.Core.Component;
 
 namespace StarCube.Game.Block
 {
     public class Block :
         IRegistryEntry<Block>,
-        IStateDefiner<Block, BlockState>
+        IStateDefiner<Block, BlockState>,
+        IComponentHolder<Block>
     {
-        public Block()
-        {
-        }
-
         /* ~ IRegistryEntry<Block> 接口实现 start ~ */
         public RegistryEntryData<Block> RegistryEntryData
         {
@@ -39,8 +37,12 @@ namespace StarCube.Game.Block
         }
 
         private StateDefinition<Block, BlockState>? stateDefinition;
-        /* ~ IStateDefiner<Block, BlockState> 接口实现 start ~ */
+        /* ~ IStateDefiner<Block, BlockState> 接口实现 end ~ */
 
+
+        /* ~ IComponentHolder<Block> 接口实现 start ~ */
+        public ComponentHolder<Block> Components => throw new NotImplementedException();
+        /* ~ IComponentHolder<Block> 接口实现 end ~ */
 
         public override int GetHashCode()
         {
@@ -50,6 +52,10 @@ namespace StarCube.Game.Block
         public override string ToString()
         {
             return regData == null ? "[undefined]" : regData.id.ToString();
+        }
+
+        public Block()
+        {
         }
     }
 }

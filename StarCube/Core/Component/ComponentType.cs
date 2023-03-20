@@ -74,28 +74,15 @@ namespace StarCube.Core.Component
 
 
         /// <summary>
-        /// 注册一个 Variant
-        /// </summary>
-        /// <typeparam name="V"></typeparam>
-        /// <param name="variantID"></param>
-        /// <param name="factory"></param>
-        /// <returns></returns>
-        public ComponentVariant<O, C> Register<V>(StringID variantID, ComponentFactory<O, C> factory)
-            where V : C
-        {
-            return Register(variantID, factory, typeof(V));
-        }
-
-        /// <summary>
         /// 非泛型版本的注册，需要自己手动填 underlyingType，并在 factory 中做类型转换
         /// </summary>
         /// <param name="variantID"></param>
         /// <param name="factory"></param>
         /// <param name="underlyingType"></param>
         /// <returns></returns>
-        public ComponentVariant<O, C> Register(StringID variantID, ComponentFactory<O, C> factory, Type underlyingType)
+        public ComponentVariant<O, C> Register(StringID variantID, ComponentFactory<O, C> factory)
         {
-            ComponentVariant<O, C> type = new ComponentVariant<O, C>(this, variantID, underlyingType, factory);
+            ComponentVariant<O, C> type = new ComponentVariant<O, C>(this, variantID, factory);
 
             if(!idToVariants.TryAdd(variantID, type))
             {
