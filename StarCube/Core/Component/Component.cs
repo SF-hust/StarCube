@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 using LiteDB;
 
@@ -26,12 +25,12 @@ namespace StarCube.Core.Component
             modified = true;
         }
 
-        public virtual void StoreTo(BsonDocument bosn)
+        public virtual void StoreTo(BsonDocument bson)
         {
             modified = false;
         }
 
-        public virtual bool RestoreFrom(BsonDocument bosn)
+        public virtual bool RestoreFrom(BsonDocument bson)
         {
             return true;
         }

@@ -22,6 +22,10 @@ namespace StarCube.Game.Entity.Components
 
         public override ComponentVariant Variant => COMPONENT_VARIANT;
 
+        public override void StoreTo(BsonDocument bson)
+        {
+        }
+
         public TransformComponent()
         {
 
