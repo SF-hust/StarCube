@@ -8,8 +8,8 @@ namespace StarCube.Utility.Enums
     {
         None = 0x0,
         North = 0x1,
-        East = 0x2,
-        South = 0x4,
+        South = 0x2,
+        East = 0x4,
         West = 0x8,
         Up = 0x10,
         Down = 0x20,
@@ -18,8 +18,8 @@ namespace StarCube.Utility.Enums
     public static class DirectionExtension
     {
         public const string NORTH = "north";
-        public const string EAST = "east";
         public const string SOUTH = "south";
+        public const string EAST = "east";
         public const string WEST = "west";
         public const string UP = "up";
         public const string DOWN = "down";
@@ -28,8 +28,8 @@ namespace StarCube.Utility.Enums
         {
             Direction.None,
             Direction.North,
-            Direction.East,
             Direction.South,
+            Direction.East,
             Direction.West,
             Direction.Up,
             Direction.Down
@@ -40,9 +40,9 @@ namespace StarCube.Utility.Enums
             return i >=0 && i < 7 ? directions[i] : Direction.None;
         }
 
-        public static Direction ByIndex (this Direction direction, int i)
+        public static void ByIndex (this ref Direction direction, int i)
         {
-            return GetByIndex(i);
+            direction = GetByIndex(i);
         }
         
         public static int GetIndex(this Direction direction)
@@ -51,11 +51,11 @@ namespace StarCube.Utility.Enums
             {
                 return 1;
             }
-            if (direction == Direction.East)
+            if (direction == Direction.South)
             {
                 return 2;
             }
-            if (direction == Direction.South)
+            if (direction == Direction.East)
             {
                 return 3;
             }
@@ -176,6 +176,116 @@ namespace StarCube.Utility.Enums
                 return DOWN;
             }
             return string.Empty;
+        }
+
+        public static Direction RotateX(this Direction direction)
+        {
+            if (direction == Direction.North)
+            {
+                return Direction.Down;
+            }
+            if (direction == Direction.Down)
+            {
+                return Direction.South;
+            }
+            if (direction == Direction.South)
+            {
+                return Direction.Up;
+            }
+            if (direction == Direction.Up)
+            {
+                return Direction.North;
+            }
+            return direction;
+        }
+
+        public static Direction RotateY(this Direction direction)
+        {
+            if (direction == Direction.North)
+            {
+                return Direction.East;
+            }
+            if (direction == Direction.East)
+            {
+                return Direction.South;
+            }
+            if (direction == Direction.South)
+            {
+                return Direction.West;
+            }
+            if (direction == Direction.West)
+            {
+                return Direction.North;
+            }
+            return direction;
+        }
+
+        public static Direction RotateZ(this Direction direction)
+        {
+            if (direction == Direction.East)
+            {
+                return Direction.Up;
+            }
+            if (direction == Direction.Up)
+            {
+                return Direction.West;
+            }
+            if (direction == Direction.West)
+            {
+                return Direction.Down;
+            }
+            if (direction == Direction.Down)
+            {
+                return Direction.East;
+            }
+            return direction;
+        }
+
+        public static Direction Rotate(this Direction direction, int x, int y, int z)
+        {
+            if(x == 90)
+            {
+                direction = RotateX(direction);
+            }
+            else if(x == 180)
+            {
+                direction = direction.GetOpposite();
+            }
+            else if(x == 270)
+            {
+                direction = direction.GetOpposite();
+                direction = direction.RotateX();
+            }
+
+            if (y == 90)
+            {
+                direction = RotateY(direction);
+            }
+            else if (y == 180)
+            {
+                direction = direction.GetOpposite();
+            }
+            else if (y == 270)
+            {
+                direction = direction.GetOpposite();
+                direction = direction.RotateY();
+            }
+
+            if (z == 90)
+            {
+                direction = RotateZ(direction);
+            }
+            else if (z == 180)
+            {
+                direction = direction.GetOpposite();
+            }
+            else if (z == 270)
+            {
+                direction = direction.GetOpposite();
+                direction = direction.RotateZ();
+            }
+
+            return direction;
         }
     }
 }
