@@ -55,12 +55,12 @@ namespace StarCube.Utility.Math
         {
             return direction switch
             {
+                Direction.North => new ChunkPos(x, y, z + offset),
+                Direction.South => new ChunkPos(x, y, z - offset),
+                Direction.East => new ChunkPos(x + offset, y, z),
+                Direction.West => new ChunkPos(x - offset, y, z),
                 Direction.Up => new ChunkPos(x, y + offset, z),
                 Direction.Down => new ChunkPos(x, y - offset, z),
-                Direction.North => new ChunkPos(x, y, z + offset),
-                Direction.East => new ChunkPos(x + offset, y, z),
-                Direction.South => new ChunkPos(x, y, z - offset),
-                Direction.West => new ChunkPos(x - offset, y, z),
                 _ => throw new Exception("ChunkPos : direction is illegal"),
             };
         }

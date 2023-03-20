@@ -245,43 +245,49 @@ namespace StarCube.Utility.Enums
         {
             if(x == 90)
             {
-                direction = RotateX(direction);
+                direction = direction.RotateX();
             }
             else if(x == 180)
             {
-                direction = direction.GetOpposite();
+                direction = direction.RotateX();
+                direction = direction.RotateX();
             }
             else if(x == 270)
             {
-                direction = direction.GetOpposite();
+                direction = direction.RotateX();
+                direction = direction.RotateX();
                 direction = direction.RotateX();
             }
 
             if (y == 90)
             {
-                direction = RotateY(direction);
+                direction = direction.RotateY();
             }
             else if (y == 180)
             {
-                direction = direction.GetOpposite();
+                direction = direction.RotateY();
+                direction = direction.RotateY();
             }
             else if (y == 270)
             {
-                direction = direction.GetOpposite();
+                direction = direction.RotateY();
+                direction = direction.RotateY();
                 direction = direction.RotateY();
             }
 
             if (z == 90)
             {
-                direction = RotateZ(direction);
+                direction = direction.RotateZ();
             }
             else if (z == 180)
             {
-                direction = direction.GetOpposite();
+                direction = direction.RotateZ();
+                direction = direction.RotateZ();
             }
             else if (z == 270)
             {
-                direction = direction.GetOpposite();
+                direction = direction.RotateZ();
+                direction = direction.RotateZ();
                 direction = direction.RotateZ();
             }
 

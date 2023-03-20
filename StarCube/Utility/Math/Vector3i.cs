@@ -51,12 +51,12 @@ namespace StarCube.Utility.Math
         {
             return direction switch
             {
+                Direction.North => new Vector3i(x, y, z + offset),
+                Direction.South => new Vector3i(x, y, z - offset),
+                Direction.East => new Vector3i(x + offset, y, z),
+                Direction.West => new Vector3i(x - offset, y, z),
                 Direction.Up => new Vector3i(x, y + offset, z),
                 Direction.Down => new Vector3i(x, y - offset, z),
-                Direction.North => new Vector3i(x, y, z + offset),
-                Direction.East => new Vector3i(x + offset, y, z),
-                Direction.South => new Vector3i(x, y, z - offset),
-                Direction.West => new Vector3i(x - offset, y, z),
                 _ => throw new Exception("Vector3i : direction is illegal"),
             };
         }
