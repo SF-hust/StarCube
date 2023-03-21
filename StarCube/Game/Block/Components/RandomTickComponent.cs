@@ -1,10 +1,10 @@
 ﻿using StarCube.Utility;
-using StarCube.BootStrap.Attributes;
 using StarCube.Core.Component;
+using StarCube.Core.Component.Attributes;
 
 namespace StarCube.Game.Block.Components
 {
-    [ConstructInBootStrap]
+    [ComponentType]
     public abstract class RandomTickComponent : Component<Block>
     {
         public static readonly ComponentType<Block, RandomTickComponent> COMPONENT_TYPE =

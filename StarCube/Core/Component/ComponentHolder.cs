@@ -6,7 +6,7 @@ namespace StarCube.Core.Component
     public class ComponentHolder<O>
         where O : class, IComponentHolder<O>
     {
-        private readonly Dictionary<ComponentType, IComponent<O>> componentsByType = new Dictionary<ComponentType, IComponent<O>>();
+        private readonly Dictionary<ComponentType<O>, IComponent<O>> componentsByType = new Dictionary<ComponentType<O>, IComponent<O>>();
 
         private readonly O owner;
 
@@ -20,7 +20,7 @@ namespace StarCube.Core.Component
         /// </summary>
         public IEnumerable<IComponent<O>> Values => componentsByType.Values;
 
-        public IComponent<O> this[ComponentType type]
+        public IComponent<O> this[ComponentType<O> type]
         {
             get => TryGet(type, out IComponent<O>? component) ? component : throw new KeyNotFoundException();
         }
@@ -31,7 +31,7 @@ namespace StarCube.Core.Component
         /// <param name="componentType"></param>
         /// <param name="component"></param>
         /// <returns></returns>
-        public bool TryGet(ComponentType type, [NotNullWhen(true)] out IComponent<O>? component)
+        public bool TryGet(ComponentType<O> type, [NotNullWhen(true)] out IComponent<O>? component)
         {
             return componentsByType.TryGetValue(type, out component);
         }
@@ -98,7 +98,7 @@ namespace StarCube.Core.Component
         /// </summary>
         /// <param name="componentType"></param>
         /// <returns></returns>
-        public bool Contains(ComponentType type)
+        public bool Contains(ComponentType<O> type)
         {
             return componentsByType.ContainsKey(type);
         }
@@ -119,7 +119,7 @@ namespace StarCube.Core.Component
         /// </summary>
         /// <param name="type"></param>
         /// <returns>如果不存在此类型的 component 则返回 false</returns>
-        public bool Remove(ComponentType type)
+        public bool Remove(ComponentType<O> type)
         {
             if (componentsByType.Remove(type, out IComponent<O>? component))
             {

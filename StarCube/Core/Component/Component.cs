@@ -10,7 +10,7 @@ namespace StarCube.Core.Component
         public Type OwnerType => typeof(O);
 
 
-        public abstract ComponentVariant Variant { get; }
+        public abstract ComponentVariant<O> Variant { get; }
 
 
         public bool HasOwner => owner != null;
@@ -18,23 +18,17 @@ namespace StarCube.Core.Component
         public O Owner => owner ?? throw new NullReferenceException();
 
 
-        public bool Modified => modified;
+        public bool Dirty => dirty;
 
-        public void Modify()
+        public void MarkDirty()
         {
-            modified = true;
+            dirty = true;
         }
 
-        public virtual void StoreTo(BsonDocument bson)
+        public virtual void Serialize(BsonDocument bson)
         {
-            modified = false;
+            dirty = false;
         }
-
-        public virtual bool RestoreFrom(BsonDocument bson)
-        {
-            return true;
-        }
-
 
         public virtual void OnAddToOwner(O newOwner)
         {
@@ -62,6 +56,6 @@ namespace StarCube.Core.Component
 
         private O? owner = null;
 
-        private bool modified = false;
+        private bool dirty = false;
     }
 }

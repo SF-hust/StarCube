@@ -8,12 +8,12 @@ namespace StarCube.Core.Component
         /// <summary>
         /// 组件的类型
         /// </summary>
-        public ComponentType Type => Variant.type;
+        public ComponentType<O> Type => Variant.type;
 
         /// <summary>
         /// 组件的 variant
         /// </summary>
-        public ComponentVariant Variant { get; }
+        public ComponentVariant<O> Variant { get; }
 
 
         /* ~ 组件 owner start ~ */
@@ -34,28 +34,19 @@ namespace StarCube.Core.Component
 
 
 
-        /* ~ 组件保存与重建 start ~ */
-        public bool Modified { get; }
+        /* ~ 组件保存 start ~ */
+        public bool Dirty { get; }
 
         /// <summary>
         /// 显示标记此组件需要被保存
         /// </summary>
-        public void Modify();
+        public void MarkDirty();
 
         /// <summary>
         /// 将组件的属性存储到 bson 中
         /// </summary>
         /// <param name="bson"></param>
-        public void StoreTo(BsonDocument bson);
-
-        /// <summary>
-        /// 从 bson 中重建组件
-        /// </summary>
-        /// <param name="bson"></param>
-        /// <returns></returns>
-        public bool RestoreFrom(BsonDocument bson);
-        /* ~ 组件保存与重建 end ~ */
-
-
+        public void Serialize(BsonDocument bson);
+        /* ~ 组件保存 start ~ */
     }
 }

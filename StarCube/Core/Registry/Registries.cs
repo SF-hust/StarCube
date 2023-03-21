@@ -19,15 +19,12 @@ namespace StarCube.Core.Registry
     {
         public static readonly RootRegistry Root = new RootRegistry();
 
-        public static readonly Registry<ComponentType> COMPONENT_TYPE = Registry<ComponentType>.Create(Constants.DEFAULT_NAMESPACE, Constants.COMPONENT_TYPE_STRING);
-
         public static readonly Registry<Block> BLOCK = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING);
 
         public static readonly Registry<Item> ITEM = Registry<Item>.Create(Constants.DEFAULT_NAMESPACE, Constants.ITEM_STRING);
 
         static Registries()
         {
-            Root.Register(COMPONENT_TYPE);
             Root.Register(BLOCK);
             Root.Register(ITEM);
         }

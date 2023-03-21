@@ -4,45 +4,36 @@ using StarCube.Utility;
 
 namespace StarCube.Core.Component
 {
-    public delegate bool ComponentFactory<O, C>(BsonDocument bson, out C component)
+    public abstract class ComponentVariant<O> : IStringID
         where O : class, IComponentHolder<O>
-        where C : IComponent<O>;
-
-    public abstract class ComponentVariant
     {
-        public readonly ComponentType type;
+        StringID IStringID.ID => id;
 
-        public readonly StringID id;
-
-        public ComponentVariant(ComponentType type, StringID id)
+        public ComponentVariant(ComponentType<O> type, StringID id)
         {
             this.type = type;
             this.id = id;
         }
+
+        public readonly ComponentType<O> type;
+
+        public readonly StringID id;
     }
 
-    public class ComponentVariant<O, C> : ComponentVariant
+    public abstract class ComponentVariant<O, C> : ComponentVariant<O>
         where O : class, IComponentHolder<O>
         where C : IComponent<O>
     {
-        public C CreateDefault()
-        {
-            return Create(new BsonDocument());
-        }
+        public abstract C CreateDefault();
 
-        public C Create(BsonDocument bson)
-        {
-            tryCreateComponent(bson, out C component);
-            return component;
-        }
+        public abstract bool TryCreate(BsonDocument bson, out C component);
+
+        public abstract bool Deserialize(BsonDocument bson, out C component);
 
 
-        public ComponentVariant(ComponentType<O, C> type, StringID id, ComponentFactory<O, C> factory)
+        public ComponentVariant(ComponentType<O, C> type, StringID id)
             : base(type, id)
         {
-            tryCreateComponent = factory;
         }
-
-        private readonly ComponentFactory<O, C> tryCreateComponent;
     }
 }

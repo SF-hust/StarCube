@@ -8,20 +8,22 @@ using StarCube.Core.Registry;
 
 namespace StarCube.Core.Component
 {
-    public abstract class ComponentType : IRegistryEntry<ComponentType>
+    public abstract class ComponentType<O> : IRegistryEntry<ComponentType<O>>
+        where O : class, IComponentHolder<O>
     {
         /* ~ IRegistryEntry<ComponentType> 接口实现 start ~ */
-        public RegistryEntryData<ComponentType> RegistryEntryData
+        public RegistryEntryData<ComponentType<O>> RegistryEntryData
         {
-            get => IRegistryEntry<ComponentType>.RegistryEntryGetHelper(regData);
-            set => IRegistryEntry<ComponentType>.RegistryEntrySetHelper(ref regData, value);
+            get => IRegistryEntry<ComponentType<O>>.RegistryEntryGetHelper(regData);
+            set => IRegistryEntry<ComponentType<O>>.RegistryEntrySetHelper(ref regData, value);
         }
-        public virtual Type AsEntryType => typeof(ComponentType);
-        public Registry<ComponentType> Registry => regData!.registry;
-        public StringID ID => regData!.id;
+        private RegistryEntryData<ComponentType<O>>? regData = null;
+        public virtual Type AsEntryType => typeof(ComponentType<O>);
+        public Registry<ComponentType<O>> Registry => regData!.registry;
         public int IntegerID => regData!.integerID;
-        public string Modid => regData!.Modid;
-        public string Name => regData!.Name;
+        public StringID ID => id;
+        public string Modid => id.ModidString;
+        public string Name => id.NameString;
         /* ~ IRegistryEntry<ComponentType> 接口实现 end ~ */
 
 
@@ -51,7 +53,6 @@ namespace StarCube.Core.Component
 
         public readonly bool allowMultiple;
 
-        private RegistryEntryData<ComponentType>? regData = null;
     }
 
     /// <summary>
@@ -59,7 +60,7 @@ namespace StarCube.Core.Component
     /// </summary>
     /// <typeparam name="O">Owner 的类型</typeparam>
     /// <typeparam name="C">此类 ComponentType 对应的组件的基类型</typeparam>
-    public class ComponentType<O, C> : ComponentType
+    public class ComponentType<O, C> : ComponentType<O>
         where O : class, IComponentHolder<O>
         where C : IComponent<O>
     {
@@ -72,25 +73,14 @@ namespace StarCube.Core.Component
         /// </summary>
         public IEnumerable<ComponentVariant<O, C>> Variants => idToVariants.Values;
 
-
-        /// <summary>
-        /// 非泛型版本的注册，需要自己手动填 underlyingType，并在 factory 中做类型转换
-        /// </summary>
-        /// <param name="variantID"></param>
-        /// <param name="factory"></param>
-        /// <param name="underlyingType"></param>
-        /// <returns></returns>
-        public ComponentVariant<O, C> Register(StringID variantID, ComponentFactory<O, C> factory)
+        public void RegisterVariant(ComponentVariant<O, C> variant)
         {
-            ComponentVariant<O, C> type = new ComponentVariant<O, C>(this, variantID, factory);
-
-            if(!idToVariants.TryAdd(variantID, type))
+            if (!idToVariants.TryAdd(variant.id, variant))
             {
                 throw new Exception();
             }
-
-            return type;
         }
+
 
         public bool TryGetVariant(StringID variantId, [NotNullWhen(true)] out ComponentVariant<O, C>? variant)
         {
@@ -100,8 +90,9 @@ namespace StarCube.Core.Component
 
         public ComponentType(StringID id, bool allowMultiple = false) : base(id, allowMultiple)
         {
+            idToVariants = new ConcurrentDictionary<StringID, ComponentVariant<O, C>>();
         }
 
-        private readonly ConcurrentDictionary<StringID, ComponentVariant<O, C>> idToVariants = new ConcurrentDictionary<StringID, ComponentVariant<O, C>>();
+        private readonly ConcurrentDictionary<StringID, ComponentVariant<O, C>> idToVariants;
     }
 }
