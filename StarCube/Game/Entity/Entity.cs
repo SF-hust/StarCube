@@ -9,15 +9,18 @@ namespace StarCube.Game.Entity
         IComponentHolder<Entity>,
         IGuid
     {
-        public Guid Guid => guid;
+        Guid IGuid.Guid => guid;
 
         public ComponentHolder<Entity> Components => throw new NotImplementedException();
 
-        public Entity(Guid guid)
+        public Entity(EntityType type, Guid guid)
         {
+            this.type = type;
             this.guid = guid;
         }
 
-        private readonly Guid guid;
+        public readonly EntityType type;
+
+        public readonly Guid guid;
     }
 }

@@ -14,6 +14,11 @@ namespace StarCube.Game.Entity
 
         public Type AsEntryType => typeof(EntityType);
 
+        public Entity CreateNewEntity()
+        {
+            return new Entity(this, Guid.NewGuid());
+        }
+
         public EntityType()
         {
         }
