@@ -7,6 +7,12 @@ namespace StarCube.Utility.Math
 {
     public readonly struct BlockPos : IEquatable<BlockPos>
     {
+        public static int InChunkPosToIndex(int x, int y, int z)
+        {
+            return (y << 8) + (z << 4) + x;
+        }
+
+
         public readonly int x, y, z;
         public BlockPos(int x, int y, int z)
         {

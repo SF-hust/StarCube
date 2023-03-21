@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -95,7 +96,7 @@ namespace StarCube.Mod
                 throw new Exception($"no mod class found (assembly = \"{assembly.GetName()}\")");
             }
 
-            mods.Add(modid, new ModInfo(modid, modPath, assembly, foundMod));
+            mods.Add(modid, new ModInfo(modid, modPath, new ImmutableArray<Assembly> { assembly }, foundMod));
             return true;
         }
     }
