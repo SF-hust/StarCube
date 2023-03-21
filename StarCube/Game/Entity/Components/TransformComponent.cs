@@ -3,10 +3,12 @@
 using LiteDB;
 
 using StarCube.Utility;
+using StarCube.BootStrap.Attributes;
 using StarCube.Core.Component;
 
 namespace StarCube.Game.Entity.Components
 {
+    [ConstructInBootStrap]
     public sealed class TransformComponent : Component<Entity>
     {
         public static readonly ComponentType<Entity, TransformComponent> COMPONENT_TYPE =
@@ -16,7 +18,16 @@ namespace StarCube.Game.Entity.Components
 
         public static bool TryCreate(BsonDocument bson, out TransformComponent component)
         {
-            component = new TransformComponent();
+            if (!bson.TryGetVector3("position", out Vector3 position))
+            {
+                position = Vector3.Zero;
+            }
+            if (!bson.TryGetQuaternion("rotation", out Quaternion rotation))
+            {
+                rotation = Quaternion.Identity;
+            }
+
+            component = new TransformComponent(position, rotation);
             return true;
         }
 
@@ -24,16 +35,37 @@ namespace StarCube.Game.Entity.Components
 
         public override void StoreTo(BsonDocument bson)
         {
+            bson.Add("pos", position);
+            bson.Add("rot", rotation);
         }
 
-        public TransformComponent()
+        public override bool RestoreFrom(BsonDocument bson)
         {
+            bool result = true;
 
+            if(!bson.TryGetVector3("pos", out position))
+            {
+                position = Vector3.Zero;
+                result = false;
+            }
+            if(!bson.TryGetQuaternion("rot", out rotation))
+            {
+                rotation = Quaternion.Identity;
+                result = false;
+            }
+
+            return result;
+        }
+
+        public TransformComponent(Vector3 position, Quaternion rotation)
+        {
+            this.position = position;
+            this.rotation = rotation;
         }
 
 
-        public readonly Vector3 position;
+        public Vector3 position;
 
-        public readonly Quaternion rotation;
+        public Quaternion rotation;
     }
 }
