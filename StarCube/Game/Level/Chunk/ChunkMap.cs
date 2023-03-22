@@ -5,21 +5,21 @@ using StarCube.Utility.Math;
 
 namespace StarCube.Game.Level.Chunk
 {
-    public class ChunkMap
+    public sealed class ChunkMap
     {
         public int Count => posToChunk.Count;
 
-        public bool Exist(ChunkPos pos)
+        public bool Contains(ChunkPos pos)
         {
             return posToChunk.ContainsKey(pos);
         }
 
-        public bool TryGet(ChunkPos pos, [NotNullWhen(true)] out IChunk? chunk)
+        public bool TryGet(ChunkPos pos, [NotNullWhen(true)] out LevelChunk? chunk)
         {
             return posToChunk.TryGetValue(pos, out chunk);
         }
 
-        public void Put(ChunkPos pos, IChunk chunk)
+        public void Add(ChunkPos pos, LevelChunk chunk)
         {
             posToChunk.Add(pos, chunk);
         }
@@ -29,17 +29,17 @@ namespace StarCube.Game.Level.Chunk
             return posToChunk.Remove(pos);
         }
 
-        public bool Exist(int x, int y, int z)
+        public bool Contains(int x, int y, int z)
         {
             return posToChunk.ContainsKey(new ChunkPos(x, y, z));
         }
 
-        public bool TryGet(int x, int y, int z, [NotNullWhen(true)] out IChunk? chunk)
+        public bool TryGet(int x, int y, int z, [NotNullWhen(true)] out LevelChunk? chunk)
         {
             return posToChunk.TryGetValue(new ChunkPos(x, y, z), out chunk);
         }
 
-        public void Put(int x, int y, int z, IChunk chunk)
+        public void Put(int x, int y, int z, LevelChunk chunk)
         {
             posToChunk.Add(new ChunkPos(x, y, z), chunk);
         }
@@ -51,9 +51,9 @@ namespace StarCube.Game.Level.Chunk
 
         public ChunkMap()
         {
-            posToChunk = new Dictionary<ChunkPos, IChunk>();
+            posToChunk = new Dictionary<ChunkPos, LevelChunk>();
         }
 
-        private readonly Dictionary<ChunkPos, IChunk> posToChunk;
+        private readonly Dictionary<ChunkPos, LevelChunk> posToChunk;
     }
 }

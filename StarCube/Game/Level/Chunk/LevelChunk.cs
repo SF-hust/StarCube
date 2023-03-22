@@ -1,0 +1,73 @@
+﻿using System;
+using System.Text;
+
+using StarCube.Utility.Math;
+using StarCube.Game.Block;
+
+namespace StarCube.Game.Level.Chunk
+{
+    public abstract class LevelChunk
+    {
+        public int X => pos.x;
+        public int Y => pos.y;
+        public int Z => pos.z;
+
+
+        public abstract bool Writable { get; }
+
+        public abstract bool Empty { get; }
+
+        public abstract BlockState GetBlockState(int x, int y, int z);
+
+        public virtual BlockState GetBlockState(BlockPos pos)
+        {
+            return GetBlockState(pos.x, pos.y, pos.z);
+        }
+
+        public abstract void SetBlockState(int x, int y, int z, BlockState blockState);
+
+        public virtual void SetBlockState(BlockPos pos, BlockState blockState)
+        {
+            SetBlockState(pos.x, pos.y, pos.z, blockState);
+        }
+
+        public abstract void FillBlockState(int x0, int y0, int z0, int x1, int y1, int z1, BlockState blockState);
+
+        public virtual void FillBlockState(BlockPos start, BlockPos end, BlockState blockState)
+        {
+            FillBlockState(start.x, start.y, start.z, end.x, end.y, end.z, blockState);
+        }
+
+        public abstract BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState);
+
+        public virtual BlockState GetAndSetBlockState(BlockPos pos, BlockState blockState)
+        {
+            return GetAndSetBlockState(pos.x, pos.y, pos.z, blockState);
+        }
+
+        public abstract void CopyTo(BlockState[] array);
+
+        public abstract void CopyTo(Span<int> array);
+
+        public virtual void CopyTo(int[] array)
+        {
+            CopyTo(array.AsSpan());
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append("(").Append(X).Append(", ").Append(Y).Append(", ").Append(Z).Append(")");
+            return builder.ToString();
+        }
+
+        public LevelChunk(WorldLevel level, ChunkPos pos)
+        {
+            this.level = level;
+            this.pos = pos;
+        }
+
+        public readonly WorldLevel level;
+        public readonly ChunkPos pos;
+    }
+}

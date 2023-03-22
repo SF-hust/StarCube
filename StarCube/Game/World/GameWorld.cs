@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StarCube.Game.World
 {
-    public class World
+    public class GameWorld
     {
     }
 }

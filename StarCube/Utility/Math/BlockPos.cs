@@ -27,7 +27,7 @@ namespace StarCube.Utility.Math
 
         public BlockPos InChunkPos => new BlockPos(x & 0xF, y & 0xF, z & 0xF);
 
-        public BlockPos ChunkPos => new BlockPos(x >> 4, y >> 4, z >> 4);
+        public ChunkPos ChunkPos => new ChunkPos(x >> 4, y >> 4, z >> 4);
 
         public BlockPos SetX(int newX) => new BlockPos(newX, y, z);
         public BlockPos SetY(int newY) => new BlockPos(x, newY, z);
