@@ -12,13 +12,12 @@ namespace StarCube.Core.Registry
     public class RegistryObject<T> : Lazy<T>
         where T : class, IRegistryEntry<T>
     {
-
-        public RegistryObject<T> Create(Registry<T> registry, string modid, string name)
+        public static RegistryObject<T> Create(Registry<T> registry, string modid, string name)
         {
             return Create(registry, StringID.Create(modid, name));
         }
 
-        public RegistryObject<T> Create(Registry<T> registry, StringID id)
+        public static RegistryObject<T> Create(Registry<T> registry, StringID id)
         {
             return registry.GetAsRegistryObject(id);
         }
