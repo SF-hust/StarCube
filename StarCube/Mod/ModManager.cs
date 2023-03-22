@@ -96,7 +96,6 @@ namespace StarCube.Mod
                 throw new Exception($"no mod class found (assembly = \"{assembly.GetName()}\")");
             }
 
-            mods.Add(modid, new ModInfo(modid, modPath, new ImmutableArray<Assembly> { assembly }, foundMod));
             return true;
         }
     }
