@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Threading;
 
 namespace StarCube.Utility
 {
@@ -45,12 +47,11 @@ namespace StarCube.Utility
                 throw new ArgumentException($"Fail to create ResourceLocation : name \"{name}\" is invalid");
             }
 
-            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
-                .Append(modid)
-                .Append(SEPARATOR_CHAR)
-                .Append(name);
+            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
+            stringBuilder.Clear();
+            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
-            return InternelCreate(builder.ToString(), modid.Length, modid, name);
+            return InternelCreate(stringBuilder.ToString(), modid.Length, modid, name);
         }
 
 
@@ -72,12 +73,11 @@ namespace StarCube.Utility
                 throw new ArgumentException($"Fail to create ResourceLocation : name \"{name.ToString()}\" is invalid");
             }
 
-            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
-                .Append(modid)
-                .Append(SEPARATOR_CHAR)
-                .Append(name);
+            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
+            stringBuilder.Clear();
+            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
-            return InternelCreate(builder.ToString(), modid.Length);
+            return InternelCreate(stringBuilder.ToString(), modid.Length);
         }
 
 
@@ -95,12 +95,11 @@ namespace StarCube.Utility
                 return false;
             }
 
-            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
-                .Append(modid)
-                .Append(SEPARATOR_CHAR)
-                .Append(name);
+            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
+            stringBuilder.Clear();
+            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
-            id = InternelCreate(builder.ToString(), modid.Length, modid, name);
+            id = InternelCreate(stringBuilder.ToString(), modid.Length, modid, name);
             return true;
         }
 
@@ -119,21 +118,46 @@ namespace StarCube.Utility
                 return false;
             }
 
-            StringBuilder builder = new StringBuilder(modid.Length + name.Length + 1)
-                .Append(modid)
-                .Append(SEPARATOR_CHAR)
-                .Append(name);
+            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
+            stringBuilder.Clear();
+            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
-            id = InternelCreate(builder.ToString(), modid.Length);
+            id = InternelCreate(stringBuilder.ToString(), modid.Length);
             return true;
         }
 
 
         private static StringID InternelCreate(string idString, int separatorIndex, string? modid = null, string? name = null)
         {
-            return new StringID(idString, separatorIndex, modid, name);
+            if(stringToID.TryGetValue(idString, out var id))
+            {
+                return id;
+            }
+            else
+            {
+                lock(stringToID)
+                {
+                    if (stringToID.TryGetValue(idString, out var newID))
+                    {
+                        return newID;
+                    }
+
+                    idString = string.Intern(idString);
+                    modid = modid == null ? null : string.Intern(modid);
+                    name = name == null ? null : string.Intern(name);
+                    StringID createdID = new StringID(idString, separatorIndex, modid, name);
+                    stringToID.TryAdd(idString, createdID);
+                    return createdID;
+                }
+            }
         }
 
+        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>();
+
+        private static readonly ThreadLocal<StringBuilder> threadLocalStringBuilder = new ThreadLocal<StringBuilder>(() =>
+        {
+            return new StringBuilder(64);
+        });
 
         /// <summary>
         /// 尝试从 "{modid}:{name}" 形式的字符串解析并创建一个 StringID，如果参数不符合要求则抛出异常
@@ -480,10 +504,10 @@ namespace StarCube.Utility
 
         private StringID(string idString, int separatorIndex, string? cachedModidString, string? cachedNameString)
         {
-            this.idString = string.Intern(idString);
+            this.idString = idString;
             this.separatorIndex = separatorIndex;
-            this.cachedModidString = cachedModidString == null ? null : string.Intern(cachedModidString);
-            this.cachedNameString = cachedNameString == null ? null : string.Intern(cachedNameString);
+            this.cachedModidString = cachedModidString;
+            this.cachedNameString = cachedNameString;
         }
 
         public readonly string idString;
