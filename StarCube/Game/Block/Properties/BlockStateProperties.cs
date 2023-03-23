@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility;
 using StarCube.Utility.Enums;
-using StarCube.BootStrap.Attributes;
+using StarCube.Bootstrap.Attributes;
 using StarCube.Core.State.Property;
 using StarCube.Game.Block.Enums;
 

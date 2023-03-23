@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StarCube.BootStrap.Attributes
+namespace StarCube.Bootstrap.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class BootstrapClassAttribute : Attribute

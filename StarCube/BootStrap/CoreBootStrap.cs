@@ -2,11 +2,11 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-using StarCube.BootStrap.Attributes;
+using StarCube.Bootstrap.Attributes;
 
-namespace StarCube.BootStrap
+namespace StarCube.Bootstrap
 {
-    public class CoreBootStrap
+    public class CoreBootstrap
     {
         public static void InitCore()
         {

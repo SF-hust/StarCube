@@ -1,5 +1,5 @@
 ﻿using StarCube.Utility;
-using StarCube.BootStrap.Attributes;
+using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Registry;
 
 namespace StarCube.Game.Block

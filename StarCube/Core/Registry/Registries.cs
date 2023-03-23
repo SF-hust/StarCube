@@ -1,5 +1,5 @@
 ﻿using StarCube.Utility;
-using StarCube.BootStrap.Attributes;
+using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Component;
 using StarCube.Game.Block;
 using StarCube.Game.Item;
