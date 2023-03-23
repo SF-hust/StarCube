@@ -9,9 +9,9 @@ namespace StarCube.Game.Level.Chunk
     {
         private static BlockState AirBlockState => Blocks.Air.StateDefinition.defaultState;
 
-        public static EmptyChunk Create(WorldLevel level, ChunkPos pos)
+        public static EmptyChunk Create(ChunkPos pos)
         {
-            return new EmptyChunk(level, pos);
+            return new EmptyChunk(pos);
         }
 
         public override bool Writable => false;
@@ -46,8 +46,8 @@ namespace StarCube.Game.Level.Chunk
             array.Fill(AirBlockState.IntegerID);
         }
 
-        public EmptyChunk(WorldLevel level, ChunkPos pos)
-            : base(level, pos)
+        public EmptyChunk(ChunkPos pos)
+            : base(pos)
         {
         }
     }

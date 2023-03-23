@@ -8,9 +8,9 @@ namespace StarCube.Game.Level.Chunk
 {
     public sealed class PalettedChunk : LevelChunk
     {
-        public override bool Writable => throw new NotImplementedException();
+        public override bool Writable => true;
 
-        public override bool Empty => throw new NotImplementedException();
+        public override bool Empty => false;
 
         public override BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState)
         {
@@ -62,8 +62,8 @@ namespace StarCube.Game.Level.Chunk
             data.CopyTo(array);
         }
 
-        public PalettedChunk(WorldLevel level, ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, BlockState initState)
-            : base(level, pos)
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, BlockState initState)
+            : base(pos)
         {
             this.globalBlockStateMap = globalBlockStateMap;
             data = new int[4096];

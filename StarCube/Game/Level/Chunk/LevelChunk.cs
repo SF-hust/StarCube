@@ -61,13 +61,11 @@ namespace StarCube.Game.Level.Chunk
             return builder.ToString();
         }
 
-        public LevelChunk(WorldLevel level, ChunkPos pos)
+        public LevelChunk(ChunkPos pos)
         {
-            this.level = level;
             this.pos = pos;
         }
 
-        public readonly WorldLevel level;
         public readonly ChunkPos pos;
     }
 }
