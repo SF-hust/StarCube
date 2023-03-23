@@ -5,7 +5,7 @@ using StarCube.Core.Registry;
 
 namespace StarCube.Game.Item
 {
-    [ConstructInBootStrap]
+    [BootstrapClass]
     public class Items
     {
         public static Item Air = new Item();

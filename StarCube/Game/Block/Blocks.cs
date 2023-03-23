@@ -4,7 +4,7 @@ using StarCube.Core.Registry;
 
 namespace StarCube.Game.Block
 {
-    [ConstructInBootStrap]
+    [BootstrapClass]
     public static class Blocks
     {
         public static Block Air = new Block().BuildSingleBlockState();

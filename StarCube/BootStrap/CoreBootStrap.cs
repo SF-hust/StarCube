@@ -22,7 +22,7 @@ namespace StarCube.BootStrap
         {
             foreach (Type type in assembly.GetTypes())
             {
-                if (type.GetCustomAttribute(typeof(ConstructInBootStrapAttribute)) == null)
+                if (type.GetCustomAttribute(typeof(BootstrapClassAttribute)) == null)
                 {
                     continue;
                 }

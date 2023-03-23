@@ -6,7 +6,7 @@ using StarCube.Game.Block.Enums;
 
 namespace StarCube.Game.Block.Properties
 {
-    [ConstructInBootStrap]
+    [BootstrapClass]
     public static class BlockStateProperties
     {
         public static readonly EnumStateProperty<Axis> AXIS_XYZ = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis_xyz"), new Axis[3] { Axis.X, Axis.Y, Axis.Z });
