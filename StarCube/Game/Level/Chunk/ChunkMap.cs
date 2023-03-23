@@ -1,13 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-
+using System.Threading.Tasks;
 using StarCube.Utility.Math;
 
 namespace StarCube.Game.Level.Chunk
 {
+    public struct ChunkMapEntry
+    {
+        public LevelChunk? chunk;
+        public Task<LevelChunk>? loadingChunk;
+        public int loadTicket;
+        public int maxTicket;
+    }
+
+
     public sealed class ChunkMap
     {
         public int Count => posToChunk.Count;
+
+        public IEnumerable<LevelChunk> Chunks => posToChunk.Values;
 
         public bool Contains(ChunkPos pos)
         {
@@ -52,8 +63,10 @@ namespace StarCube.Game.Level.Chunk
         public ChunkMap()
         {
             posToChunk = new Dictionary<ChunkPos, LevelChunk>();
+            posToChunkEntry = new Dictionary<ChunkPos, ChunkMapEntry>();
         }
 
         private readonly Dictionary<ChunkPos, LevelChunk> posToChunk;
+        private readonly Dictionary<ChunkPos, ChunkMapEntry> posToChunkEntry;
     }
 }
