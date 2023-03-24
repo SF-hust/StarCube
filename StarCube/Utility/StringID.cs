@@ -126,30 +126,17 @@ namespace StarCube.Utility
             return true;
         }
 
-
         private static StringID InternelCreate(string idString, int separatorIndex, string? modid = null, string? name = null)
         {
-            if(stringToID.TryGetValue(idString, out var id))
-            {
-                return id;
-            }
-            else
-            {
-                lock(stringToID)
-                {
-                    if (stringToID.TryGetValue(idString, out var newID))
-                    {
-                        return newID;
-                    }
+            return stringToID.GetOrAdd(idString, DoCreate, (separatorIndex, modid, name));
+        }
 
-                    idString = string.Intern(idString);
-                    modid = modid == null ? null : string.Intern(modid);
-                    name = name == null ? null : string.Intern(name);
-                    StringID createdID = new StringID(idString, separatorIndex, modid, name);
-                    stringToID.TryAdd(idString, createdID);
-                    return createdID;
-                }
-            }
+        private static StringID DoCreate(string idString, (int, string?, string?) tuple)
+        {
+            idString = string.Intern(idString);
+            tuple.Item2 = tuple.Item2 == null ? null : string.Intern(tuple.Item2);
+            tuple.Item3 = tuple.Item3 == null ? null : string.Intern(tuple.Item3);
+            return new StringID(idString, tuple.Item1, tuple.Item2, tuple.Item3);
         }
 
         private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>();
