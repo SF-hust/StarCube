@@ -201,7 +201,7 @@ namespace StarCube.Utility
             return new StringID(idString, tuple.Item1, tuple.Item2, tuple.Item3);
         }
 
-        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>();
+        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>(StringComparer.Ordinal);
 
 
         /// <summary>
