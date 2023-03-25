@@ -19,6 +19,38 @@ namespace StarCube.Utility
             return false;
         }
 
+        public static bool TryGetInteger(this BsonDocument bson, string key, out int value)
+        {
+            if (TryGetInt32(bson, key, out value))
+            {
+                return true;
+            }
+
+            if (TryGetInt64(bson, key, out long longValue))
+            {
+                value = (int)longValue;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool TryGetInteger(this BsonDocument bson, string key, out long value)
+        {
+            if (TryGetInt64(bson, key, out value))
+            {
+                return true;
+            }
+
+            if (TryGetInt32(bson, key, out int intValue))
+            {
+                value = intValue;
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool TryGetInt32(this BsonDocument bson, string key, out int value)
         {
             if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsInt32)
@@ -121,8 +153,14 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 8)
                 {
-                    float x = BitConverter.ToSingle(binary, 0);
-                    float y = BitConverter.ToSingle(binary, 4);
+                    if(BitConverter.IsLittleEndian)
+                    {
+                        binary.AsSpan(0, 4).Reverse();
+                        binary.AsSpan(4, 4).Reverse();
+                    }
+                    float x = BitConverter.ToSingle(binary.AsSpan(0, 4));
+                    float y = BitConverter.ToSingle(binary.AsSpan(4, 4));
+
                     value = new Vector2(x, y);
                     return true;
                 }
@@ -139,9 +177,16 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if(binary.Length == 12)
                 {
-                    float x = BitConverter.ToSingle(binary, 0);
-                    float y = BitConverter.ToSingle(binary, 4);
-                    float z = BitConverter.ToSingle(binary, 8);
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        binary.AsSpan(0, 4).Reverse();
+                        binary.AsSpan(4, 4).Reverse();
+                        binary.AsSpan(8, 4).Reverse();
+                    }
+                    float x = BitConverter.ToSingle(binary.AsSpan(0, 4));
+                    float y = BitConverter.ToSingle(binary.AsSpan(4, 4));
+                    float z = BitConverter.ToSingle(binary.AsSpan(8, 4));
+
                     value = new Vector3(x, y, z);
                     return true;
                 }
@@ -158,10 +203,18 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 16)
                 {
-                    float x = BitConverter.ToSingle(binary, 0);
-                    float y = BitConverter.ToSingle(binary, 4);
-                    float z = BitConverter.ToSingle(binary, 8);
-                    float w = BitConverter.ToSingle(binary, 12);
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        binary.AsSpan(0, 4).Reverse();
+                        binary.AsSpan(4, 4).Reverse();
+                        binary.AsSpan(8, 4).Reverse();
+                        binary.AsSpan(12, 4).Reverse();
+                    }
+                    float x = BitConverter.ToSingle(binary.AsSpan(0, 4));
+                    float y = BitConverter.ToSingle(binary.AsSpan(4, 4));
+                    float z = BitConverter.ToSingle(binary.AsSpan(8, 4));
+                    float w = BitConverter.ToSingle(binary.AsSpan(12, 4));
+
                     value = new Vector4(x, y, z, w);
                     return true;
                 }
@@ -178,10 +231,18 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 16)
                 {
-                    float x = BitConverter.ToSingle(binary, 0);
-                    float y = BitConverter.ToSingle(binary, 4);
-                    float z = BitConverter.ToSingle(binary, 8);
-                    float w = BitConverter.ToSingle(binary, 12);
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        binary.AsSpan(0, 4).Reverse();
+                        binary.AsSpan(4, 4).Reverse();
+                        binary.AsSpan(8, 4).Reverse();
+                        binary.AsSpan(12, 4).Reverse();
+                    }
+                    float x = BitConverter.ToSingle(binary.AsSpan(0, 4));
+                    float y = BitConverter.ToSingle(binary.AsSpan(4, 4));
+                    float z = BitConverter.ToSingle(binary.AsSpan(8, 4));
+                    float w = BitConverter.ToSingle(binary.AsSpan(12, 4));
+
                     value = new Quaternion(x, y, z, w);
                     return true;
                 }
@@ -198,6 +259,13 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 64)
                 {
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        for (int i = 0; i < 64; i += 4)
+                        {
+                            binary.AsSpan(i, 4).Reverse();
+                        }
+                    }
                     value = new Matrix4x4
                     {
                         M11 = BitConverter.ToSingle(binary, 0),
@@ -235,6 +303,12 @@ namespace StarCube.Utility
             byte[] binary = new byte[8];
             BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.X);
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
+            if (BitConverter.IsLittleEndian)
+            {
+                binary.AsSpan(0, 4).Reverse();
+                binary.AsSpan(4, 4).Reverse();
+            }
+
             bson.Add(key, new BsonValue(binary));
         }
 
@@ -244,6 +318,13 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.X);
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
             BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.Z);
+            if (BitConverter.IsLittleEndian)
+            {
+                binary.AsSpan(0, 4).Reverse();
+                binary.AsSpan(4, 4).Reverse();
+                binary.AsSpan(8, 4).Reverse();
+            }
+
             bson.Add(key, new BsonValue(binary));
         }
 
@@ -254,6 +335,14 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
             BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.Z);
             BitConverter.TryWriteBytes(binary.AsSpan(12, 4), value.W);
+            if (BitConverter.IsLittleEndian)
+            {
+                binary.AsSpan(0, 4).Reverse();
+                binary.AsSpan(4, 4).Reverse();
+                binary.AsSpan(8, 4).Reverse();
+                binary.AsSpan(12, 4).Reverse();
+            }
+
             bson.Add(key, new BsonValue(binary));
         }
 
@@ -264,6 +353,14 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
             BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.Z);
             BitConverter.TryWriteBytes(binary.AsSpan(12, 4), value.W);
+            if (BitConverter.IsLittleEndian)
+            {
+                binary.AsSpan(0, 4).Reverse();
+                binary.AsSpan(4, 4).Reverse();
+                binary.AsSpan(8, 4).Reverse();
+                binary.AsSpan(12, 4).Reverse();
+            }
+
             bson.Add(key, new BsonValue(binary));
         }
 
@@ -286,6 +383,14 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(52, 4), value.M42);
             BitConverter.TryWriteBytes(binary.AsSpan(56, 4), value.M43);
             BitConverter.TryWriteBytes(binary.AsSpan(60, 4), value.M44);
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 64; i += 4)
+                {
+                    binary.AsSpan(i, 4).Reverse();
+                }
+            }
+
             bson.Add(key, new BsonValue(binary));
         }
     }
