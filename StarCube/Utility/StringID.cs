@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Threading;
 
 namespace StarCube.Utility
 {
@@ -47,8 +46,7 @@ namespace StarCube.Utility
                 throw new ArgumentException($"Fail to create ResourceLocation : name \"{name}\" is invalid");
             }
 
-            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
-            stringBuilder.Clear();
+            StringBuilder stringBuilder = StringUtil.StringBuilder;
             stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
             return InternelCreate(stringBuilder.ToString(), modid.Length, modid, name);
@@ -73,8 +71,7 @@ namespace StarCube.Utility
                 throw new ArgumentException($"Fail to create ResourceLocation : name \"{name.ToString()}\" is invalid");
             }
 
-            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
-            stringBuilder.Clear();
+            StringBuilder stringBuilder = StringUtil.StringBuilder;
             stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
             return InternelCreate(stringBuilder.ToString(), modid.Length);
@@ -95,8 +92,7 @@ namespace StarCube.Utility
                 return false;
             }
 
-            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
-            stringBuilder.Clear();
+            StringBuilder stringBuilder = StringUtil.StringBuilder;
             stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
             id = InternelCreate(stringBuilder.ToString(), modid.Length, modid, name);
@@ -118,33 +114,12 @@ namespace StarCube.Utility
                 return false;
             }
 
-            StringBuilder stringBuilder = threadLocalStringBuilder.Value;
-            stringBuilder.Clear();
+            StringBuilder stringBuilder = StringUtil.StringBuilder;
             stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
 
             id = InternelCreate(stringBuilder.ToString(), modid.Length);
             return true;
         }
-
-        private static StringID InternelCreate(string idString, int separatorIndex, string? modid = null, string? name = null)
-        {
-            return stringToID.GetOrAdd(idString, DoCreate, (separatorIndex, modid, name));
-        }
-
-        private static StringID DoCreate(string idString, (int, string?, string?) tuple)
-        {
-            idString = string.Intern(idString);
-            tuple.Item2 = tuple.Item2 == null ? null : string.Intern(tuple.Item2);
-            tuple.Item3 = tuple.Item3 == null ? null : string.Intern(tuple.Item3);
-            return new StringID(idString, tuple.Item1, tuple.Item2, tuple.Item3);
-        }
-
-        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>();
-
-        private static readonly ThreadLocal<StringBuilder> threadLocalStringBuilder = new ThreadLocal<StringBuilder>(() =>
-        {
-            return new StringBuilder(64);
-        });
 
         /// <summary>
         /// 尝试从 "{modid}:{name}" 形式的字符串解析并创建一个 StringID，如果参数不符合要求则抛出异常
@@ -212,6 +187,21 @@ namespace StarCube.Utility
             id = Failed;
             return false;
         }
+
+        private static StringID InternelCreate(string idString, int separatorIndex, string? modid = null, string? name = null)
+        {
+            return stringToID.GetOrAdd(idString, DoCreate, (separatorIndex, modid, name));
+        }
+
+        private static StringID DoCreate(string idString, (int, string?, string?) tuple)
+        {
+            idString = string.Intern(idString);
+            tuple.Item2 = tuple.Item2 == null ? null : string.Intern(tuple.Item2);
+            tuple.Item3 = tuple.Item3 == null ? null : string.Intern(tuple.Item3);
+            return new StringID(idString, tuple.Item1, tuple.Item2, tuple.Item3);
+        }
+
+        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>();
 
 
         /// <summary>

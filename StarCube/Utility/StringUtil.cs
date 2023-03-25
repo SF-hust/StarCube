@@ -1,11 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace StarCube.Utility
 {
     public static class StringUtil
     {
+        /// <summary>
+        /// 获取一个 ThreadLocal 的全局静态空 StringBuilder，
+        /// 警告 : 不要在使用完毕此 StringBuilder 之前调用其他使用此属性的方法
+        /// </summary>
+        public static StringBuilder StringBuilder => stringBuilder.Clear();
+
+        [ThreadStatic]
+        private static readonly StringBuilder stringBuilder = new StringBuilder(64);
+
         /// <summary>
         /// 最简单版本的 IndexOf
         /// </summary>
