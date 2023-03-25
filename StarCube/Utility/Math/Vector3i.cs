@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-using StarCube.Utility.Enums;
-
 namespace StarCube.Utility.Math
 {
     public readonly struct Vector3i : IEquatable<Vector3i>
     {
-        public readonly int x, y, z;
+        public readonly int x;
+        public readonly int y;
+        public readonly int z;
+
         public Vector3i(int x, int y, int z)
         {
             this.x = x;
@@ -20,16 +21,6 @@ namespace StarCube.Utility.Math
         public Vector3i SetX(int newX) => new Vector3i(newX, y, z);
         public Vector3i SetY(int newY) => new Vector3i(x, newY, z);
         public Vector3i SetZ(int newZ) => new Vector3i(x, y, newZ);
-        public Vector3i SetAxis(Axis axis, int newValue)
-        {
-            return axis switch
-            {
-                Axis.X => new Vector3i(newValue, y, z),
-                Axis.Y => new Vector3i(x, newValue, z),
-                Axis.Z => new Vector3i(x, y, newValue),
-                _ => throw new Exception("BlockPos : axis is illegal"),
-            };
-        }
 
         public Vector3i Up => new Vector3i(x, y + 1, z);
         public Vector3i Down => new Vector3i(x, y - 1, z);
@@ -37,33 +28,6 @@ namespace StarCube.Utility.Math
         public Vector3i East => new Vector3i(x + 1, y, z);
         public Vector3i South => new Vector3i(x, y, z - 1);
         public Vector3i West => new Vector3i(x - 1, y, z);
-        public Vector3i Move(Axis axis, int offset)
-        {
-            return axis switch
-            {
-                Axis.X => new Vector3i(x + offset, y, z),
-                Axis.Y => new Vector3i(x, y + offset, z),
-                Axis.Z => new Vector3i(x, y, z + offset),
-                _ => throw new Exception("Vector3i : axis is illegal"),
-            };
-        }
-        public Vector3i Move(Direction direction, int offset)
-        {
-            return direction switch
-            {
-                Direction.North => new Vector3i(x, y, z + offset),
-                Direction.South => new Vector3i(x, y, z - offset),
-                Direction.East => new Vector3i(x + offset, y, z),
-                Direction.West => new Vector3i(x - offset, y, z),
-                Direction.Up => new Vector3i(x, y + offset, z),
-                Direction.Down => new Vector3i(x, y - offset, z),
-                _ => throw new Exception("Vector3i : direction is illegal"),
-            };
-        }
-
-        public Vector3i MoveX(int offset) => new Vector3i(x + offset, y, z);
-        public Vector3i MoveY(int offset) => new Vector3i(x, y + offset, z);
-        public Vector3i MoveZ(int offset) => new Vector3i(x, y, z + offset);
 
         public Vector3i Add(int a) => new Vector3i(x + a, y + a, z + a);
         public Vector3i Add(Vector3i v) => new Vector3i(x + v.x, y + v.y, z + v.z);
@@ -72,7 +36,7 @@ namespace StarCube.Utility.Math
 
         public override int GetHashCode()
         {
-            return x + y * 31 + z * 31 * 31;
+            return x * 31 * 31 + y + z * 31;
         }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
@@ -115,6 +79,11 @@ namespace StarCube.Utility.Math
         public static ChunkPos ToChunkPos(this Vector3i v)
         {
             return new ChunkPos(v.x, v.y, v.z);
+        }
+
+        public static RegionPos ToRegionPos(this Vector3i v)
+        {
+            return new RegionPos(v.x, v.y, v.z);
         }
     }
 }

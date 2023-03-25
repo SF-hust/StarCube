@@ -7,7 +7,18 @@ namespace StarCube.Utility.Math
 {
     public readonly struct ChunkPos : IEquatable<ChunkPos>
     {
-        public readonly int x, y, z;
+        public static readonly ChunkPos Zero = new ChunkPos(0, 0, 0);
+
+        public static int InRegionPosToIndex(int x, int y, int z)
+        {
+            return (y << 8) + (z << 4) + x;
+        }
+
+
+        public readonly int x;
+        public readonly int y;
+        public readonly int z;
+
         public ChunkPos(int x, int y, int z)
         {
             this.x = x;
@@ -15,11 +26,7 @@ namespace StarCube.Utility.Math
             this.z = z;
         }
 
-        public static readonly ChunkPos Zero = new ChunkPos(0, 0, 0);
-
         public Vector3i ToVector3i => new Vector3i(x, y, z);
-
-        public BlockPos BlockZero => new BlockPos(x << 4, y << 4, z << 4);
 
         public ChunkPos SetX(int newX) => new ChunkPos(newX, y, z);
         public ChunkPos SetY(int newY) => new ChunkPos(x, newY, z);
@@ -41,33 +48,10 @@ namespace StarCube.Utility.Math
         public ChunkPos East => new ChunkPos(x + 1, y, z);
         public ChunkPos South => new ChunkPos(x, y, z - 1);
         public ChunkPos West => new ChunkPos(x - 1, y, z);
-        public ChunkPos Move(Axis axis, int offset)
-        {
-            return axis switch
-            {
-                Axis.X => new ChunkPos(x + offset, y, z),
-                Axis.Y => new ChunkPos(x, y + offset, z),
-                Axis.Z => new ChunkPos(x, y, z + offset),
-                _ => throw new Exception("ChunkPos : axis is illegal"),
-            };
-        }
-        public ChunkPos Move(Direction direction, int offset)
-        {
-            return direction switch
-            {
-                Direction.North => new ChunkPos(x, y, z + offset),
-                Direction.South => new ChunkPos(x, y, z - offset),
-                Direction.East => new ChunkPos(x + offset, y, z),
-                Direction.West => new ChunkPos(x - offset, y, z),
-                Direction.Up => new ChunkPos(x, y + offset, z),
-                Direction.Down => new ChunkPos(x, y - offset, z),
-                _ => throw new Exception("ChunkPos : direction is illegal"),
-            };
-        }
 
         public override int GetHashCode()
         {
-            return x * 953 + y + z * 31;
+            return x * 31 * 31 + y + z * 31;
         }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
@@ -97,6 +81,14 @@ namespace StarCube.Utility.Math
         public override string ToString()
         {
             return $"{x}, {y}, {z}";
+        }
+    }
+
+    public static class ChunkPosExtension
+    {
+        public static RegionPos GetRegionPos(this ChunkPos chunkPos)
+        {
+            return new RegionPos(chunkPos.x >> 4, chunkPos.y >> 4, chunkPos.z >> 4);
         }
     }
 }
