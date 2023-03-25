@@ -11,7 +11,7 @@ namespace StarCube.Data.Saves
         public LiteDatabase GetOrCreateDB(string path)
         {
             string fullPath = GetFullPath(path);
-            return GetOrCreateDB(fullPath);
+            return OpenOrCreate(path, fullPath);
         }
 
         public bool TryGetDB(string path, [NotNullWhen(true)] out LiteDatabase? database)
@@ -24,7 +24,7 @@ namespace StarCube.Data.Saves
             string fullPath = GetFullPath(path);
             if (File.Exists(fullPath))
             {
-                database = OpenOrCreate(fullPath);
+                database = OpenOrCreate(path, fullPath);
                 return true;
             }
 
@@ -47,7 +47,7 @@ namespace StarCube.Data.Saves
                 return false;
             }
 
-            database = OpenOrCreate(fullPath);
+            database = OpenOrCreate(path, fullPath);
             pathToDataBase.Add(path, database);
             return true;
         }
@@ -63,18 +63,17 @@ namespace StarCube.Data.Saves
             return fullPath;
         }
 
-        private LiteDatabase OpenOrCreate(string fullPath)
+        private LiteDatabase OpenOrCreate(string relativePath, string fullPath)
         {
             ConnectionString connectionString = new ConnectionString()
             {
                 Filename = fullPath,
                 Collation = Collation.Binary,
+                
             };
-            return new LiteDatabase(connectionString);
-        }
-
-        public void Flush()
-        {
+            LiteDatabase database = new LiteDatabase(connectionString);
+            pathToDataBase.Add(relativePath, database);
+            return database;
         }
 
         public GameSaves(string name, string directoryPath)
