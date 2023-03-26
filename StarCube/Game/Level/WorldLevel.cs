@@ -13,25 +13,19 @@ namespace StarCube.Game.Level
         ITickable,
         IGuid
     {
-        public abstract bool TryGetBlockState(int x, int y, int z, [NotNullWhen(true)] out BlockState? blockState);
+        public abstract bool HasBlock(int x, int y, int z);
+        public abstract bool HasBlock(BlockPos pos);
 
+        public abstract bool TryGetBlockState(int x, int y, int z, [NotNullWhen(true)] out BlockState? blockState);
         public abstract bool TryGetBlockState(BlockPos pos, [NotNullWhen(true)] out BlockState? blockState);
 
         public abstract bool TrySetBlockState(int x, int y, int z, BlockState blockState);
-
         public abstract bool TrySetBlockState(BlockPos pos, BlockState blockState);
 
         public abstract bool TryGetAndSetBlockState(BlockPos pos, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState);
-
         public abstract bool TryGetAndSetBlockState(int x, int y, int z, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState);
 
-        public abstract bool TryGetChunk(int x, int y, int z, [NotNullWhen(true)] out LevelChunk? chunk);
-
-        public abstract bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out LevelChunk? chunk);
-
-        public virtual void Tick()
-        {
-        }
+        public abstract void Tick();
 
         Guid IGuid.Guid => guid;
 
