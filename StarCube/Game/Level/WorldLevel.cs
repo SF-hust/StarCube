@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Block;
-using StarCube.Game.Level.Chunk;
+using StarCube.Game.Level.Chunks;
 using StarCube.Game.Ticking;
 
 namespace StarCube.Game.Level

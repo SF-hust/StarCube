@@ -6,9 +6,9 @@ using StarCube.Game.Block;
 using System.Threading;
 using StarCube.Utility;
 
-namespace StarCube.Game.Level.Chunk
+namespace StarCube.Game.Level.Chunks
 {
-    public abstract class LevelChunk
+    public abstract class Chunk
     {
         public int X => pos.x;
         public int Y => pos.y;
@@ -59,7 +59,7 @@ namespace StarCube.Game.Level.Chunk
             return builder.ToString();
         }
 
-        public LevelChunk(ChunkPos pos)
+        public Chunk(ChunkPos pos)
         {
             this.pos = pos;
         }

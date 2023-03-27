@@ -1,16 +1,16 @@
 ﻿using System;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunk;
+using StarCube.Game.Level.Chunks;
 using StarCube.Game.Block;
 
 namespace StarCube.Game.Level.Generation.Flat
 {
     public class FlatLevelGenerator : ILevelGenerator
     {
-        public LevelChunk GenerateChunk(ChunkPos pos)
+        public Chunk GenerateChunk(ChunkPos pos)
         {
-            LevelChunk chunk = emptyChunkFactory(pos);
+            Chunk chunk = emptyChunkFactory(pos);
             for (int y = 0; y < 16; ++y)
             {
                 BlockState blockState = layerList.GetBlockStateForHeight(y + pos.y * 16);
@@ -20,13 +20,13 @@ namespace StarCube.Game.Level.Generation.Flat
             return chunk;
         }
 
-        public FlatLevelGenerator(Func<ChunkPos, LevelChunk> emptyChunkFactory, FlatLayerList layerList)
+        public FlatLevelGenerator(Func<ChunkPos, Chunk> emptyChunkFactory, FlatLayerList layerList)
         {
             this.emptyChunkFactory = emptyChunkFactory;
             this.layerList = layerList;
         }
 
-        private readonly Func<ChunkPos, LevelChunk> emptyChunkFactory;
+        private readonly Func<ChunkPos, Chunk> emptyChunkFactory;
         private readonly FlatLayerList layerList;
     }
 }

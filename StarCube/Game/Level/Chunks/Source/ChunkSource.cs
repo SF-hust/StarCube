@@ -3,7 +3,7 @@
 using StarCube.Utility.Math;
 using StarCube.Game.Ticking;
 
-namespace StarCube.Game.Level.Chunk.Source
+namespace StarCube.Game.Level.Chunks.Source
 {
     public abstract class ChunkSource : ITickable
     {
@@ -21,7 +21,7 @@ namespace StarCube.Game.Level.Chunk.Source
         /// <param name="load">是否要同步加载 chunk</param>
         /// <param name="levelChunk">返回的 chunk</param>
         /// <returns>true 如果指定位置的 chunk 已经在内存中；否则 false</returns>
-        public abstract bool TryGetChunk(ChunkPos pos, bool load, [NotNullWhen(true)] out LevelChunk? chunk);
+        public abstract bool TryGetChunk(ChunkPos pos, bool load, [NotNullWhen(true)] out Chunk? chunk);
 
         /// <summary>
         /// 每刻更新

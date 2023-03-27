@@ -3,12 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunk.Map;
-using StarCube.Game.Level.Chunk.Storage;
+using StarCube.Game.Level.Chunks.Map;
+using StarCube.Game.Level.Chunks.Storage;
 using StarCube.Game.Level.Loading;
 using StarCube.Game.Level.Generation;
 
-namespace StarCube.Game.Level.Chunk.Source
+namespace StarCube.Game.Level.Chunks.Source
 {
     public sealed class ServerChunkSource : ChunkSource
     {
@@ -17,7 +17,7 @@ namespace StarCube.Game.Level.Chunk.Source
             return chunkMap.IsLoaded(pos);
         }
 
-        public override bool TryGetChunk(ChunkPos pos, bool load, [NotNullWhen(true)] out LevelChunk? chunk)
+        public override bool TryGetChunk(ChunkPos pos, bool load, [NotNullWhen(true)] out Chunk? chunk)
         {
             return chunkMap.TryGet(pos, out chunk);
         }
@@ -90,9 +90,9 @@ namespace StarCube.Game.Level.Chunk.Source
             chunkMap.FlushLoading();
         }
 
-        private Task<LevelChunk> LoadOrGenerateChunk(ChunkPos pos)
+        private Task<Chunk> LoadOrGenerateChunk(ChunkPos pos)
         {
-            return new Task<LevelChunk>(() => generator.GenerateChunk(pos));
+            return new Task<Chunk>(() => generator.GenerateChunk(pos));
         }
 
         public ServerChunkSource(ServerLevel level, ILevelGenerator generator, ChunkStorage storage)

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunk;
+using StarCube.Game.Level.Chunks;
 
 namespace StarCube.Game.Level.Storage
 {
@@ -14,17 +14,17 @@ namespace StarCube.Game.Level.Storage
             throw new NotImplementedException();
         }
 
-        public Task<LevelChunk?> ReadChunk(ChunkPos pos)
+        public Task<Chunk?> ReadChunk(ChunkPos pos)
         {
             throw new NotImplementedException();
         }
 
-        public bool ReadChunkSync(ChunkPos pos, [NotNullWhen(true)] out LevelChunk? chunk)
+        public bool ReadChunkSync(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             throw new NotImplementedException();
         }
 
-        public void WriteChunk(LevelChunk chunk)
+        public void WriteChunk(Chunk chunk)
         {
             throw new NotImplementedException();
         }

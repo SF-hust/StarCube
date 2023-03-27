@@ -3,11 +3,11 @@
 using StarCube.Game.Block;
 using StarCube.Utility.Math;
 
-namespace StarCube.Game.Level.Chunk
+namespace StarCube.Game.Level.Chunks
 {
-    public sealed class EmptyChunk : LevelChunk
+    public sealed class EmptyChunk : Chunk
     {
-        private static BlockState AirBlockState => Blocks.Air.StateDefinition.defaultState;
+        private static BlockState AirBlockState => BuiltinBlocks.Air.StateDefinition.defaultState;
 
         public static EmptyChunk Create(ChunkPos pos)
         {

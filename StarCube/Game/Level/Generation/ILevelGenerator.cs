@@ -1,10 +1,10 @@
 ﻿using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunk;
+using StarCube.Game.Level.Chunks;
 
 namespace StarCube.Game.Level.Generation
 {
     public interface ILevelGenerator
     {
-        public LevelChunk GenerateChunk(ChunkPos pos);
+        public Chunk GenerateChunk(ChunkPos pos);
     }
 }

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunk;
+using StarCube.Game.Level.Chunks;
 
 namespace StarCube.Game.Level.Storage
 {
@@ -10,10 +10,10 @@ namespace StarCube.Game.Level.Storage
     {
         public bool Contains(ChunkPos pos);
 
-        public Task<LevelChunk?> ReadChunk(ChunkPos pos);
+        public Task<Chunk?> ReadChunk(ChunkPos pos);
 
-        public bool ReadChunkSync(ChunkPos pos, [NotNullWhen(true)] out LevelChunk? chunk);
+        public bool ReadChunkSync(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk);
 
-        public void WriteChunk(LevelChunk chunk);
+        public void WriteChunk(Chunk chunk);
     }
 }

@@ -43,7 +43,7 @@ namespace StarCube.Game.Level.Generation.Flat
                 }
             }
 
-            return Blocks.Air.StateDefinition.defaultState;
+            return BuiltinBlocks.Air.StateDefinition.defaultState;
         }
 
         public FlatLayerList(IIDMap<BlockState> globalBlockStateIDMap)

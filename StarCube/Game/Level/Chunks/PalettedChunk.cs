@@ -4,9 +4,9 @@ using StarCube.Utility.Math;
 using StarCube.Utility.Container;
 using StarCube.Game.Block;
 
-namespace StarCube.Game.Level.Chunk
+namespace StarCube.Game.Level.Chunks
 {
-    public sealed class PalettedChunk : LevelChunk
+    public sealed class PalettedChunk : Chunk
     {
         public override bool Writable => true;
 

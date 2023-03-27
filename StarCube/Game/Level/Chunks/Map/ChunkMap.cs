@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using StarCube.Utility.Math;
 using StarCube.Game.Level.Loading;
 
-namespace StarCube.Game.Level.Chunk.Map
+namespace StarCube.Game.Level.Chunks.Map
 {
     internal class ChunkDataEntry
     {
@@ -50,7 +50,7 @@ namespace StarCube.Game.Level.Chunk.Map
             }
         }
 
-        public ChunkDataEntry(LevelChunk chunk, bool active)
+        public ChunkDataEntry(Chunk chunk, bool active)
         {
             this.chunk = chunk;
             loadingChunk = null;
@@ -66,7 +66,7 @@ namespace StarCube.Game.Level.Chunk.Map
             }
         }
 
-        public ChunkDataEntry(Task<LevelChunk> loadingChunk, bool active)
+        public ChunkDataEntry(Task<Chunk> loadingChunk, bool active)
         {
             this.loadingChunk = loadingChunk;
             chunk = null;
@@ -82,10 +82,10 @@ namespace StarCube.Game.Level.Chunk.Map
             }
         }
 
-        public LevelChunk Chunk => chunk ?? throw new NullReferenceException();
+        public Chunk Chunk => chunk ?? throw new NullReferenceException();
 
-        private LevelChunk? chunk;
-        private Task<LevelChunk>? loadingChunk;
+        private Chunk? chunk;
+        private Task<Chunk>? loadingChunk;
 
         private int loadCount;
         private int activeCount;
@@ -186,7 +186,7 @@ namespace StarCube.Game.Level.Chunk.Map
             return posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry chunkDataEntry) && !chunkDataEntry.Loaded;
         }
 
-        public bool TryGet(ChunkPos pos, [NotNullWhen(true)] out LevelChunk? chunk)
+        public bool TryGet(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             if(posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry? entry) && entry.Loaded)
             {
@@ -338,7 +338,7 @@ namespace StarCube.Game.Level.Chunk.Map
         }
 
 
-        public ChunkMap(Func<ChunkPos, Task<LevelChunk>> chunkTaskCreator)
+        public ChunkMap(Func<ChunkPos, Task<Chunk>> chunkTaskCreator)
         {
             createChunkTask = chunkTaskCreator;
             posToChunkDataEntry = new Dictionary<ChunkPos, ChunkDataEntry>();
@@ -350,7 +350,7 @@ namespace StarCube.Game.Level.Chunk.Map
         }
 
 
-        private readonly Func<ChunkPos, Task<LevelChunk>> createChunkTask;
+        private readonly Func<ChunkPos, Task<Chunk>> createChunkTask;
 
         private readonly Dictionary<ChunkPos, ChunkDataEntry> posToChunkDataEntry;
 

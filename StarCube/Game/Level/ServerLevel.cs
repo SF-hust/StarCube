@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Block;
-using StarCube.Game.Level.Chunk;
-using StarCube.Game.Level.Chunk.Source;
-using StarCube.Game.Level.Chunk.Storage;
+using StarCube.Game.Level.Chunks;
+using StarCube.Game.Level.Chunks.Source;
+using StarCube.Game.Level.Chunks.Storage;
 using StarCube.Game.Level.Generation;
 using StarCube.Game.Level.Loading;
 
@@ -31,7 +31,7 @@ namespace StarCube.Game.Level
 
         public override bool TryGetBlockState(BlockPos pos, [NotNullWhen(true)] out BlockState? blockState)
         {
-            if (TryGetChunk(pos.GetChunkPos(), out LevelChunk? chunk))
+            if (TryGetChunk(pos.GetChunkPos(), out Chunk? chunk))
             {
                 blockState = chunk.GetBlockState(pos.GetInChunkPos());
                 return true;
@@ -48,7 +48,7 @@ namespace StarCube.Game.Level
 
         public override bool TrySetBlockState(BlockPos pos, BlockState blockState)
         {
-            if (TryGetChunk(pos.GetChunkPos(), out LevelChunk? chunk))
+            if (TryGetChunk(pos.GetChunkPos(), out Chunk? chunk))
             {
                 chunk.SetBlockState(pos.GetInChunkPos(), blockState);
                 return true;
@@ -64,7 +64,7 @@ namespace StarCube.Game.Level
 
         public override bool TryGetAndSetBlockState(BlockPos pos, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState)
         {
-            if (TryGetChunk(pos.GetChunkPos(), out LevelChunk? chunk))
+            if (TryGetChunk(pos.GetChunkPos(), out Chunk? chunk))
             {
                 oldBlockState = chunk.GetAndSetBlockState(pos.GetInChunkPos(), blockState);
                 return true;
@@ -75,7 +75,7 @@ namespace StarCube.Game.Level
         }
 
 
-        private bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out LevelChunk? chunk)
+        private bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             return chunkSource.TryGetChunk(pos, false, out chunk);
         }
