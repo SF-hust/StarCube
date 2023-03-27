@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StarCube.Game
 {
-    public class StarCubeGame
+    public abstract class StarCubeGame
     {
     }
 }
