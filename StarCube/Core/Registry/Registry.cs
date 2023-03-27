@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using StarCube.Utility;
 using StarCube.Utility.Container;
 using StarCube.Data;
+using StarCube.Utility.Logging;
 
 namespace StarCube.Core.Registry
 {
@@ -180,6 +181,8 @@ namespace StarCube.Core.Registry
 
             entries.Add(entry);
             stringIDToIntegerID.Add(id, integerID);
+
+            LogUtil.Logger.Info($"new entry \"{entry.ID}\" added to registry \"{this.id}\"");
 
             OnEntryAddEvent?.Invoke(this, new RegistryEntryAddEventArgs(entry));
 

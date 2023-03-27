@@ -31,9 +31,9 @@ namespace StarCube.Core.Registry
         /// </summary>
         public Registry AbstractRegistry => AbstractEntryRegistryData.AbstractRegistry;
 
-        StringID IStringID.ID => ID;
+        StringID IStringID.ID => AbstractEntryRegistryData.id;
 
-        int IIntegerID.IntegerID => IntegerID;
+        int IIntegerID.IntegerID => AbstractEntryRegistryData.integerID;
     }
 
     /*
