@@ -11,16 +11,19 @@ namespace StarCube.Game.BlockEntity
     {
         Guid IGuid.Guid => guid;
 
-        public ComponentHolder<BlockEntity> Components => throw new NotImplementedException();
+        public ComponentContainer<BlockEntity> Components => componentHolder;
 
         public BlockEntity(BlockEntityType type, Guid guid)
         {
             this.type = type;
             this.guid = guid;
+            componentHolder = new ComponentContainer<BlockEntity>(this);
         }
 
         public readonly BlockEntityType type;
 
         public readonly Guid guid;
+
+        private readonly ComponentContainer<BlockEntity> componentHolder;
     }
 }

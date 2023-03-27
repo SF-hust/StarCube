@@ -69,7 +69,7 @@ namespace StarCube.Game.Entity.Components
 
         public override ComponentVariant<Entity> Variant => COMPONENT_VARIANT;
 
-        public override void Serialize(BsonDocument bson)
+        public override void StoreTo(BsonDocument bson)
         {
             bson.Add("pos", position);
             bson.Add("rot", rotation);

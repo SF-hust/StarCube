@@ -4,33 +4,22 @@ using LiteDB;
 
 namespace StarCube.Core.Component
 {
-    public abstract class Component<O> : IComponent<O>
+    public abstract class Component<O>
         where O : class, IComponentHolder<O>
     {
-        public Type OwnerType => typeof(O);
-
+        /* ~ Type 与 Variant ~ */
+        public ComponentType<O> Type => Variant.type;
 
         public abstract ComponentVariant<O> Variant { get; }
 
 
-        public bool HasOwner => owner != null;
+
+        /* ~ Owner ~ */
+        public bool Attached => owner != null;
 
         public O Owner => owner ?? throw new NullReferenceException();
 
-
-        public bool Dirty => dirty;
-
-        public void MarkDirty()
-        {
-            dirty = true;
-        }
-
-        public virtual void Serialize(BsonDocument bson)
-        {
-            dirty = false;
-        }
-
-        public virtual void OnAddToOwner(O newOwner)
+        public void SetOwner(O newOwner)
         {
             if (newOwner == owner)
             {
@@ -39,7 +28,7 @@ namespace StarCube.Core.Component
             owner = newOwner;
         }
 
-        public virtual void OnRemoveFromOwner()
+        public void ResetOwner()
         {
             if (owner == null)
             {
@@ -50,12 +39,48 @@ namespace StarCube.Core.Component
 
 
 
-        public Component()
+        /* ~ 生命周期 ~ */
+        public virtual void OnConstruct()
         {
         }
 
-        private O? owner = null;
+        public virtual void OnAddToOwner()
+        {
+        }
 
-        private bool dirty = false;
+        public virtual void OnRemoveFromOwner()
+        {
+        }
+
+        public virtual void OnDestory()
+        {
+        }
+
+
+
+        /* ~ 数据保存 ~ */
+        public bool Dirty => dirty;
+
+        public void MarkDirty()
+        {
+            dirty = true;
+        }
+
+        public virtual void StoreTo(BsonDocument bson)
+        {
+            dirty = false;
+        }
+
+
+
+        public Component()
+        {
+            owner = null;
+            dirty = false;
+        }
+
+        private O? owner;
+
+        private bool dirty;
     }
 }

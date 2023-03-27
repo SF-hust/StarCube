@@ -41,7 +41,7 @@ namespace StarCube.Game.Block
 
 
         /* ~ IComponentHolder<Block> 接口实现 start ~ */
-        public ComponentHolder<Block> Components => throw new NotImplementedException();
+        public ComponentContainer<Block> Components => throw new NotImplementedException();
         /* ~ IComponentHolder<Block> 接口实现 end ~ */
 
         public override int GetHashCode()

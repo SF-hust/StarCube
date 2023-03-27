@@ -62,7 +62,7 @@ namespace StarCube.Core.Component
     /// <typeparam name="C">此类 ComponentType 对应的组件的基类型</typeparam>
     public class ComponentType<O, C> : ComponentType<O>
         where O : class, IComponentHolder<O>
-        where C : IComponent<O>
+        where C : Component<O>
     {
         public override Type OwnerType => typeof(O);
         public override Type ComponentBaseType => typeof(C);

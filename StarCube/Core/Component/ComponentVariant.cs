@@ -22,7 +22,7 @@ namespace StarCube.Core.Component
 
     public abstract class ComponentVariant<O, C> : ComponentVariant<O>
         where O : class, IComponentHolder<O>
-        where C : IComponent<O>
+        where C : Component<O>
     {
         public abstract C CreateDefault();
 

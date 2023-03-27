@@ -1,12 +1,8 @@
 ﻿namespace StarCube.Core.Component
 {
-    public interface IComponentHolder
-    {
-    }
-
-    public interface IComponentHolder<T> : IComponentHolder
+    public interface IComponentHolder<T>
         where T : class, IComponentHolder<T>
     {
-        public ComponentHolder<T> Components { get; }
+        public ComponentContainer<T> Components { get; }
     }
 }

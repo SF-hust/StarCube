@@ -14,6 +14,13 @@ namespace StarCube.Game.BlockEntity
 
         public Type AsEntryType => typeof(BlockEntityType);
 
+        public BlockEntity CreateNewBlockEntity()
+        {
+            BlockEntity blockEntity = new BlockEntity(this, Guid.NewGuid());
+
+            return blockEntity;
+        }
+
         public BlockEntityType()
         {
         }

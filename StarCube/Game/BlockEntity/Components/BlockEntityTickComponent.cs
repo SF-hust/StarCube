@@ -1,8 +1,10 @@
 ﻿using StarCube.Utility;
 using StarCube.Core.Component;
+using StarCube.Core.Component.Attributes;
 
 namespace StarCube.Game.BlockEntity.Components
 {
+    [ComponentType]
     public abstract class BlockEntityTickComponent :
         Component<BlockEntity>
     {

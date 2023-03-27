@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Newtonsoft.Json.Linq;
 
@@ -8,22 +9,44 @@ using LiteDB;
 using StarCube.Utility;
 using StarCube.Data.DependencyResolver;
 using StarCube.Data.Loading;
-using System.Diagnostics.CodeAnalysis;
 
 namespace StarCube.Core.Component.Data
 {
     public readonly struct ComponentDefinitionEntry
     {
-        public ComponentDefinitionEntry(StringID typeID, StringID variantID, BsonDocument bson)
+        public static bool TryParseFromJson(JObject json, out ComponentDefinitionEntry entry)
+        {
+            entry = new ComponentDefinitionEntry();
+
+            if(!json.TryGetStringID("type", out StringID typeID))
+            {
+                return false;
+            }
+
+            if (!json.TryGetStringID("variant", out StringID variantID))
+            {
+                return false;
+            }
+
+            if (!json.TryGetJObject("args", out JObject? argObject))
+            {
+                argObject = new JObject();
+            }
+
+            entry = new ComponentDefinitionEntry(typeID, variantID, argObject);
+            return true;
+        }
+
+        public ComponentDefinitionEntry(StringID typeID, StringID variantID, JObject args)
         {
             this.typeID = typeID;
             this.variantID = variantID;
-            this.bson = bson;
+            this.args = args;
         }
 
         public readonly StringID typeID;
         public readonly StringID variantID;
-        public readonly BsonDocument bson;
+        public readonly JObject args;
     }
 
 
@@ -36,7 +59,33 @@ namespace StarCube.Core.Component.Data
         public static bool TryParseFromJson(JObject json, StringID id, [NotNullWhen(true)] out RawComponentDefinitionData? data)
         {
             data = null;
-            return false;
+
+            if (!json.TryGetStringID("parent", out StringID? parentID))
+            {
+                parentID = null;
+            }
+
+            List<ComponentDefinitionEntry> entries = new List<ComponentDefinitionEntry>();
+            if (json.TryGetArray("components", out JArray? componentArray))
+            {
+                foreach (JToken token in componentArray)
+                {
+                    if(!(token is JObject componentObject))
+                    {
+                        return false;
+                    }
+
+                    if(!ComponentDefinitionEntry.TryParseFromJson(componentObject, out ComponentDefinitionEntry entry))
+                    {
+                        return false;
+                    }
+
+                    entries.Add(entry);
+                }
+            }
+
+            data = new RawComponentDefinitionData(id, parentID, entries);
+            return true;
         }
 
 

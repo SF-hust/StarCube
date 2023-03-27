@@ -11,7 +11,7 @@ namespace StarCube.Game.Entity
     {
         Guid IGuid.Guid => guid;
 
-        public ComponentHolder<Entity> Components => throw new NotImplementedException();
+        public ComponentContainer<Entity> Components => throw new NotImplementedException();
 
         public Entity(EntityType type, Guid guid)
         {
