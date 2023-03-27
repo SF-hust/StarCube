@@ -8,7 +8,7 @@ using StarCube.Utility;
 using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
 
-namespace StarCube.Game.Entity.Components
+namespace StarCube.Game.Entities.Components
 {
     [ComponentType]
     [ComponentVariant]
@@ -30,27 +30,11 @@ namespace StarCube.Game.Entity.Components
 
             public override bool TryCreate(JObject args, out TransformComponent component)
             {
-                Vector3 position = Vector3.Zero;
-                if (args.TryGetArray("position", out JArray? positionArray) &&
-                    positionArray.ToFloatArray(out float[] positions) &&
-                    positions.Length == 3)
-                {
-                    position = new Vector3(positions[0], positions[1], positions[2]);
-                }
-
-                Quaternion rotation = Quaternion.Identity;
-                if (args.TryGetArray("rotation", out JArray? rotationArray) &&
-                    rotationArray.ToFloatArray(out float[] rotations) &&
-                    rotations.Length == 3)
-                {
-                    rotation = Quaternion.CreateFromYawPitchRoll(rotations[0], rotations[1], rotations[2]);
-                }
-
-                component = new TransformComponent(position, rotation);
+                component = new TransformComponent(Vector3.Zero, Quaternion.Identity);
                 return true;
             }
 
-            public override bool Deserialize(BsonDocument bson, out TransformComponent component)
+            public override bool RestoreFrom(BsonDocument bson, out TransformComponent component)
             {
                 bool result = true;
 

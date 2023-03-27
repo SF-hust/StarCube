@@ -3,7 +3,7 @@
 using StarCube.Utility;
 using StarCube.Core.Component;
 
-namespace StarCube.Game.Entity
+namespace StarCube.Game.Entities
 {
     public class Entity :
         IComponentHolder<Entity>,

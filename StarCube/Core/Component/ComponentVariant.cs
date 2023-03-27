@@ -11,15 +11,15 @@ namespace StarCube.Core.Component
     {
         StringID IStringID.ID => id;
 
+        public abstract bool TryCreate(JObject args, out Component<O> component);
+
+        public abstract bool RestoreFrom(BsonDocument bson, out Component<O> component);
+
         public ComponentVariant(ComponentType<O> type, StringID id)
         {
             this.type = type;
             this.id = id;
         }
-
-        public abstract bool TryCreate(JObject args, out Component<O> component);
-
-        public abstract bool Deserialize(BsonDocument bson, out Component<O> component);
 
         public readonly ComponentType<O> type;
 
@@ -41,11 +41,11 @@ namespace StarCube.Core.Component
             return result;
         }
 
-        public abstract bool Deserialize(BsonDocument bson, out C component);
+        public abstract bool RestoreFrom(BsonDocument bson, out C component);
 
-        public override bool Deserialize(BsonDocument bson, out Component<O> component)
+        public override bool RestoreFrom(BsonDocument bson, out Component<O> component)
         {
-            bool result = Deserialize(bson, out C comp);
+            bool result = RestoreFrom(bson, out C comp);
             component = comp;
             return result;
         }

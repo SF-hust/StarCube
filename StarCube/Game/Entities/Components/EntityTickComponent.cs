@@ -2,7 +2,7 @@
 using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
 
-namespace StarCube.Game.Entity.Components
+namespace StarCube.Game.Entities.Components
 {
     [ComponentType]
     public abstract class EntityTickComponent : Component<Entity>
