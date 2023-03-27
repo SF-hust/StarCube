@@ -2,7 +2,7 @@
 
 using StarCube.Core.Registry;
 
-namespace StarCube.Game.Item
+namespace StarCube.Game.Items
 {
     public class Item : IRegistryEntry<Item>
     {

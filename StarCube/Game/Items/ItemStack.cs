@@ -1,4 +1,4 @@
-﻿namespace StarCube.Game.Item
+﻿namespace StarCube.Game.Items
 {
     public class ItemStack
     {
@@ -20,7 +20,7 @@
             }
         }
 
-        public ItemStack() : this(Items.Air, 0)
+        public ItemStack() : this(BuiltinItems.Air, 0)
         {
         }
 
@@ -28,7 +28,7 @@
         {
         }
 
-        private Item item = Items.Air;
+        private Item item = BuiltinItems.Air;
 
         private int count = 0;
     }

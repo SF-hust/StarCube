@@ -2,7 +2,7 @@
 using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Component;
 using StarCube.Game.Block;
-using StarCube.Game.Item;
+using StarCube.Game.Items;
 
 namespace StarCube.Core.Registry
 {

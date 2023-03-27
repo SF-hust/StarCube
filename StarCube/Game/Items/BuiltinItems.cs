@@ -3,14 +3,14 @@ using StarCube.Bootstrap.Attributes;
 
 using StarCube.Core.Registry;
 
-namespace StarCube.Game.Item
+namespace StarCube.Game.Items
 {
     [BootstrapClass]
-    public class Items
+    public class BuiltinItems
     {
         public static Item Air = new Item();
 
-        static Items()
+        static BuiltinItems()
         {
             Registries.ITEM.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) =>
