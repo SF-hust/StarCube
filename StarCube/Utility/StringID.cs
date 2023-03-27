@@ -22,6 +22,13 @@ namespace StarCube.Utility
         public const char SEPARATOR_CHAR = ':';
         public const char PATH_SEPARATOR_CHAR = '/';
 
+
+        /// <summary>
+        /// StringID 池，所有 idString 及其对应的 StringID 都会放这里面
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>(StringComparer.Ordinal);
+
+
         /// <summary>
         /// 失败时会返回这个空的 StringID，注意这个 StringID 并不合法
         /// </summary>
@@ -200,8 +207,6 @@ namespace StarCube.Utility
             tuple.Item3 = tuple.Item3 == null ? null : string.Intern(tuple.Item3);
             return new StringID(idString, tuple.Item1, tuple.Item2, tuple.Item3);
         }
-
-        private static readonly ConcurrentDictionary<string, StringID> stringToID = new ConcurrentDictionary<string, StringID>(StringComparer.Ordinal);
 
 
         /// <summary>
