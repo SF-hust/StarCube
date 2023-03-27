@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StarCube.Game.World
+namespace StarCube.Game.Worlds
 {
-    public class GameWorld
+    public class World
     {
     }
 }
