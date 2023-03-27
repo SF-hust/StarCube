@@ -2,7 +2,7 @@
 
 using StarCube.Core.Registry;
 
-namespace StarCube.Game.BlockEntity
+namespace StarCube.Game.BlockEntities
 {
     public class BlockEntityType : IRegistryEntry<BlockEntityType>
     {
