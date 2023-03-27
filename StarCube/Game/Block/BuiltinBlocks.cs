@@ -5,11 +5,11 @@ using StarCube.Core.Registry;
 namespace StarCube.Game.Block
 {
     [BootstrapClass]
-    public static class Blocks
+    public static class BuiltinBlocks
     {
         public static Block Air = new Block().BuildSingleBlockState();
 
-        static Blocks()
+        static BuiltinBlocks()
         {
             Registries.BLOCK.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) => 

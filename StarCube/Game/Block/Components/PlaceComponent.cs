@@ -14,6 +14,6 @@ namespace StarCube.Game.Block.Components
         public static readonly ComponentType<Block, RandomTickComponent> COMPONENT_TYPE =
             new ComponentType<Block, RandomTickComponent>(ComponentID);
 
-        public abstract bool OnPlace(BlockPos pos, WorldLevel level, out BlockState? blockState);
+        public abstract bool OnPlace(WorldLevel level, BlockPos pos);
     }
 }

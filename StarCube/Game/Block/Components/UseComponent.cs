@@ -1,6 +1,8 @@
 ﻿using StarCube.Utility;
 using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
+using StarCube.Game.Level;
+using StarCube.Utility.Math;
 
 namespace StarCube.Game.Block.Components
 {
@@ -11,6 +13,6 @@ namespace StarCube.Game.Block.Components
 
         public abstract override ComponentVariant<Block> Variant { get; }
 
-        public abstract void OnUse();
+        public abstract void OnUse(WorldLevel level, BlockPos pos, Entities.Entity user);
     }
 }
