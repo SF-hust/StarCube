@@ -2,6 +2,8 @@
 
 using LiteDB;
 
+using Newtonsoft.Json.Linq;
+
 using StarCube.Utility;
 using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
@@ -26,15 +28,22 @@ namespace StarCube.Game.Entity.Components
                 return new TransformComponent(Vector3.Zero, Quaternion.Identity);
             }
 
-            public override bool TryCreate(BsonDocument bson, out TransformComponent component)
+            public override bool TryCreate(JObject args, out TransformComponent component)
             {
-                if (!bson.TryGetVector3("position", out Vector3 position))
+                Vector3 position = Vector3.Zero;
+                if (args.TryGetArray("position", out JArray? positionArray) &&
+                    positionArray.ToFloatArray(out float[] positions) &&
+                    positions.Length == 3)
                 {
-                    position = Vector3.Zero;
+                    position = new Vector3(positions[0], positions[1], positions[2]);
                 }
-                if (!bson.TryGetQuaternion("rotation", out Quaternion rotation))
+
+                Quaternion rotation = Quaternion.Identity;
+                if (args.TryGetArray("rotation", out JArray? rotationArray) &&
+                    rotationArray.ToFloatArray(out float[] rotations) &&
+                    rotations.Length == 3)
                 {
-                    rotation = Quaternion.Identity;
+                    rotation = Quaternion.CreateFromYawPitchRoll(rotations[0], rotations[1], rotations[2]);
                 }
 
                 component = new TransformComponent(position, rotation);
