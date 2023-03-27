@@ -2,6 +2,11 @@
 
 using LiteDB;
 
+using StarCube.Utility;
+using StarCube.Core.Registry;
+using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json.Linq;
+
 namespace StarCube.Core.Component
 {
     public abstract class Component<O>
@@ -84,5 +89,26 @@ namespace StarCube.Core.Component
         private O? owner;
 
         private bool dirty;
+    }
+
+    public static class ComponentExtension
+    {
+        public static bool TryCreateComponent<O>(this Registry<ComponentType<O>> registry, StringID typeID, StringID variantID, JObject args, [NotNullWhen(true)] out Component<O>? component)
+            where O : class, IComponentHolder<O>
+        {
+            component = null;
+
+            if(!registry.TryGet(typeID, out ComponentType<O>? type))
+            {
+                return false;
+            }
+
+            if(!type.TryGet(variantID, out ComponentVariant<O>? variant))
+            {
+                return false;
+            }
+
+            return variant.TryCreate(args, out component);
+        }
     }
 }

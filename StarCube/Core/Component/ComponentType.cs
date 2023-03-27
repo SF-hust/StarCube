@@ -38,6 +38,9 @@ namespace StarCube.Core.Component
         public abstract Type ComponentBaseType { get; }
 
 
+        public abstract bool TryGet(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant);
+
+
         public override int GetHashCode()
         {
             return id.GetHashCode();
@@ -52,7 +55,6 @@ namespace StarCube.Core.Component
         public readonly StringID id;
 
         public readonly bool allowMultiple;
-
     }
 
     /// <summary>
@@ -82,11 +84,22 @@ namespace StarCube.Core.Component
         }
 
 
-        public bool TryGetVariant(StringID variantId, [NotNullWhen(true)] out ComponentVariant<O, C>? variant)
+        public bool TryGet(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O, C>? variant)
         {
-            return idToVariants.TryGetValue(variantId, out variant);
+            return idToVariants.TryGetValue(variantID, out variant);
         }
 
+        public override bool TryGet(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant)
+        {
+            if(TryGet(variantID, out ComponentVariant<O, C>? vari))
+            {
+                variant = vari;
+                return true;
+            }
+
+            variant = null;
+            return false;
+        }
 
         public ComponentType(StringID id, bool allowMultiple = false) : base(id, allowMultiple)
         {

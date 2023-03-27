@@ -17,6 +17,10 @@ namespace StarCube.Core.Component
             this.id = id;
         }
 
+        public abstract bool TryCreate(JObject args, out Component<O> component);
+
+        public abstract bool Deserialize(BsonDocument bson, out Component<O> component);
+
         public readonly ComponentType<O> type;
 
         public readonly StringID id;
@@ -30,8 +34,21 @@ namespace StarCube.Core.Component
 
         public abstract bool TryCreate(JObject args, out C component);
 
+        public override bool TryCreate(JObject args, out Component<O> component)
+        {
+            bool result = TryCreate(args, out C comp);
+            component = comp;
+            return result;
+        }
+
         public abstract bool Deserialize(BsonDocument bson, out C component);
 
+        public override bool Deserialize(BsonDocument bson, out Component<O> component)
+        {
+            bool result = Deserialize(bson, out C comp);
+            component = comp;
+            return result;
+        }
 
         public ComponentVariant(ComponentType<O, C> type, StringID id)
             : base(type, id)
