@@ -1,10 +1,10 @@
 ﻿using System;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunks;
+using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Block;
 
-namespace StarCube.Game.Level.Generation.Flat
+namespace StarCube.Game.Levels.Generation.Flat
 {
     public class FlatLevelGenerator : ILevelGenerator
     {

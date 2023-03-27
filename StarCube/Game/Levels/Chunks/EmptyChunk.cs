@@ -3,7 +3,7 @@
 using StarCube.Game.Block;
 using StarCube.Utility.Math;
 
-namespace StarCube.Game.Level.Chunks
+namespace StarCube.Game.Levels.Chunks
 {
     public sealed class EmptyChunk : Chunk
     {

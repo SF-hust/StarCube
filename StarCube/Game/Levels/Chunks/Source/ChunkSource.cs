@@ -3,7 +3,7 @@
 using StarCube.Utility.Math;
 using StarCube.Game.Ticking;
 
-namespace StarCube.Game.Level.Chunks.Source
+namespace StarCube.Game.Levels.Chunks.Source
 {
     public abstract class ChunkSource : ITickable
     {

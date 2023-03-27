@@ -4,7 +4,7 @@ using StarCube.Utility.Math;
 using StarCube.Utility.Container;
 using StarCube.Game.Block;
 
-namespace StarCube.Game.Level.Chunks
+namespace StarCube.Game.Levels.Chunks
 {
     public sealed class PalettedChunk : Chunk
     {

@@ -3,7 +3,7 @@
 using StarCube.Utility.Container;
 using StarCube.Game.Block;
 
-namespace StarCube.Game.Level.Generation.Flat
+namespace StarCube.Game.Levels.Generation.Flat
 {
     public sealed class FlatLayerList
     {

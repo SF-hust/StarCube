@@ -1,7 +1,7 @@
 ﻿using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunks;
+using StarCube.Game.Levels.Chunks;
 
-namespace StarCube.Game.Level.Generation.Dummy
+namespace StarCube.Game.Levels.Generation.Dummy
 {
     public class AirLevelGenerator : ILevelGenerator
     {

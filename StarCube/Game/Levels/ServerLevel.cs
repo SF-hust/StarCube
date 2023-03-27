@@ -4,15 +4,15 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Block;
-using StarCube.Game.Level.Chunks;
-using StarCube.Game.Level.Chunks.Source;
-using StarCube.Game.Level.Chunks.Storage;
-using StarCube.Game.Level.Generation;
-using StarCube.Game.Level.Loading;
+using StarCube.Game.Levels.Chunks;
+using StarCube.Game.Levels.Chunks.Source;
+using StarCube.Game.Levels.Chunks.Storage;
+using StarCube.Game.Levels.Generation;
+using StarCube.Game.Levels.Loading;
 
-namespace StarCube.Game.Level
+namespace StarCube.Game.Levels
 {
-    public class ServerLevel : WorldLevel
+    public class ServerLevel : Level
     {
         public override bool HasBlock(int x, int y, int z)
         {

@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Loading;
+using StarCube.Game.Levels.Loading;
 
-namespace StarCube.Game.Level.Chunks.Map
+namespace StarCube.Game.Levels.Chunks.Map
 {
     internal class ChunkDataEntry
     {

@@ -6,7 +6,7 @@ using StarCube.Game.Block;
 using System.Threading;
 using StarCube.Utility;
 
-namespace StarCube.Game.Level.Chunks
+namespace StarCube.Game.Levels.Chunks
 {
     public abstract class Chunk
     {

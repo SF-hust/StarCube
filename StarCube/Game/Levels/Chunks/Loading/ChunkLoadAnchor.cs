@@ -1,7 +1,7 @@
 ﻿using System;
 using StarCube.Utility.Math;
 
-namespace StarCube.Game.Level.Loading
+namespace StarCube.Game.Levels.Loading
 {
     public struct AnchorData : IEquatable<AnchorData>
     {

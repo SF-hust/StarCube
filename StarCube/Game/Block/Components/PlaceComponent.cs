@@ -2,7 +2,7 @@
 using StarCube.Utility.Math;
 using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
-using StarCube.Game.Level;
+using StarCube.Game.Levels;
 
 namespace StarCube.Game.Block.Components
 {
@@ -14,6 +14,6 @@ namespace StarCube.Game.Block.Components
         public static readonly ComponentType<Block, RandomTickComponent> COMPONENT_TYPE =
             new ComponentType<Block, RandomTickComponent>(ComponentID);
 
-        public abstract bool OnPlace(WorldLevel level, BlockPos pos);
+        public abstract bool OnPlace(Level level, BlockPos pos);
     }
 }

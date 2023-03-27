@@ -3,12 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunks.Map;
-using StarCube.Game.Level.Chunks.Storage;
-using StarCube.Game.Level.Loading;
-using StarCube.Game.Level.Generation;
+using StarCube.Game.Levels.Chunks.Map;
+using StarCube.Game.Levels.Chunks.Storage;
+using StarCube.Game.Levels.Loading;
+using StarCube.Game.Levels.Generation;
 
-namespace StarCube.Game.Level.Chunks.Source
+namespace StarCube.Game.Levels.Chunks.Source
 {
     public sealed class ServerChunkSource : ChunkSource
     {

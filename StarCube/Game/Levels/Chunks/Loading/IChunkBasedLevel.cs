@@ -1,4 +1,4 @@
-﻿namespace StarCube.Game.Level.Loading
+﻿namespace StarCube.Game.Levels.Loading
 {
     public interface IChunkBasedLevel
     {

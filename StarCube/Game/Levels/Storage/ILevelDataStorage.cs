@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Level.Chunks;
+using StarCube.Game.Levels.Chunks;
 
-namespace StarCube.Game.Level.Storage
+namespace StarCube.Game.Levels.Storage
 {
     public interface ILevelDataStorage
     {

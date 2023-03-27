@@ -2,7 +2,7 @@
 
 using StarCube.Utility.Math;
 
-namespace StarCube.Game.Level.Chunks.Storage
+namespace StarCube.Game.Levels.Chunks.Storage
 {
     public class ChunkStorage
     {

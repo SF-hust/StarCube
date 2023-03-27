@@ -4,12 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Block;
-using StarCube.Game.Level.Chunks;
+using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Ticking;
 
-namespace StarCube.Game.Level
+namespace StarCube.Game.Levels
 {
-    public abstract class WorldLevel :
+    public abstract class Level :
         ITickable,
         IGuid
     {
@@ -29,7 +29,7 @@ namespace StarCube.Game.Level
 
         Guid IGuid.Guid => guid;
 
-        public WorldLevel(Guid guid)
+        public Level(Guid guid)
         {
             this.guid = guid;
         }
