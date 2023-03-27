@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Core.State.Property;
 
-namespace StarCube.Game.Block.Data
+namespace StarCube.Game.Blocks.Data
 {
     /// <summary>
     /// 表示一个用于与 BlockState 所含有的属性进行匹配的匹配器

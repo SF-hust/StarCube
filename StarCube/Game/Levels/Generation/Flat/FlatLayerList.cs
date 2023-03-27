@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using StarCube.Utility.Container;
-using StarCube.Game.Block;
+using StarCube.Game.Blocks;
 
 namespace StarCube.Game.Levels.Generation.Flat
 {

@@ -1,7 +1,7 @@
 ﻿using StarCube.Utility;
 using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Component;
-using StarCube.Game.Block;
+using StarCube.Game.Blocks;
 using StarCube.Game.Items;
 
 namespace StarCube.Core.Registry

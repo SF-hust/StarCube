@@ -5,7 +5,7 @@ using StarCube.Core.Registry;
 using StarCube.Core.State;
 using StarCube.Core.Component;
 
-namespace StarCube.Game.Block
+namespace StarCube.Game.Blocks
 {
     public class Block :
         IRegistryEntry<Block>,

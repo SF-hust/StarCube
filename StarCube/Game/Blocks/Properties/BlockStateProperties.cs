@@ -2,9 +2,9 @@
 using StarCube.Utility.Enums;
 using StarCube.Bootstrap.Attributes;
 using StarCube.Core.State.Property;
-using StarCube.Game.Block.Enums;
+using StarCube.Game.Blocks.Enums;
 
-namespace StarCube.Game.Block.Properties
+namespace StarCube.Game.Blocks.Properties
 {
     [BootstrapClass]
     public static class BlockStateProperties

@@ -4,7 +4,7 @@ using StarCube.Core.Component.Attributes;
 using StarCube.Game.Levels;
 using StarCube.Utility.Math;
 
-namespace StarCube.Game.Block.Components
+namespace StarCube.Game.Blocks.Components
 {
     [ComponentType]
     public abstract class UseComponent : Component<Block>

@@ -2,7 +2,7 @@
 using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Registry;
 
-namespace StarCube.Game.Block
+namespace StarCube.Game.Blocks
 {
     [BootstrapClass]
     public static class BuiltinBlocks

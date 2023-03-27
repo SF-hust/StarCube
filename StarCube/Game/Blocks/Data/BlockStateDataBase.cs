@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility;
 
-namespace StarCube.Game.Block.Data
+namespace StarCube.Game.Blocks.Data
 {
     public abstract class BlockStateDataBase : IStringID
     {

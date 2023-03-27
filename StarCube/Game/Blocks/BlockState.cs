@@ -5,7 +5,7 @@ using StarCube.Core.State;
 using StarCube.Core.State.Property;
 using StarCube.Core.Registry;
 
-namespace StarCube.Game.Block
+namespace StarCube.Game.Blocks
 {
     public class BlockState : StateHolder<Block, BlockState>, IIntegerID
     {

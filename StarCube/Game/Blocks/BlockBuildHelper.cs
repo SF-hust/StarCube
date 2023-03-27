@@ -1,7 +1,7 @@
 ﻿using StarCube.Core.State;
 using StarCube.Core.State.Property;
 
-namespace StarCube.Game.Block
+namespace StarCube.Game.Blocks
 {
     public static class BlockBuildHelper
     {

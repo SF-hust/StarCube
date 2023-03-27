@@ -7,7 +7,7 @@ using StarCube.Utility;
 using StarCube.Data.Loading;
 using StarCube.Core.Collision.Data;
 
-namespace StarCube.Game.Block.Data
+namespace StarCube.Game.Blocks.Data
 {
     /// <summary>
     /// 定义 Block 的每个 BlockState 所使用的碰撞资源

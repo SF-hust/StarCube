@@ -2,7 +2,7 @@
 
 using StarCube.Utility.Math;
 using StarCube.Game.Levels.Chunks;
-using StarCube.Game.Block;
+using StarCube.Game.Blocks;
 
 namespace StarCube.Game.Levels.Generation.Flat
 {

@@ -4,7 +4,7 @@ using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
 using StarCube.Game.Levels;
 
-namespace StarCube.Game.Block.Components
+namespace StarCube.Game.Blocks.Components
 {
     [ComponentType]
     public abstract class RandomTickComponent : Component<Block>

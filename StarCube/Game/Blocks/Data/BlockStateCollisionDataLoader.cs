@@ -6,7 +6,7 @@ using StarCube.Utility;
 using StarCube.Data.Loading;
 using StarCube.Data.Provider;
 
-namespace StarCube.Game.Block.Data
+namespace StarCube.Game.Blocks.Data
 {
     public class BlockStateCollisionDataLoader : IDataLoader
     {

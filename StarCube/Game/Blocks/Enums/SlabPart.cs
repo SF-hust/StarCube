@@ -1,4 +1,4 @@
-﻿namespace StarCube.Game.Block.Enums
+﻿namespace StarCube.Game.Blocks.Enums
 {
     public enum SlabPart
     {

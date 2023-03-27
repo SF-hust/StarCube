@@ -1,6 +1,6 @@
 ﻿using System;
 
-using StarCube.Game.Block;
+using StarCube.Game.Blocks;
 using StarCube.Utility.Math;
 
 namespace StarCube.Game.Levels.Chunks
