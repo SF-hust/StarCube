@@ -84,6 +84,11 @@ namespace StarCube.Game.Entity.Components
             bson.Add("rot", rotation);
         }
 
+        public override Component<Entity> Clone()
+        {
+            return new TransformComponent(position, rotation);
+        }
+
         public TransformComponent(Vector3 position, Quaternion rotation)
         {
             this.position = position;

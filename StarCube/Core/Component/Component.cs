@@ -71,6 +71,8 @@ namespace StarCube.Core.Component
             dirty = false;
         }
 
+        public abstract Component<O> Clone();
+
 
 
         public Component()
