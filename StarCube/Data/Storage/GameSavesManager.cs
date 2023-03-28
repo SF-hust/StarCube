@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
-namespace StarCube.Data.Saves
+namespace StarCube.Data.Storage
 {
     public sealed class GameSavesManager
     {

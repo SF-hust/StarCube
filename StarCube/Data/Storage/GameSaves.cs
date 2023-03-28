@@ -4,7 +4,7 @@ using System.IO;
 
 using LiteDB;
 
-namespace StarCube.Data.Saves
+namespace StarCube.Data.Storage
 {
     public sealed class GameSaves
     {
