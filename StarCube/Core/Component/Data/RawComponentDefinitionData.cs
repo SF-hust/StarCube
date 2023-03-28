@@ -4,8 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using Newtonsoft.Json.Linq;
 
-using LiteDB;
-
 using StarCube.Utility;
 using StarCube.Data.DependencyResolver;
 using StarCube.Data.Loading;
