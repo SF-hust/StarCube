@@ -3,6 +3,7 @@
 using StarCube.Utility.Math;
 using StarCube.Utility.Container;
 using StarCube.Game.Blocks;
+using LiteDB;
 
 namespace StarCube.Game.Levels.Chunks
 {
@@ -62,12 +63,30 @@ namespace StarCube.Game.Levels.Chunks
             data.CopyTo(array);
         }
 
+        public override void StoreTo(BsonDocument bson)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Chunk Clone()
+        {
+            return new PalettedChunk(pos, globalBlockStateMap, data, true);
+        }
+
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, BlockState initState)
             : base(pos)
         {
             this.globalBlockStateMap = globalBlockStateMap;
             data = new int[4096];
             Array.Fill(data, globalBlockStateMap.IdFor(initState));
+        }
+
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, int[] data, bool copy = true)
+            : base(pos)
+        {
+            this.globalBlockStateMap = globalBlockStateMap;
+
+            this.data = copy ? (int[])data.Clone() : data;
         }
 
         private readonly IIDMap<BlockState> globalBlockStateMap;

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 
+using LiteDB;
+
+using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
-using System.Threading;
-using StarCube.Utility;
 
 namespace StarCube.Game.Levels.Chunks
 {
@@ -51,6 +52,10 @@ namespace StarCube.Game.Levels.Chunks
         {
             CopyTo(array.AsSpan());
         }
+
+        public abstract void StoreTo(BsonDocument bson);
+
+        public abstract Chunk Clone();
 
         public override string ToString()
         {

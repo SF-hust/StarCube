@@ -1,5 +1,5 @@
 ﻿using System;
-
+using LiteDB;
 using StarCube.Game.Blocks;
 using StarCube.Utility.Math;
 
@@ -44,6 +44,16 @@ namespace StarCube.Game.Levels.Chunks
         public override void CopyTo(Span<int> array)
         {
             array.Fill(AirBlockState.IntegerID);
+        }
+
+        public override void StoreTo(BsonDocument bson)
+        {
+            bson.Add("blocksize", 0);
+        }
+
+        public override Chunk Clone()
+        {
+            return new EmptyChunk(pos);
         }
 
         public EmptyChunk(ChunkPos pos)

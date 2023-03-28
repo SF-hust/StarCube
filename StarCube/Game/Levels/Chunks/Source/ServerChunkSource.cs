@@ -7,6 +7,7 @@ using StarCube.Game.Levels.Chunks.Map;
 using StarCube.Game.Levels.Chunks.Storage;
 using StarCube.Game.Levels.Loading;
 using StarCube.Game.Levels.Generation;
+using StarCube.Game.Levels.Storage;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
@@ -95,7 +96,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             return new Task<Chunk>(() => generator.GenerateChunk(pos));
         }
 
-        public ServerChunkSource(ServerLevel level, ILevelGenerator generator, ChunkStorage storage)
+        public ServerChunkSource(ServerLevel level, ILevelGenerator generator, LevelDataStorage storage)
         {
             this.level = level;
 
@@ -109,7 +110,7 @@ namespace StarCube.Game.Levels.Chunks.Source
         public readonly ServerLevel level;
 
         private readonly ILevelGenerator generator;
-        private readonly ChunkStorage storage;
+        private readonly LevelDataStorage storage;
 
         private readonly ChunkMap chunkMap;
 

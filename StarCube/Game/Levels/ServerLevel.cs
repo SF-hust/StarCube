@@ -9,6 +9,7 @@ using StarCube.Game.Levels.Chunks.Source;
 using StarCube.Game.Levels.Chunks.Storage;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Loading;
+using StarCube.Game.Levels.Storage;
 
 namespace StarCube.Game.Levels
 {
@@ -123,7 +124,7 @@ namespace StarCube.Game.Levels
             this.yChunkMin = yChunkMin;
             this.heightInChunk = heightInChunk;
 
-            chunkSource = new ServerChunkSource(this, generator, new ChunkStorage());
+            chunkSource = new ServerChunkSource(this, generator, new LevelDataStorage());
         }
 
         private readonly int widthInChunk;
