@@ -47,7 +47,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public bool TryGetComponent<C>([NotNullWhen(true)] out C? component)
+        public bool TryGet<C>([NotNullWhen(true)] out C? component)
             where C : Component<O>
         {
             foreach (Component<O> comp in components)
@@ -63,7 +63,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public bool TryGetComponent<C>(ComponentType<O, C> type, [NotNullWhen(true)] out C? component)
+        public bool TryGet<C>(ComponentType<O, C> type, [NotNullWhen(true)] out C? component)
             where C : Component<O>
         {
             foreach (Component<O> comp in components)
@@ -79,7 +79,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public bool TryGetComponent(ComponentType<O> type, [NotNullWhen(true)] out Component<O>? component)
+        public bool TryGet(ComponentType<O> type, [NotNullWhen(true)] out Component<O>? component)
         {
             foreach (Component<O> comp in components)
             {
@@ -94,7 +94,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public bool TryGetComponent<C>(ComponentVariant<O, C> variant, [NotNullWhen(true)] out C? component)
+        public bool TryGet<C>(ComponentVariant<O, C> variant, [NotNullWhen(true)] out C? component)
             where C : Component<O>
         {
             foreach (Component<O> comp in components)
@@ -110,7 +110,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public bool TryGetComponent(ComponentVariant<O> variant, [NotNullWhen(true)] out Component<O>? component)
+        public bool TryGet(ComponentVariant<O> variant, [NotNullWhen(true)] out Component<O>? component)
         {
             foreach (Component<O> comp in components)
             {
@@ -125,7 +125,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public int GetComponents<C>(List<C> components)
+        public int Gets<C>(List<C> components)
             where C : Component<O>
         {
             int count = 0;
@@ -141,7 +141,7 @@ namespace StarCube.Core.Component
             return count;
         }
 
-        public int GetComponents<C>(ComponentType<O, C> type, List<C> components)
+        public int Gets<C>(ComponentType<O, C> type, List<C> components)
             where C : Component<O>
         {
             int count = 0;
@@ -157,7 +157,7 @@ namespace StarCube.Core.Component
             return count;
         }
 
-        public int GetComponents(ComponentType<O> type, List<Component<O>> components)
+        public int Gets(ComponentType<O> type, List<Component<O>> components)
         {
             int count = 0;
             foreach (Component<O> comp in components)
@@ -172,7 +172,7 @@ namespace StarCube.Core.Component
             return count;
         }
 
-        public int GetComponents<C>(ComponentVariant<O, C> variant, List<C> components)
+        public int Gets<C>(ComponentVariant<O, C> variant, List<C> components)
             where C : Component<O>
         {
             int count = 0;
@@ -188,7 +188,7 @@ namespace StarCube.Core.Component
             return count;
         }
 
-        public int GetComponents(ComponentVariant<O> variant, List<Component<O>> components)
+        public int Gets(ComponentVariant<O> variant, List<Component<O>> components)
         {
             int count = 0;
             foreach (Component<O> comp in components)
