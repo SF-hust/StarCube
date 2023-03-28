@@ -1,6 +1,8 @@
-﻿namespace StarCube.Game.Items
+﻿using LiteDB;
+
+namespace StarCube.Game.Items
 {
-    public class ItemStack
+    public sealed class ItemStack
     {
         public Item Item
         {
@@ -20,16 +22,45 @@
             }
         }
 
+
+        public bool EqualsWithoutAdditional(ItemStack other)
+        {
+            return ReferenceEquals(item, other.item) && count == other.count;
+        }
+
+        public bool EqualsWithAdditional(ItemStack other)
+        {
+            return EqualsWithoutAdditional(other) && additionalData.Equals(other.additionalData);
+        }
+
+
         public ItemStack() : this(BuiltinItems.Air, 0)
         {
         }
 
         public ItemStack(Item item, int count = 1)
         {
+            this.item = item;
+            this.count = count;
+            additionalData = new BsonDocument();
         }
 
-        private Item item = BuiltinItems.Air;
+        public ItemStack(Item item, int count, BsonDocument additionalData, bool copy = false)
+        {
+            this.item = item;
+            this.count = count;
+            if(copy)
+            {
+                additionalData = new BsonDocument(additionalData);
+            }
+            this.additionalData = additionalData;
+        }
+
+
+        private Item item;
 
         private int count = 0;
+
+        public readonly BsonDocument additionalData;
     }
 }

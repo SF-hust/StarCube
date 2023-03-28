@@ -7,40 +7,57 @@ namespace StarCube.Core.Registry
 {
     public class RootRegistry
     {
-        public IEnumerable<Registry> Registries => registryList;
+        public IEnumerable<Registry> Registries => registries;
 
         public bool Register(Registry registry)
         {
-            if(!registries.TryAdd(registry.id, registry))
+            foreach (Registry reg in registries)
             {
-                return false;
+                if(reg.id.Equals(registry.id))
+                {
+                    return false;
+                }
             }
 
-            registryList.Add(registry);
+            registries.Add(registry);
 
             return true;
         }
 
         public bool TryGet(StringID id, [NotNullWhen(true)] out Registry? registry)
         {
-            return registries.TryGetValue(id, out registry);
+            foreach (Registry reg in registries)
+            {
+                if (reg.id.Equals(id))
+                {
+                    registry = reg;
+                    return true;
+                }
+            }
+
+            registry = null;
+            return false;
         }
 
         public bool TryGet<T>(StringID id, [NotNullWhen(true)] out Registry<T>? registry)
             where T : class, IRegistryEntry<T>
         {
-            if(registries.TryGetValue(id, out Registry? areg) && areg is Registry<T> reg)
+            foreach (Registry reg in registries)
             {
-                registry = reg;
-                return true;
+                if (reg.id.Equals(id) && reg is Registry<T> regi)
+                {
+                    registry = regi;
+                    return true;
+                }
             }
+
             registry = null;
             return false;
         }
 
         public void FireRegistryEvents()
         {
-            foreach (Registry registry in registryList)
+            foreach (Registry registry in registries)
             {
                 registry.FireRegisterEvent();
             }
@@ -50,8 +67,6 @@ namespace StarCube.Core.Registry
         {
         }
 
-        private readonly Dictionary<StringID, Registry> registries = new Dictionary<StringID, Registry>();
-
-        private readonly List<Registry> registryList = new List<Registry>();
+        private readonly List<Registry> registries = new List<Registry>();
     }
 }
