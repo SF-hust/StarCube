@@ -14,7 +14,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
             }
 
             blockStates = new int[4096];
-            BitUtil.Unpack(blockStates, blockBitSize, binary);
+            BitUtil.Unpack(blockStates, binary, blockBitSize);
 
             return true;
         }
@@ -29,7 +29,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
 
             blockBitSize = BitUtil.BitCount(max);
             byte[] binary = new byte[4096 / sizeof(byte) * blockBitSize];
-            BitUtil.Pack(blockStates, blockBitSize, binary);
+            BitUtil.Pack(blockStates, binary, blockBitSize);
 
             return binary;
         }
