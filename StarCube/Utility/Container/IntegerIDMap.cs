@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace StarCube.Utility.Container
 {
@@ -26,9 +24,25 @@ namespace StarCube.Utility.Container
             return values[id];
         }
 
+        public bool Add(T value)
+        {
+            if (value.IntegerID == values.Count)
+            {
+                values.Add(value);
+                return true;
+            }
+
+            return false;
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public IntegerIDMap()
+        {
+            values = new List<T>();
         }
 
         public IntegerIDMap(IEnumerable<T> values)

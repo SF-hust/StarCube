@@ -1,6 +1,7 @@
 ﻿using System;
 
 using StarCube.Utility;
+using StarCube.Utility.Container;
 using StarCube.Core.State;
 using StarCube.Core.State.Property;
 using StarCube.Core.Registry;
@@ -9,6 +10,10 @@ namespace StarCube.Game.Blocks
 {
     public class BlockState : StateHolder<Block, BlockState>, IIntegerID
     {
+        public static IIDMap<BlockState> GlobalBlockStateIDMap => blockStates ?? throw new NullReferenceException();
+
+        private static IIDMap<BlockState>? blockStates = null;
+
         public static BlockState Create(Block block, StatePropertyList properties)
         {
             return new BlockState(block, properties);
@@ -17,26 +22,25 @@ namespace StarCube.Game.Blocks
         public static void RunPostProcess()
         {
             int i = 0;
+            IntegerIDMap<BlockState> blockStates = new IntegerIDMap<BlockState>();
             foreach (Block block in Registries.BLOCK)
             {
                 foreach (BlockState state in block.StateDefinition.states)
                 {
                     state.SetIntegerID(i);
+                    blockStates.Add(state);
                     i++;
                 }
             }
+            BlockState.blockStates = blockStates;
         }
 
         public Block Block { get => owner; }
 
         public int IntegerID => integerID;
 
-        public void SetIntegerID(int integerID)
+        private void SetIntegerID(int integerID)
         {
-            if(this.integerID != -1)
-            {
-                throw new InvalidOperationException($"integerID of BlockState of Block (\"{Block.ID}\") is already set");
-            }
             this.integerID = integerID;
         }
 
