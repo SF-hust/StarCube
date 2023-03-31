@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Chunks.Source;
-using StarCube.Game.Levels.Chunks.Storage;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Loading;
 using StarCube.Game.Levels.Storage;
@@ -22,7 +20,7 @@ namespace StarCube.Game.Levels
 
         public override bool HasBlock(BlockPos pos)
         {
-            throw new NotImplementedException();
+            return chunkSource.HasChunk(pos.GetChunkPos());
         }
 
         public override bool TryGetBlockState(int x, int y, int z, [NotNullWhen(true)] out BlockState? blockState)
@@ -76,7 +74,7 @@ namespace StarCube.Game.Levels
         }
 
 
-        private bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
+        public bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             return chunkSource.TryGetChunk(pos, false, out chunk);
         }
@@ -92,45 +90,21 @@ namespace StarCube.Game.Levels
             chunkSource.RemoveAnchor(anchor);
         }
 
+
         public override void Tick()
         {
             chunkSource.Tick();
         }
 
-        private bool ChunkOutOfBound(int x, int y, int z)
-        {
-            return YOutOfBound(y) || XOutOfBound(x) || ZOutOfBound(z);
-        }
-
-        private bool XOutOfBound(int x)
-        {
-            return x < -widthInChunk || x >= widthInChunk;
-        }
-
-        private bool YOutOfBound(int y)
-        {
-            return y < yChunkMin || y >= yChunkMin + heightInChunk;
-        }
-
-        private bool ZOutOfBound(int z)
-        {
-            return z < -widthInChunk || z >= widthInChunk;
-        }
-
-        public ServerLevel(Guid guid, int widthInChunk, int yChunkMin, int heightInChunk, ILevelGenerator generator)
+        public ServerLevel(Guid guid, ILevelBound bound, ILevelGenerator generator)
             : base(guid)
         {
-            this.widthInChunk = widthInChunk;
-            this.yChunkMin = yChunkMin;
-            this.heightInChunk = heightInChunk;
+            this.bound = bound;
 
-            chunkSource = new ServerChunkSource(this, generator, new LevelDataStorage());
+            chunkSource = new ServerChunkSource(this, bound, generator, new LevelDataStorage());
         }
 
-        private readonly int widthInChunk;
-        private readonly int yChunkMin;
-        private readonly int heightInChunk;
-
+        public readonly ILevelBound bound;
         private readonly ServerChunkSource chunkSource;
     }
 }

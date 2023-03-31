@@ -1,10 +1,55 @@
 ﻿using System;
+using System.Collections.Generic;
+
 using StarCube.Utility.Math;
 
 namespace StarCube.Game.Levels.Loading
 {
     public struct AnchorData : IEquatable<AnchorData>
     {
+        /// <summary>
+        /// 获取此数据对应的 Anchor 在指定半径上会加载的 chunk 的坐标
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="positions"></param>
+        public void GetLoadChunkPos(int r, List<ChunkPos> positions)
+        {
+            if (r == 0)
+            {
+                positions.Add(chunkPos);
+                return;
+            }
+
+            // 前后
+            for (int x = (chunkPos.x - r); x <= (chunkPos.x + r); ++x)
+            {
+                for (int y = (chunkPos.y - r); y <= (chunkPos.y + r); ++y)
+
+                {
+                    positions.Add(new ChunkPos(x, y, chunkPos.z + r));
+                    positions.Add(new ChunkPos(x, y, chunkPos.z - r));
+                }
+            }
+            // 左右
+            for (int z = (chunkPos.z - r + 1); z <= (chunkPos.z + r - 1); ++z)
+            {
+                for (int y = (chunkPos.y - r); y <= (chunkPos.y + r); ++y)
+                {
+                    positions.Add(new ChunkPos(chunkPos.x + r, y, z));
+                    positions.Add(new ChunkPos(chunkPos.x - r, y, z));
+                }
+            }
+            // 上下
+            for (int x = (chunkPos.x - r + 1); x <= (chunkPos.x + r - 1); ++x)
+            {
+                for (int z = (chunkPos.z - r + 1); z <= (chunkPos.z + r - 1); ++z)
+                {
+                    positions.Add(new ChunkPos(x, chunkPos.y + r, z));
+                    positions.Add(new ChunkPos(x, chunkPos.y - r, z));
+                }
+            }
+        }
+
         public static bool operator ==(AnchorData left, AnchorData right)
         {
             return left.chunkPos == right.chunkPos && left.radius == right.radius;
@@ -47,11 +92,12 @@ namespace StarCube.Game.Levels.Loading
 
         public AnchorData Current => anchorData;
 
-        public void UpdatePos(ChunkPos pos)
+        public void SetPos(ChunkPos pos)
         {
             anchorData.chunkPos = pos;
         }
-        public void UpdateRadius(int radius)
+
+        public void SetRadius(int radius)
         {
             anchorData.radius = radius;
         }

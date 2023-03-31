@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Levels.Chunks.Map;
-using StarCube.Game.Levels.Chunks.Storage;
 using StarCube.Game.Levels.Loading;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
@@ -25,95 +21,54 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         public void AddAnchor(ChunkLoadAnchor anchor)
         {
-            anchors.Add(new KeyValuePair<ChunkLoadAnchor, AnchorData>(anchor, anchor.Current));
             chunkMap.AddAnchor(anchor);
         }
 
         public void RemoveAnchor(ChunkLoadAnchor anchor)
         {
-            for (int i = 0; i < anchors.Count; i++)
-            {
-                if (anchors[i].Key == anchor)
-                {
-                    anchors.RemoveAt(i);
-                    chunkMap.RemoveAnchor(anchor);
-                    break;
-                }
-            }
-        }
-
-        public void ForceLoadByAnchor(ChunkLoadAnchor anchor)
-        {
-            bool found = false;
-            for (int i = 0; i < anchors.Count; i++)
-            {
-                if (anchors[i].Key == anchor)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                return;
-            }
-
-
-
-            FlushLoading();
+            chunkMap.RemoveAnchor(anchor);
         }
 
         public override void Tick()
         {
-            UpdateAnchors();
+            chunkMap.Update();
         }
 
-        private void UpdateAnchors()
+        public void FlushChunks()
         {
-            for (int i = 0; i < anchors.Count; ++i)
+            chunkMap.Flush();
+        }
+
+        private Chunk LoadOrGenerateChunk(ChunkPos pos)
+        {
+            if(storage.TryLoadChunk(pos, out Chunk? chunk))
             {
-                var pair = anchors[i];
-                ChunkLoadAnchor anchor = pair.Key;
-                if (anchor.Current != pair.Value)
-                {
-                    chunkMap.AddAnchor(anchor);
-                    chunkMap.RemoveAnchor(anchor);
-
-
-                    anchors[i] = new KeyValuePair<ChunkLoadAnchor, AnchorData>(anchor, anchor.Current);
-                }
+                return chunk;
             }
+
+            chunk = generator.GenerateChunk(pos);
+            return chunk;
         }
 
-        public void FlushLoading()
-        {
-            chunkMap.FlushLoading();
-        }
-
-        private Task<Chunk> LoadOrGenerateChunk(ChunkPos pos)
-        {
-            return new Task<Chunk>(() => generator.GenerateChunk(pos));
-        }
-
-        public ServerChunkSource(ServerLevel level, ILevelGenerator generator, LevelDataStorage storage)
+        public ServerChunkSource(ServerLevel level, ILevelBound bound, ILevelGenerator generator, LevelDataStorage storage)
         {
             this.level = level;
+
+            this.bound = bound;
 
             this.generator = generator;
             this.storage = storage;
 
-            chunkMap = new ChunkMap((pos) => LoadOrGenerateChunk(pos));
-            anchors = new List<KeyValuePair<ChunkLoadAnchor, AnchorData>>();
+            chunkMap = new ChunkMap(LoadOrGenerateChunk, bound);
         }
 
         public readonly ServerLevel level;
+
+        private readonly ILevelBound bound;
 
         private readonly ILevelGenerator generator;
         private readonly LevelDataStorage storage;
 
         private readonly ChunkMap chunkMap;
-
-        private readonly List<KeyValuePair<ChunkLoadAnchor, AnchorData>> anchors;
     }
 }
