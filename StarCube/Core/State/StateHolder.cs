@@ -24,42 +24,17 @@ namespace StarCube.Core.State
         /// <returns></returns>
         public delegate S Factory(O owner, StatePropertyList properties);
 
-        public StateHolder(O owner, StatePropertyList propertyList)
-        {
-            this.owner = owner;
-            this.propertyList = propertyList;
-            constructed = (propertyList == null);
-            hashcodeCache = 31 * owner.GetHashCode() + (propertyList == null ? 0 : propertyList.GetHashCode());
-        }
 
-        /// <summary>
-        /// State 的属性与取值列表
-        /// </summary>
-        public readonly StatePropertyList propertyList;
 
         /// <summary>
         /// 此 State 是否是其 Owner 的唯一 State
         /// </summary>
         public bool IsSingle => propertyList == null;
 
-        /// <summary>
-        /// State 的 Owner
-        /// </summary>
-        public readonly O owner;
-
         public ImmutableDictionary<StateProperty, ImmutableArray<S>> Neighbours => neighbours!;
 
         public ImmutableDictionary<StateProperty, S> Followers => followers!;
 
-        private ImmutableDictionary<StateProperty, ImmutableArray<S>>? neighbours = null;
-        private ImmutableDictionary<StateProperty, S>? followers = null;
-
-        private readonly int hashcodeCache;
-
-        /// <summary>
-        /// 指示 State 是否已经构造完成
-        /// </summary>
-        private bool constructed;
 
         /// <summary>
         /// 为 StateHolder 设置 neighbours 和 followers
@@ -86,7 +61,7 @@ namespace StarCube.Core.State
         /// <param name="valueIndex"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public bool SetProperty(StateProperty property, int valueIndex, [NotNullWhen(true)] out S? state)
+        public bool TrySetProperty(StateProperty property, int valueIndex, [NotNullWhen(true)] out S? state)
         {
             if (neighbours != null &&
                 property.IndexIsValid(valueIndex) &&
@@ -99,15 +74,25 @@ namespace StarCube.Core.State
             return false;
         }
 
+        public S SetProperty(StateProperty property, int valueIndex)
+        {
+            if (TrySetProperty(property, valueIndex, out S? state))
+            {
+                return state;
+            }
+
+            return (S)this;
+        }
+
         /// <summary>
         /// 获取此 State 在指定 property 上的 follower
         /// </summary>
         /// <param name="property"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public bool CycleProperty(StateProperty property, [NotNullWhen(true)] out S? state)
+        public bool TryCycleProperty(StateProperty property, [NotNullWhen(true)] out S? state)
         {
-            if (followers != null && followers!.TryGetValue(property, out state))
+            if (followers != null && followers.TryGetValue(property, out state))
             {
                 return true;
             }
@@ -115,9 +100,47 @@ namespace StarCube.Core.State
             return false;
         }
 
+        public S CycleProperty(StateProperty property)
+        {
+            if(TryCycleProperty(property, out S? state))
+            {
+                return state;
+            }
+
+            return (S)this;
+        }
+
         public override int GetHashCode()
         {
             return hashcodeCache;
         }
+
+        public StateHolder(O owner, StatePropertyList propertyList)
+        {
+            this.owner = owner;
+            this.propertyList = propertyList;
+            constructed = (propertyList == null);
+            hashcodeCache = 31 * owner.GetHashCode() + (propertyList == null ? 0 : propertyList.GetHashCode());
+        }
+
+        /// <summary>
+        /// State 的 Owner
+        /// </summary>
+        public readonly O owner;
+
+        /// <summary>
+        /// State 的属性与取值列表
+        /// </summary>
+        public readonly StatePropertyList propertyList;
+
+        private ImmutableDictionary<StateProperty, ImmutableArray<S>>? neighbours = null;
+        private ImmutableDictionary<StateProperty, S>? followers = null;
+
+        private readonly int hashcodeCache;
+
+        /// <summary>
+        /// 指示 State 是否已经构造完成
+        /// </summary>
+        private bool constructed;
     }
 }
