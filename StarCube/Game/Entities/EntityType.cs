@@ -1,28 +1,20 @@
 ﻿using System;
 
-using StarCube.Core.Registry;
+using StarCube.Core.Registries;
+using StarCube.Utility;
 
 namespace StarCube.Game.Entities
 {
-    public class EntityType : IRegistryEntry<EntityType>
+    public class EntityType : RegistryEntry<EntityType>
     {
-        public RegistryEntryData<EntityType> RegistryEntryData
-        {
-            get => IRegistryEntry<EntityType>.RegistryEntryGetHelper(regData);
-            set => IRegistryEntry<EntityType>.RegistryEntrySetHelper(ref regData, value);
-        }
-
-        public Type AsEntryType => typeof(EntityType);
-
         public Entity CreateNewEntity()
         {
             return new Entity(this, Guid.NewGuid());
         }
 
-        public EntityType()
+        public EntityType(StringID id)
+            : base(BuiltinRegistries.ENTITY_TYPE, id)
         {
         }
-
-        private RegistryEntryData<EntityType>? regData = null;
     }
 }

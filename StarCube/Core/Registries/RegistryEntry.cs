@@ -2,7 +2,7 @@
 
 using StarCube.Utility;
 
-namespace StarCube.Core.Registry
+namespace StarCube.Core.Registries
 {
     public interface IRegistryEntry : IStringID
     {

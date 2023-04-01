@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.Registry
+namespace StarCube.Core.Registries
 {
     /// <summary>
     /// 用于简化游戏对象的注册

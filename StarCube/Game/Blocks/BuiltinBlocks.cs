@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility;
 using StarCube.Bootstrap.Attributes;
-using StarCube.Core.Registry;
+using StarCube.Core.Registries;
 
 namespace StarCube.Game.Blocks
 {

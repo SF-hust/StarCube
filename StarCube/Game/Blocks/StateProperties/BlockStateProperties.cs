@@ -4,7 +4,7 @@ using StarCube.Bootstrap.Attributes;
 using StarCube.Core.State.Property;
 using StarCube.Game.Blocks.Enums;
 
-namespace StarCube.Game.Blocks.Properties
+namespace StarCube.Game.Blocks.StateProperties
 {
     [BootstrapClass]
     public static class BlockStateProperties

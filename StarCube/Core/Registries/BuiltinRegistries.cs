@@ -3,8 +3,10 @@ using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Component;
 using StarCube.Game.Blocks;
 using StarCube.Game.Items;
+using StarCube.Game.BlockEntities;
+using StarCube.Game.Entities;
 
-namespace StarCube.Core.Registry
+namespace StarCube.Core.Registries
 {
     /// <summary>
     /// RootRegistry 与所有内置 Registry
@@ -21,9 +23,19 @@ namespace StarCube.Core.Registry
 
         public static readonly Registry<ComponentType<Block>> BLOCK_COMPONENT_TYPE = Registry<ComponentType<Block>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/block");
 
+        public static readonly Registry<ComponentType<ItemStack>> ITEMSTACK_COMPONENT_TYPE = Registry<ComponentType<ItemStack>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/item_stack");
+
+        public static readonly Registry<ComponentType<BlockEntity>> BLOCK_ENTITY_COMPONENT_TYPE = Registry<ComponentType<BlockEntity>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/block_entity");
+
+        public static readonly Registry<ComponentType<Entity>> ENTITY_COMPONENT_TYPE = Registry<ComponentType<Entity>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/entity");
+
         public static readonly Registry<Block> BLOCK = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING);
 
         public static readonly Registry<Item> ITEM = Registry<Item>.Create(Constants.DEFAULT_NAMESPACE, Constants.ITEM_STRING);
+
+        public static readonly Registry<BlockEntityType> BLOCK_ENTITY_TYPE = Registry<BlockEntityType>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_ENTITY_TYPE_STRING);
+
+        public static readonly Registry<EntityType> ENTITY_TYPE = Registry<EntityType>.Create(Constants.DEFAULT_NAMESPACE, Constants.ENTITY_TYPE_STRING);
 
         static BuiltinRegistries()
         {

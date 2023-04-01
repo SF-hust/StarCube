@@ -4,7 +4,7 @@ using StarCube.Utility;
 using StarCube.Utility.Container;
 using StarCube.Core.State;
 using StarCube.Core.State.Property;
-using StarCube.Core.Registry;
+using StarCube.Core.Registries;
 
 namespace StarCube.Game.Blocks
 {

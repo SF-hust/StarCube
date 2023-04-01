@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+
+using Newtonsoft.Json.Linq;
 
 using LiteDB;
 
 using StarCube.Utility;
-using StarCube.Core.Registry;
-using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json.Linq;
+using StarCube.Core.Registries;
 
 namespace StarCube.Core.Component
 {

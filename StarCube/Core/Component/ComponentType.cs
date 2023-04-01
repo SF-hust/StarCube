@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
-using StarCube.Core.Registry;
+using StarCube.Core.Registries;
 
 namespace StarCube.Core.Component
 {
@@ -87,7 +87,7 @@ namespace StarCube.Core.Component
             return false;
         }
 
-        public ComponentType(StringID id, bool allowMultiple = false) : base(id, allowMultiple)
+        public ComponentType(Registry<ComponentType<O>> registry, StringID id, bool allowMultiple = false) : base(registry, id, allowMultiple)
         {
             idToVariants = new ConcurrentDictionary<StringID, ComponentVariant<O, C>>();
         }

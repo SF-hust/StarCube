@@ -1,8 +1,10 @@
 ﻿using LiteDB;
 
+using StarCube.Core.Component;
+
 namespace StarCube.Game.Items
 {
-    public sealed class ItemStack
+    public sealed class ItemStack : IComponentHolder<ItemStack>
     {
         public Item Item
         {
@@ -22,6 +24,7 @@ namespace StarCube.Game.Items
             }
         }
 
+        public ComponentContainer<ItemStack> Components => throw new System.NotImplementedException();
 
         public bool EqualsWithoutAdditional(ItemStack other)
         {
@@ -39,10 +42,8 @@ namespace StarCube.Game.Items
         }
 
         public ItemStack(Item item, int count = 1)
+            : this(item, count, new BsonDocument())
         {
-            this.item = item;
-            this.count = count;
-            additionalData = new BsonDocument();
         }
 
         public ItemStack(Item item, int count, BsonDocument additionalData, bool copy = false)
@@ -54,6 +55,7 @@ namespace StarCube.Game.Items
                 additionalData = new BsonDocument(additionalData);
             }
             this.additionalData = additionalData;
+            components = new ComponentContainer<ItemStack>(this);
         }
 
 
@@ -62,5 +64,7 @@ namespace StarCube.Game.Items
         private int count = 0;
 
         public readonly BsonDocument additionalData;
+
+        private readonly ComponentContainer<ItemStack> components;
     }
 }

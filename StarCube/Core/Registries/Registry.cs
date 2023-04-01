@@ -7,7 +7,7 @@ using StarCube.Utility;
 using StarCube.Utility.Container;
 using StarCube.Utility.Logging;
 
-namespace StarCube.Core.Registry
+namespace StarCube.Core.Registries
 {
     public interface IRegistry : IStringID
     {

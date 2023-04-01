@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.Registry
+namespace StarCube.Core.Registries
 {
     public class RootRegistry
     {
