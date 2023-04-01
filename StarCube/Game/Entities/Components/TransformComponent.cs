@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using StarCube.Utility;
 using StarCube.Core.Component;
 using StarCube.Core.Component.Attributes;
+using StarCube.Core.Registries;
 
 namespace StarCube.Game.Entities.Components
 {
@@ -17,7 +18,7 @@ namespace StarCube.Game.Entities.Components
         public static readonly StringID ComponentID = StringID.Create(Constants.DEFAULT_NAMESPACE, "transform");
 
         public static readonly ComponentType<Entity, TransformComponent> COMPONENT_TYPE =
-            new ComponentType<Entity, TransformComponent>(ComponentID);
+            new ComponentType<Entity, TransformComponent>(BuiltinRegistries.ENTITY_COMPONENT_TYPE, ComponentID);
 
         public static readonly ComponentVariant<Entity, TransformComponent> COMPONENT_VARIANT = new TransformVariant();
 
