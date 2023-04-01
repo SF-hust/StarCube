@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
@@ -7,28 +8,26 @@ namespace StarCube.Core.Registry
 {
     public class RootRegistry
     {
-        public IEnumerable<Registry> Registries => registries;
+        public IEnumerable<IRegistry> Registries => registries;
 
-        public bool Register(Registry registry)
+        public void Register(IRegistry registry)
         {
-            foreach (Registry reg in registries)
+            foreach (IRegistry reg in registries)
             {
-                if(reg.id.Equals(registry.id))
+                if(reg.ID.Equals(registry.ID))
                 {
-                    return false;
+                    throw new InvalidOperationException();
                 }
             }
 
             registries.Add(registry);
-
-            return true;
         }
 
-        public bool TryGet(StringID id, [NotNullWhen(true)] out Registry? registry)
+        public bool TryGet(StringID id, [NotNullWhen(true)] out IRegistry? registry)
         {
-            foreach (Registry reg in registries)
+            foreach (IRegistry reg in registries)
             {
-                if (reg.id.Equals(id))
+                if (reg.ID.Equals(id))
                 {
                     registry = reg;
                     return true;
@@ -40,13 +39,13 @@ namespace StarCube.Core.Registry
         }
 
         public bool TryGet<T>(StringID id, [NotNullWhen(true)] out Registry<T>? registry)
-            where T : class, IRegistryEntry<T>
+            where T : RegistryEntry<T>
         {
-            foreach (Registry reg in registries)
+            foreach (IRegistry reg in registries)
             {
-                if (reg.id.Equals(id) && reg is Registry<T> regi)
+                if (reg.ID.Equals(id) && reg is Registry<T> regT)
                 {
-                    registry = regi;
+                    registry = regT;
                     return true;
                 }
             }
@@ -57,7 +56,7 @@ namespace StarCube.Core.Registry
 
         public void FireRegistryEvents()
         {
-            foreach (Registry registry in registries)
+            foreach (IRegistry registry in registries)
             {
                 registry.FireRegisterEvent();
             }
@@ -67,6 +66,6 @@ namespace StarCube.Core.Registry
         {
         }
 
-        private readonly List<Registry> registries = new List<Registry>();
+        private readonly List<IRegistry> registries = new List<IRegistry>();
     }
 }

@@ -10,18 +10,8 @@ namespace StarCube.Core.Registry
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class RegistryObject<T> : Lazy<T>
-        where T : class, IRegistryEntry<T>
+        where T : RegistryEntry<T>
     {
-        public static RegistryObject<T> Create(Registry<T> registry, string modid, string name)
-        {
-            return Create(registry, StringID.Create(modid, name));
-        }
-
-        public static RegistryObject<T> Create(Registry<T> registry, StringID id)
-        {
-            return registry.GetAsRegistryObject(id);
-        }
-
         internal RegistryObject(Registry<T> registry, StringID id, Func<T> factory) : base(factory, LazyThreadSafetyMode.PublicationOnly)
         {
             this.registry = registry;

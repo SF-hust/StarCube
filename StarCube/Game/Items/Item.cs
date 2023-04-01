@@ -1,23 +1,15 @@
 ﻿using System;
 
+using StarCube.Utility;
 using StarCube.Core.Registry;
 
 namespace StarCube.Game.Items
 {
-    public class Item : IRegistryEntry<Item>
+    public class Item : RegistryEntry<Item>
     {
-        public RegistryEntryData<Item> RegistryEntryData
-        {
-            get => IRegistryEntry<Item>.RegistryEntryGetHelper(regData);
-            set => IRegistryEntry<Item>.RegistryEntrySetHelper(ref regData, value);
-        }
-
-        public Type AsEntryType => typeof(Item);
-
-        public Item()
+        public Item(StringID id)
+            : base(BuiltinRegistries.ITEM, id)
         {
         }
-
-        private RegistryEntryData<Item>? regData = null;
     }
 }

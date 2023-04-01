@@ -12,9 +12,9 @@ namespace StarCube.Game.Items
 
         static BuiltinItems()
         {
-            Registries.ITEM.OnRegisterStartEvent +=
+            BuiltinRegistries.ITEM.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) =>
-                Registries.ITEM.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
+                BuiltinRegistries.ITEM.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
         }
     }
 }

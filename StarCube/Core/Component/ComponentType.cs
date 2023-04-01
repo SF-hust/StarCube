@@ -8,25 +8,9 @@ using StarCube.Core.Registry;
 
 namespace StarCube.Core.Component
 {
-    public abstract class ComponentType<O> : IRegistryEntry<ComponentType<O>>
+    public abstract class ComponentType<O> : RegistryEntry<ComponentType<O>>
         where O : class, IComponentHolder<O>
     {
-        /* ~ IRegistryEntry<ComponentType> 接口实现 start ~ */
-        public RegistryEntryData<ComponentType<O>> RegistryEntryData
-        {
-            get => IRegistryEntry<ComponentType<O>>.RegistryEntryGetHelper(regData);
-            set => IRegistryEntry<ComponentType<O>>.RegistryEntrySetHelper(ref regData, value);
-        }
-        private RegistryEntryData<ComponentType<O>>? regData = null;
-        public virtual Type AsEntryType => typeof(ComponentType<O>);
-        public Registry<ComponentType<O>> Registry => regData!.registry;
-        public int IntegerID => regData!.integerID;
-        public StringID ID => id;
-        public string Modid => id.ModidString;
-        public string Name => id.NameString;
-        /* ~ IRegistryEntry<ComponentType> 接口实现 end ~ */
-
-
         /// <summary>
         /// 此 ComponentType 的 component 可附加到的类型
         /// </summary>
@@ -37,22 +21,20 @@ namespace StarCube.Core.Component
         /// </summary>
         public abstract Type ComponentBaseType { get; }
 
+        /// <summary>
+        /// 尝试通过 id 获取 variant
+        /// </summary>
+        /// <param name="variantID"></param>
+        /// <param name="variant"></param>
+        /// <returns></returns>
+        public abstract bool TryGetVariant(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant);
 
-        public abstract bool TryGet(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant);
 
-
-        public override int GetHashCode()
+        public ComponentType(Registry<ComponentType<O>> registry, StringID id, bool allowMultiple)
+            : base(registry, id)
         {
-            return id.GetHashCode();
-        }
-
-        public ComponentType(StringID id, bool allowMultiple)
-        {
-            this.id = id;
             this.allowMultiple = allowMultiple;
         }
-
-        public readonly StringID id;
 
         public readonly bool allowMultiple;
     }
@@ -75,6 +57,11 @@ namespace StarCube.Core.Component
         /// </summary>
         public IEnumerable<ComponentVariant<O, C>> Variants => idToVariants.Values;
 
+        /// <summary>
+        /// 注册一个 variant
+        /// </summary>
+        /// <param name="variant"></param>
+        /// <exception cref="Exception"></exception>
         public void RegisterVariant(ComponentVariant<O, C> variant)
         {
             if (!idToVariants.TryAdd(variant.id, variant))
@@ -83,15 +70,14 @@ namespace StarCube.Core.Component
             }
         }
 
-
-        public bool TryGet(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O, C>? variant)
+        public bool TryGetVariant(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O, C>? variant)
         {
             return idToVariants.TryGetValue(variantID, out variant);
         }
 
-        public override bool TryGet(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant)
+        public override bool TryGetVariant(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant)
         {
-            if(TryGet(variantID, out ComponentVariant<O, C>? vari))
+            if(TryGetVariant(variantID, out ComponentVariant<O, C>? vari))
             {
                 variant = vari;
                 return true;

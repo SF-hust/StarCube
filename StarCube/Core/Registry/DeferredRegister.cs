@@ -10,51 +10,44 @@ namespace StarCube.Core.Registry
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class DeferredRegister<T>
-        where T : class, IRegistryEntry<T>
+        where T : RegistryEntry<T>
     {
         /// <summary>
         /// 创建一个指定 modid 的 DeferredRegister，后续注册时会使用这个 modid
         /// </summary>
         /// <param name="modid"></param>
         /// <returns></returns>
-        public static DeferredRegister<T> Create(Registry<T> registry, string modid)
+        public static DeferredRegister<T> Create(Registry<T> registry)
         {
-            return new DeferredRegister<T>(modid, registry);
+            return new DeferredRegister<T>(registry);
         }
 
-        private readonly string modid;
-        private readonly Registry<T> registry;
-        private readonly List<KeyValuePair<StringID, T>> entries = new List<KeyValuePair<StringID, T>>();
-
-        public DeferredRegister(string modid, Registry<T> registry)
-        {
-            this.modid = modid;
-            this.registry = registry;
-            registry.OnRegisterStartEvent += DoRegister;
-        }
 
         /// <summary>
         /// 向 DeferredRegister 中添加一个新的 Entry
         /// </summary>
-        /// <param name="name"></param>
         /// <param name="entry"></param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void Register(string name, T entry)
+        public void Register(T entry)
         {
-            if (Exist(name))
+            if (Contains(entry.ID))
             {
-                throw new InvalidOperationException($"can't add entry with same name ( = \"{name}\") to one DeferredRegister");
+                throw new InvalidOperationException($"can't add entry with same id ( = \"{entry.ID}\") to one DeferredRegister");
             }
 
-            StringID id = StringID.Create(modid, name);
-            entries.Add(new KeyValuePair<StringID, T>(id, entry));
+            entries.Add(entry);
         }
 
-        public bool Exist(string name)
+        /// <summary>
+        /// 检查指定 id 的 registry entry 是否存在
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool Contains(StringID id)
         {
-            foreach(var pair in entries)
+            foreach(T entry in entries)
             {
-                if(pair.Key.Name.Equals(name, StringComparison.Ordinal))
+                if(entry.ID.Equals(id))
                 {
                     return true;
                 }
@@ -69,12 +62,21 @@ namespace StarCube.Core.Registry
         /// <param name="args">no use</param>
         private void DoRegister(object sender, RegisterStartEventArgs args)
         {
-            foreach (var pair in entries)
+            foreach (T entry in entries)
             {
-                registry.Register(pair.Key, pair.Value);
+                registry.Register(entry);
             }
             entries.Clear();
             registry.OnRegisterStartEvent -= DoRegister;
         }
+
+        public DeferredRegister(Registry<T> registry)
+        {
+            this.registry = registry;
+            registry.OnRegisterStartEvent += DoRegister;
+        }
+
+        private readonly Registry<T> registry;
+        private readonly List<T> entries = new List<T>();
     }
 }

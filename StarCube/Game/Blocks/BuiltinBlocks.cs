@@ -7,13 +7,13 @@ namespace StarCube.Game.Blocks
     [BootstrapClass]
     public static class BuiltinBlocks
     {
-        public static Block Air = new Block().BuildSingleBlockState();
+        public static Block Air = new Block(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), BlockProperties.Builder.Create().Air().Build());
 
         static BuiltinBlocks()
         {
-            Registries.BLOCK.OnRegisterStartEvent +=
+            BuiltinRegistries.BLOCK.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) => 
-                Registries.BLOCK.Register(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"), Air);
+                BuiltinRegistries.BLOCK.Register(Air);
         }
     }
 }
