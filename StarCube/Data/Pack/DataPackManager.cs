@@ -1,4 +1,4 @@
-﻿namespace StarCube.Data.DataPack
+﻿namespace StarCube.Data.Pack
 {
     public class DataPackManager
     {

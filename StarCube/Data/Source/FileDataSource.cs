@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace StarCube.Data.DataSource
+namespace StarCube.Data.Source
 {
     public class FileDataSource : IDataSource
     {
