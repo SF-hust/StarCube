@@ -4,7 +4,7 @@ using StarCube.Utility;
 
 namespace StarCube.Core.Component.Data
 {
-    public class ComponentDefinitionData : IStringID
+    public sealed class ComponentDefinitionData : IStringID
     {
         StringID IStringID.ID => id;
 

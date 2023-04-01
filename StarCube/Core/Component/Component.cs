@@ -98,12 +98,12 @@ namespace StarCube.Core.Component
         {
             component = null;
 
-            if(!registry.TryGet(typeID, out ComponentType<O>? type))
+            if(!registry.TryGetRegistryEntry(typeID, out ComponentType<O>? type))
             {
                 return false;
             }
 
-            if(!type.TryGet(variantID, out ComponentVariant<O>? variant))
+            if(!type.TryGetVariant(variantID, out ComponentVariant<O>? variant))
             {
                 return false;
             }

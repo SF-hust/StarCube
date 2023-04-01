@@ -48,9 +48,9 @@ namespace StarCube.Core.Component.Data
     }
 
 
-    public class RawComponentDefinitionData : IUnresolvedData<RawComponentDefinitionData>
+    public sealed class RawComponentDefinitionData : IUnresolvedData<RawComponentDefinitionData>
     {
-        public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "component_def");
+        public static readonly StringID DataRegistry = StringID.Create(Constants.DEFAULT_NAMESPACE, "component");
 
         public static readonly IDataReader<RawComponentDefinitionData> DataReader = new DataReaderWrapper<RawComponentDefinitionData, JObject>(RawDataReaders.JSON, TryParseFromJson);
 
