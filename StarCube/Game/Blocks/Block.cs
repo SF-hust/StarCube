@@ -15,8 +15,8 @@ namespace StarCube.Game.Blocks
         /* ~ Block 属性 start ~ */
         public bool IsAir => properties.air;
         public bool IsSolid => properties.solid;
-        public double Hardness => properties.hardness;
-        public double Strength => properties.strength;
+        public float Hardness => properties.hardness;
+        public float Strength => properties.strength;
         /* ~ Block 属性 end ~ */
 
 
@@ -35,7 +35,7 @@ namespace StarCube.Game.Blocks
         /* ~ IComponentHolder<Block> 接口实现 end ~ */
 
 
-        public Block(StringID id, BlockProperties properties)
+        public Block(StringID id, in BlockProperties properties)
             : base(BuiltinRegistries.BLOCK, id)
         {
             this.properties = properties;

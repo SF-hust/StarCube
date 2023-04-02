@@ -1,20 +1,20 @@
 ﻿namespace StarCube.Game.Blocks
 {
-    public class BlockProperties
+    public readonly struct BlockProperties
     {
         public readonly bool air;
 
         public readonly bool solid;
 
-        public readonly double hardness;
+        public readonly float hardness;
 
-        public readonly double strength;
+        public readonly float strength;
 
         public BlockProperties(
             bool air,
             bool solid,
-            double hardness,
-            double strength)
+            float hardness,
+            float strength)
         {
             this.air = air;
             this.solid = solid;
@@ -47,13 +47,13 @@
                 return this;
             }
 
-            public Builder Hardness(double hardness)
+            public Builder Hardness(float hardness)
             {
                 this.hardness = hardness;
                 return this;
             }
 
-            public Builder Strength(double strength)
+            public Builder Strength(float strength)
             {
                 this.strength = strength;
                 return this;
@@ -63,9 +63,9 @@
 
             private bool solid = true;
 
-            private double hardness = 0.0;
+            private float hardness = 0.0f;
 
-            private double strength = 0.0;
+            private float strength = 0.0f;
         }
     }
 }
