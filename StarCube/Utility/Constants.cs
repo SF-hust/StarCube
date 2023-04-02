@@ -1,7 +1,7 @@
 ﻿namespace StarCube.Utility
 {
     /// <summary>
-    /// 存储了游戏中用到的一些常量, 如 Core Mod 的注册名, 方块、物品、实体等的注册表名
+    /// 存储了游戏中用到的一些常量, 如默认命名空间, 方块、物品、实体等的注册表名
     /// </summary>
     public static class Constants
     {
