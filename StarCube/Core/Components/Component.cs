@@ -8,7 +8,7 @@ using LiteDB;
 using StarCube.Utility;
 using StarCube.Core.Registries;
 
-namespace StarCube.Core.Component
+namespace StarCube.Core.Components
 {
     public abstract class Component<O>
         where O : class, IComponentHolder<O>

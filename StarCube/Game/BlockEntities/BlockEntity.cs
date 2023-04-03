@@ -1,7 +1,7 @@
 ﻿using System;
 
 using StarCube.Utility;
-using StarCube.Core.Component;
+using StarCube.Core.Components;
 
 namespace StarCube.Game.BlockEntities
 {

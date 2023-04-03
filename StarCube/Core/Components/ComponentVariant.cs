@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.Component
+namespace StarCube.Core.Components
 {
     public abstract class ComponentVariant<O> : IStringID
         where O : class, IComponentHolder<O>

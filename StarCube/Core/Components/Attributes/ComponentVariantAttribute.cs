@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace StarCube.Core.Component.Attributes
+namespace StarCube.Core.Components.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class ComponentTypeAttribute : Attribute
+    public class ComponentVariantAttribute : Attribute
     {
     }
 }

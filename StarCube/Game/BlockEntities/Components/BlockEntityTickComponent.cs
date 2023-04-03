@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility;
-using StarCube.Core.Component;
-using StarCube.Core.Component.Attributes;
+using StarCube.Core.Components;
+using StarCube.Core.Components.Attributes;
 using StarCube.Core.Registries;
 
 namespace StarCube.Game.BlockEntities.Components

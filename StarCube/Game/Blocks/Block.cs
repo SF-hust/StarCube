@@ -3,7 +3,7 @@
 using StarCube.Utility;
 using StarCube.Core.Registries;
 using StarCube.Core.States;
-using StarCube.Core.Component;
+using StarCube.Core.Components;
 using StarCube.Core.States.Property;
 using System.Collections.Generic;
 

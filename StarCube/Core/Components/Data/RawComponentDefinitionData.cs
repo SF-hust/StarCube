@@ -8,7 +8,7 @@ using StarCube.Utility;
 using StarCube.Data.DependencyResolver;
 using StarCube.Data.Loading;
 
-namespace StarCube.Core.Component.Data
+namespace StarCube.Core.Components.Data
 {
     public readonly struct ComponentDefinitionEntry
     {

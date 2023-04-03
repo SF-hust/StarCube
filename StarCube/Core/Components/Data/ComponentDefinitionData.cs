@@ -2,7 +2,7 @@
 
 using StarCube.Utility;
 
-namespace StarCube.Core.Component.Data
+namespace StarCube.Core.Components.Data
 {
     public sealed class ComponentDefinitionData : IStringID
     {

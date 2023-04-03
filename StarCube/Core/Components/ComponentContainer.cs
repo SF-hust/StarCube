@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace StarCube.Core.Component
+namespace StarCube.Core.Components
 {
     public class ComponentContainer<O>
         where O : class, IComponentHolder<O>
@@ -9,6 +9,7 @@ namespace StarCube.Core.Component
         public IEnumerable<Component<O>> Components => components;
 
         public bool Contains<C>()
+            where C : Component<O>
         {
             foreach (Component<O> comp in components)
             {

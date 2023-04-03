@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using StarCube.Utility;
 using StarCube.Core.Registries;
 
-namespace StarCube.Core.Component
+namespace StarCube.Core.Components
 {
     public abstract class ComponentType<O> : RegistryEntry<ComponentType<O>>
         where O : class, IComponentHolder<O>

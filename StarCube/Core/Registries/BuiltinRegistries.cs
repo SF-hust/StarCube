@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility;
 using StarCube.Bootstrap.Attributes;
-using StarCube.Core.Component;
+using StarCube.Core.Components;
 using StarCube.Game.Blocks;
 using StarCube.Game.Items;
 using StarCube.Game.BlockEntities;

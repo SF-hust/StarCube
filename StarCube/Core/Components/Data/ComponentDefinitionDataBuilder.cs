@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace StarCube.Core.Component.Data
+namespace StarCube.Core.Components.Data
 {
     public class ComponentDefinitionDataBuilder : IResolvedDataBuilder<RawComponentDefinitionData, ComponentDefinitionData>
     {

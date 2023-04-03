@@ -1,6 +1,6 @@
 ﻿using LiteDB;
 
-using StarCube.Core.Component;
+using StarCube.Core.Components;
 
 namespace StarCube.Game.Items
 {
