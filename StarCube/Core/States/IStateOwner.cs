@@ -19,21 +19,21 @@ namespace StarCube.Core.States
 
     public static class StateOwnerExtension
     {
-        public static ImmutableArray<S> States<O, S>(this O owner)
+        public static ImmutableArray<S> States<O, S>(this IStateOwner<O, S> owner)
             where O : class, IStateOwner<O, S>
             where S : State<O, S>
         {
             return owner.StateDefinition.states;
         }
 
-        public static bool SingleState<O, S>(this O owner)
+        public static bool SingleState<O, S>(this IStateOwner<O, S> owner)
             where O : class, IStateOwner<O, S>
             where S : State<O, S>
         {
             return owner.StateDefinition.singleState;
         }
 
-        public static S DefaultState<O, S>(this O owner)
+        public static S DefaultState<O, S>(this IStateOwner<O, S> owner)
             where O : class, IStateOwner<O, S>
             where S : State<O, S>
         {
