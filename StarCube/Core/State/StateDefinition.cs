@@ -6,7 +6,7 @@ using StarCube.Core.State.Property;
 namespace StarCube.Core.State
 {
     public sealed partial class StateDefinition<O, S>
-        where O : class, IStateDefiner<O, S>
+        where O : class, IStateOwner<O, S>
         where S : StateHolder<O, S>
     {
         /// <summary>
@@ -27,7 +27,7 @@ namespace StarCube.Core.State
         /// <summary>
         /// 是否只含有 1 个状态
         /// </summary>
-        public readonly bool isSingleState;
+        public readonly bool singleState;
 
         /// <summary>
         /// 按顺序排列的属性列表
@@ -39,7 +39,7 @@ namespace StarCube.Core.State
             this.owner = owner;
             this.states = states;
             this.defaultState = defaultState;
-            isSingleState = (states.Length == 1);
+            singleState = (states.Length == 1);
         }
     }
 }

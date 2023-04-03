@@ -13,7 +13,7 @@ namespace StarCube.Core.State
     /// <typeparam name="O">Owner 类型</typeparam>
     /// <typeparam name="S">Holder 类型</typeparam>
     public abstract class StateHolder<O, S>
-        where O : class, IStateDefiner<O, S>
+        where O : class, IStateOwner<O, S>
         where S : StateHolder<O, S>
     {
         /// <summary>

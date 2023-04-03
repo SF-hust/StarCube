@@ -7,7 +7,7 @@ using StarCube.Core.State.Property;
 namespace StarCube.Core.State
 {
     public sealed partial class StateDefinition<O, S>
-        where O : class, IStateDefiner<O, S>
+        where O : class, IStateOwner<O, S>
         where S : StateHolder<O, S>
     {
         public static StateDefinition<O, S> BuildSingle(O owner, StateHolder<O, S>.Factory factory)

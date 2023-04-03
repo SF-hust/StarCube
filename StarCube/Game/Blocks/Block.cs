@@ -11,7 +11,7 @@ namespace StarCube.Game.Blocks
 {
     public class Block :
         RegistryEntry<Block>,
-        IStateDefiner<Block, BlockState>,
+        IStateOwner<Block, BlockState>,
         IComponentHolder<Block>
     {
         /* ~ Block 属性 start ~ */
