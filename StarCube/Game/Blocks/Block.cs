@@ -2,9 +2,9 @@
 
 using StarCube.Utility;
 using StarCube.Core.Registries;
-using StarCube.Core.State;
+using StarCube.Core.States;
 using StarCube.Core.Component;
-using StarCube.Core.State.Property;
+using StarCube.Core.States.Property;
 using System.Collections.Generic;
 
 namespace StarCube.Game.Blocks

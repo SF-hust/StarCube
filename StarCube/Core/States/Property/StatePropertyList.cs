@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace StarCube.Core.State.Property
+namespace StarCube.Core.States.Property
 {
     public readonly struct StatePropertyEntry
     {

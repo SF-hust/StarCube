@@ -4,7 +4,7 @@ using System.Linq;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.State.Property
+namespace StarCube.Core.States.Property
 {
     /// <summary>
     /// IntegerStateProperty : 可以取指定连续范围内的 int 值(可以是负值)

@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 using StarCube.Data.Loading;
-using StarCube.Core.State.Property;
+using StarCube.Core.States.Property;
 
 namespace StarCube.Game.Blocks.Data
 {

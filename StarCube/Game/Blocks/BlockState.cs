@@ -2,13 +2,13 @@
 
 using StarCube.Utility;
 using StarCube.Utility.Container;
-using StarCube.Core.State;
-using StarCube.Core.State.Property;
+using StarCube.Core.States;
+using StarCube.Core.States.Property;
 using StarCube.Core.Registries;
 
 namespace StarCube.Game.Blocks
 {
-    public class BlockState : StateHolder<Block, BlockState>, IIntegerID
+    public class BlockState : State<Block, BlockState>, IIntegerID
     {
         public static IIDMap<BlockState> GlobalBlockStateIDMap => blockStates ?? throw new NullReferenceException();
 

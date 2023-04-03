@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.State.Property
+namespace StarCube.Core.States.Property
 {
     /// <summary>
     /// BooleanStateProperty : 只有两种值 false/true

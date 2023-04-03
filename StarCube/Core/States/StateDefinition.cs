@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 
-using StarCube.Core.State.Property;
+using StarCube.Core.States.Property;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.States
 {
     public sealed partial class StateDefinition<O, S>
         where O : class, IStateOwner<O, S>
-        where S : StateHolder<O, S>
+        where S : State<O, S>
     {
         /// <summary>
         /// 拥有此 StateDefinition 的对象

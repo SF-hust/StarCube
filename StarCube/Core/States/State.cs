@@ -3,18 +3,18 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
 
-using StarCube.Core.State.Property;
+using StarCube.Core.States.Property;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.States
 {
     /// <summary>
     /// 一个 StateHolder 对象是 Owner 的一个状态实例, 保存着 Owner 所定义的所有状态属性以及在当前状态下各属性的取值, 示例参照 BlockState
     /// </summary>
     /// <typeparam name="O">Owner 类型</typeparam>
     /// <typeparam name="S">Holder 类型</typeparam>
-    public abstract class StateHolder<O, S>
+    public abstract class State<O, S>
         where O : class, IStateOwner<O, S>
-        where S : StateHolder<O, S>
+        where S : State<O, S>
     {
         /// <summary>
         /// 一个可以根据 owner 和 propertyList 创建相应 State 的工厂委托
@@ -115,7 +115,7 @@ namespace StarCube.Core.State
             return hashcodeCache;
         }
 
-        public StateHolder(O owner, StatePropertyList propertyList)
+        public State(O owner, StatePropertyList propertyList)
         {
             this.owner = owner;
             this.propertyList = propertyList;

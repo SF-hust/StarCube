@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.State.Property
+namespace StarCube.Core.States.Property
 {
     /// <summary>
     /// StateProperty 的非泛型版本基类

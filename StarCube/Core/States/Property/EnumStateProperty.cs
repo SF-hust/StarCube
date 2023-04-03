@@ -6,7 +6,7 @@ using System.Linq;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.State.Property
+namespace StarCube.Core.States.Property
 {
     /// <summary>
     /// EnumStateProperty<T> : 取值为枚举类型，T 是对应的枚举类型

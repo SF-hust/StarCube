@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-using StarCube.Core.State.Property;
+using StarCube.Core.States.Property;
 
-namespace StarCube.Core.State
+namespace StarCube.Core.States
 {
     public sealed partial class StateDefinition<O, S>
         where O : class, IStateOwner<O, S>
-        where S : StateHolder<O, S>
+        where S : State<O, S>
     {
-        public static StateDefinition<O, S> BuildSingle(O owner, StateHolder<O, S>.Factory factory)
+        public static StateDefinition<O, S> BuildSingle(O owner, State<O, S>.Factory factory)
         {
             List<S> states;
             states = new List<S>(1);
@@ -19,7 +19,7 @@ namespace StarCube.Core.State
             return new StateDefinition<O, S>(owner, states.ToImmutableArray(), state);
         }
 
-        public static StateDefinition<O, S> BuildFromPropertyEntryList(O owner, StateHolder<O, S>.Factory factory, List<StatePropertyEntry> entries)
+        public static StateDefinition<O, S> BuildFromPropertyEntryList(O owner, State<O, S>.Factory factory, List<StatePropertyEntry> entries)
         {
             Builder builder = Builder.Create(owner, factory);
             foreach (var entry in entries)
@@ -33,9 +33,9 @@ namespace StarCube.Core.State
         {
             private readonly O owner;
             private readonly List<StatePropertyEntry> propertyEntries = new List<StatePropertyEntry>();
-            private readonly StateHolder<O, S>.Factory stateFactory;
+            private readonly State<O, S>.Factory stateFactory;
 
-            public Builder(O owner, StateHolder<O, S>.Factory factory)
+            public Builder(O owner, State<O, S>.Factory factory)
             {
                 this.owner = owner;
                 stateFactory = factory;
@@ -47,7 +47,7 @@ namespace StarCube.Core.State
             /// <param name="owner">State 的所有者</param>
             /// <param name="factory">创建 State 的工厂方法</param>
             /// <returns></returns>
-            public static Builder Create(O owner, StateHolder<O, S>.Factory factory)
+            public static Builder Create(O owner, State<O, S>.Factory factory)
             {
                 return new Builder(owner, factory);
             }

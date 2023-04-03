@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 
-namespace StarCube.Core.State.Property.Data
+namespace StarCube.Core.States.Property.Data
 {
     public enum StatePropertyType
     {
