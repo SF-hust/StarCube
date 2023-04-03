@@ -263,14 +263,6 @@ namespace StarCube.Core.State.Property
                 return new StatePropertyList(list.ToImmutableArray());
             }
 
-            /// <summary>
-            /// 跳过当前表的构建，暂时没用
-            /// </summary>
-            public void SkipBuild()
-            {
-                UpdateValueIndices();
-            }
-
             private void UpdateValueIndices()
             {
                 if (remainToBuild < 1)

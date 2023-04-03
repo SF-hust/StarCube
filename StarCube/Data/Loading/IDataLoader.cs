@@ -7,7 +7,6 @@ namespace StarCube.Data.Loading
         /// <summary>
         /// 执行 DataLoader
         /// </summary>
-        /// <param name="reader"></param>
         void Run(IDataProvider dataProvider);
     }
 }

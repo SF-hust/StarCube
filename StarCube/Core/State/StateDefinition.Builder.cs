@@ -19,6 +19,16 @@ namespace StarCube.Core.State
             return new StateDefinition<O, S>(owner, states.ToImmutableArray(), state);
         }
 
+        public static StateDefinition<O, S> BuildFromPropertyEntryList(O owner, StateHolder<O, S>.Factory factory, List<StatePropertyEntry> entries)
+        {
+            Builder builder = Builder.Create(owner, factory);
+            foreach (var entry in entries)
+            {
+                builder.AddPropertyAndDefaultIndex(entry.name, entry.property, entry.valueIndex);
+            }
+            return builder.Build();
+        }
+
         public class Builder
         {
             private readonly O owner;

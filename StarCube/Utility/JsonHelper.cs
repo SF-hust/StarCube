@@ -12,62 +12,62 @@ namespace StarCube.Utility
         public static bool TryGetBoolean(this JObject json, string propertyName, out bool value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToBoolean(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToBooleanValue(out value);
         }
 
         public static bool TryGetInt32(this JObject json, string propertyName, out int value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToInt32(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToInt32Value(out value);
         }
 
         public static bool TryGetUInt32(this JObject json, string propertyName, out uint value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToUInt32(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToUInt32Value(out value);
         }
 
         public static bool TryGetInt64(this JObject json, string propertyName, out long value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToInt64(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToInt64Value(out value);
         }
 
         public static bool TryGetUInt64(this JObject json, string propertyName, out ulong value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToUInt64(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToUInt64Value(out value);
         }
 
         public static bool TryGetFloat(this JObject json, string propertyName, out float value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToFloat(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToFloatValue(out value);
         }
 
         public static bool TryGetDouble(this JObject json, string propertyName, out double value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToDouble(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToDoubleValue(out value);
         }
 
         public static bool TryGetDouble(this JObject json, string propertyName, out Guid value)
         {
             value = default;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToGuid(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToGuidValue(out value);
         }
 
         public static bool TryGetString(this JObject json, string propertyName, out string value)
         {
             value = string.Empty;
-            return json.TryGetValue(propertyName, out JToken? token) && token.TryConvertToString(out value);
+            return json.TryGetValue(propertyName, out JToken? token) && token.ToStringValue(out value);
         }
 
         public static bool TryGetStringID(this JObject json, string propertyName, out StringID value)
         {
             value = StringID.Failed;
             return json.TryGetValue(propertyName, out JToken? token) &&
-                token.TryConvertToString(out string idString) &&
+                token.ToStringValue(out string idString) &&
                 StringID.TryParse(idString, out value);
         }
 
@@ -93,7 +93,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToBoolean(this JToken token, out bool value)
+        public static bool ToBooleanValue(this JToken token, out bool value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Boolean)
             {
@@ -104,7 +104,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToInt32(this JToken token, out int value)
+        public static bool ToInt32Value(this JToken token, out int value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Integer)
             {
@@ -115,7 +115,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToUInt32(this JToken token, out uint value)
+        public static bool ToUInt32Value(this JToken token, out uint value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Integer)
             {
@@ -126,7 +126,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToInt64(this JToken token, out long value)
+        public static bool ToInt64Value(this JToken token, out long value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Integer)
             {
@@ -137,7 +137,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToUInt64(this JToken token, out ulong value)
+        public static bool ToUInt64Value(this JToken token, out ulong value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Integer)
             {
@@ -148,7 +148,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToFloat(this JToken token, out float value)
+        public static bool ToFloatValue(this JToken token, out float value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Float)
             {
@@ -159,7 +159,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToDouble(this JToken token, out double value)
+        public static bool ToDoubleValue(this JToken token, out double value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Float)
             {
@@ -170,7 +170,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToGuid(this JToken token, out Guid value)
+        public static bool ToGuidValue(this JToken token, out Guid value)
         {
             if (token is JValue jValue && jValue.Type == JTokenType.Guid)
             {
@@ -181,7 +181,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        public static bool TryConvertToString(this JToken token, out string value)
+        public static bool ToStringValue(this JToken token, out string value)
         {
             if(token is JValue jValue && jValue.Value is string v)
             {
@@ -197,7 +197,7 @@ namespace StarCube.Utility
             array = new bool[jArray.Count];
             for(int i = 0; i < jArray.Count; i++)
             {
-                if(!TryConvertToBoolean(jArray[i], out array[i]))
+                if(!ToBooleanValue(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -210,7 +210,7 @@ namespace StarCube.Utility
             array = new int[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToInt32(jArray[i], out array[i]))
+                if (!ToInt32Value(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -223,7 +223,7 @@ namespace StarCube.Utility
             array = new uint[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToUInt32(jArray[i], out array[i]))
+                if (!ToUInt32Value(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -236,7 +236,7 @@ namespace StarCube.Utility
             array = new long[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToInt64(jArray[i], out array[i]))
+                if (!ToInt64Value(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -249,7 +249,7 @@ namespace StarCube.Utility
             array = new ulong[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToUInt64(jArray[i], out array[i]))
+                if (!ToUInt64Value(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -262,7 +262,7 @@ namespace StarCube.Utility
             array = new float[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToFloat(jArray[i], out array[i]))
+                if (!ToFloatValue(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -275,7 +275,7 @@ namespace StarCube.Utility
             array = new double[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToDouble(jArray[i], out array[i]))
+                if (!ToDoubleValue(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -288,7 +288,7 @@ namespace StarCube.Utility
             array = new Guid[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToGuid(jArray[i], out array[i]))
+                if (!ToGuidValue(jArray[i], out array[i]))
                 {
                     return false;
                 }
@@ -301,7 +301,7 @@ namespace StarCube.Utility
             array = new string[jArray.Count];
             for (int i = 0; i < jArray.Count; i++)
             {
-                if (!TryConvertToString(jArray[i], out array[i]))
+                if (!ToStringValue(jArray[i], out array[i]))
                 {
                     return false;
                 }

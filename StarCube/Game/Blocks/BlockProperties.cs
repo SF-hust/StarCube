@@ -2,6 +2,8 @@
 {
     public readonly struct BlockProperties
     {
+        public static readonly BlockProperties Default = new BlockProperties(false, true, 0.0f, 0.0f);
+
         public readonly bool air;
 
         public readonly bool solid;
@@ -59,13 +61,13 @@
                 return this;
             }
 
-            private bool air = false;
+            private bool air = Default.air;
 
-            private bool solid = true;
+            private bool solid = Default.solid;
 
-            private float hardness = 0.0f;
+            private float hardness = Default.hardness;
 
-            private float strength = 0.0f;
+            private float strength = Default.strength;
         }
     }
 }

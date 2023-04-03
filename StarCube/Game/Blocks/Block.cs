@@ -4,6 +4,8 @@ using StarCube.Utility;
 using StarCube.Core.Registries;
 using StarCube.Core.State;
 using StarCube.Core.Component;
+using StarCube.Core.State.Property;
+using System.Collections.Generic;
 
 namespace StarCube.Game.Blocks
 {
@@ -31,16 +33,27 @@ namespace StarCube.Game.Blocks
 
 
         /* ~ IComponentHolder<Block> 接口实现 start ~ */
-        public ComponentContainer<Block> Components => throw new NotImplementedException();
+        public ComponentContainer<Block> Components => components;
         /* ~ IComponentHolder<Block> 接口实现 end ~ */
-
 
         public Block(StringID id, in BlockProperties properties)
             : base(BuiltinRegistries.BLOCK, id)
         {
             this.properties = properties;
+            components = new ComponentContainer<Block>(this);
+            stateDefinition = StateDefinition<Block, BlockState>.BuildSingle(this, BlockState.Create);
+        }
+
+        public Block(StringID id, in BlockProperties properties, List<StatePropertyEntry> entries)
+            : base(BuiltinRegistries.BLOCK, id)
+        {
+            this.properties = properties;
+            components = new ComponentContainer<Block>(this);
+            stateDefinition = StateDefinition<Block, BlockState>.BuildFromPropertyEntryList(this, BlockState.Create, entries);
         }
 
         private readonly BlockProperties properties;
+
+        private readonly ComponentContainer<Block> components;
     }
 }
