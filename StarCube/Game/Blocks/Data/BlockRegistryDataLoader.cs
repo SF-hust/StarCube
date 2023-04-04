@@ -4,16 +4,15 @@ using StarCube.Utility;
 using StarCube.Data.Loading;
 using StarCube.Data.Provider;
 using StarCube.Core.Registries;
+using StarCube.Data.Loading.Attributes;
+using StarCube.Game.Blocks.Data;
 
+[assembly: RegisterDataLoader(typeof(BlockRegistryDataLoader))]
 namespace StarCube.Game.Blocks.Data
 {
     public class BlockRegistryDataLoader : DataLoader
     {
         public readonly static StringID LoaderID = BlockRegistryData.DataRegistry;
-
-        public BlockRegistryDataLoader() : base(LoaderID)
-        {
-        }
 
         public override void Run(DataLoadingContext context)
         {
@@ -28,6 +27,10 @@ namespace StarCube.Game.Blocks.Data
                     deferredRegister.Register(block);
                 }
             }
+        }
+
+        public BlockRegistryDataLoader() : base(LoaderID, false)
+        {
         }
     }
 }

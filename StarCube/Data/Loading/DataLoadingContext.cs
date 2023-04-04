@@ -26,35 +26,19 @@ namespace StarCube.Data.Loading
             return false;
         }
 
-        public void AddDataResult(StringID id, object result, bool temp)
+        public void AddDataResult(StringID id, object result)
         {
             idToDataLoadResult.Add(id, result);
-            if(temp)
-            {
-                tempDataResultIDs.Add(id);
-            }
-        }
-
-        public void ClearTempDataResult()
-        {
-            foreach (StringID id in tempDataResultIDs)
-            {
-                idToDataLoadResult.Remove(id);
-            }
-            tempDataResultIDs.Clear();
         }
 
         public DataLoadingContext(IDataProvider dataProvider)
         {
             this.dataProvider = dataProvider;
             idToDataLoadResult = new Dictionary<StringID, object>();
-            tempDataResultIDs = new HashSet<StringID>();
         }
 
         public readonly IDataProvider dataProvider;
 
         private readonly Dictionary<StringID, object> idToDataLoadResult;
-
-        private readonly HashSet<StringID> tempDataResultIDs;
     }
 }

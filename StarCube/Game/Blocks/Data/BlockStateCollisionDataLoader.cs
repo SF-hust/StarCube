@@ -1,35 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 
 using StarCube.Utility;
+using StarCube.Utility.Logging;
 using StarCube.Data.Loading;
+using StarCube.Data.Loading.Attributes;
 using StarCube.Data.Provider;
+using StarCube.Core.Registries;
+using StarCube.Game.Blocks.Data;
 
+[assembly: RegisterDataLoader(typeof(BlockStateCollisionDataLoader))]
 namespace StarCube.Game.Blocks.Data
 {
-    public class BlockStateCollisionDataLoader : IDataLoader
+    public class BlockStateCollisionDataLoader : DataLoader
     {
-        public void Run(IDataProvider dataProvider)
-        {
-            IEnumerable<StringID> blockIDs = from block in blocks select block.ID;
+        public static readonly StringID LoaderID = BlockStateCollisionData.DataRegistry;
 
-            List<StringID> missingDataIDs = dataProvider.LoadDataDictionary(
+        public override void Run(DataLoadingContext context)
+        {
+            IEnumerable<StringID> blockIDs = from block in BuiltinRegistries.BLOCK select block.ID;
+
+            List<StringID> missingDataIDs = context.dataProvider.LoadDataDictionary(
                 BlockStateCollisionData.DataRegistry,
                 blockIDs, BlockStateCollisionData.DataReader,
-                out Dictionary<StringID, BlockStateCollisionData>? dataDictionary);
+                out Dictionary<StringID, BlockStateCollisionData>? idToBlockStateCollisionData);
 
-            consumeResult(dataDictionary, missingDataIDs);
+            foreach (StringID id in missingDataIDs)
+            {
+                StringBuilder builder = StringUtil.StringBuilder;
+                builder.Append("missing blockstate collision data : \"").Append(id).Append("\"");
+                LogUtil.Logger.Warning(builder.ToString());
+            }
+
+            context.AddDataResult(LoaderID, idToBlockStateCollisionData);
         }
 
-        public BlockStateCollisionDataLoader(IEnumerable<Block> blocks, Action<Dictionary<StringID, BlockStateCollisionData>, List<StringID>> resultConsumer)
+        public BlockStateCollisionDataLoader()
+            : base(LoaderID, false)
         {
-            this.blocks = blocks;
-            consumeResult = resultConsumer;
         }
-
-        private readonly IEnumerable<Block> blocks;
-
-        private readonly Action<Dictionary<StringID, BlockStateCollisionData>, List<StringID>> consumeResult;
     }
 }

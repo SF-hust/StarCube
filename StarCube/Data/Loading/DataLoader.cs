@@ -1,28 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using StarCube.Utility;
 
 namespace StarCube.Data.Loading
 {
-    public abstract class DataLoader
+    public abstract class DataLoader : IStringID
     {
         public abstract void Run(DataLoadingContext context);
 
         public IEnumerable<StringID> Follows => follows;
         public IEnumerable<StringID> Followers => followers;
 
-        public DataLoader(StringID id)
+        StringID IStringID.ID => id;
+
+        public DataLoader(StringID id, bool reloadable)
         {
             this.id = id;
-            follows = Array.Empty<StringID>();
-            followers = Array.Empty<StringID>();
+            this.reloadable = reloadable;
+            follows = new List<StringID>();
+            followers = new List<StringID>();
         }
 
         public readonly StringID id;
 
-        protected StringID[] follows;
+        public readonly bool reloadable;
 
-        protected StringID[] followers;
+        protected List<StringID> follows;
+
+        protected List<StringID> followers;
     }
 }

@@ -6,7 +6,6 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 using StarCube.Utility.Enums;
-using StarCube.Utility.Physics;
 using StarCube.Data.Loading;
 
 namespace StarCube.Core.Collision.Data

@@ -2,7 +2,7 @@
 
 using StarCube.Utility.Enums;
 
-namespace StarCube.Utility.Physics
+namespace StarCube.Core.Collision
 {
     public struct CapsuleColliderData
     {

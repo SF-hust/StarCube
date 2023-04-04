@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace StarCube.Utility.Physics
+namespace StarCube.Core.Collision
 {
     public struct SphereColliderData
     {
