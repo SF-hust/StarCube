@@ -3,10 +3,11 @@ using StarCube.Utility.Enums;
 using StarCube.Bootstrap.Attributes;
 using StarCube.Core.States.Property;
 using StarCube.Game.Blocks.Enums;
+using StarCube.Game.Blocks.StateProperties;
 
+[assembly: BootstrapClass(typeof(BlockStateProperties))]
 namespace StarCube.Game.Blocks.StateProperties
 {
-    [BootstrapClass]
     public static class BlockStateProperties
     {
         public static readonly EnumStateProperty<Axis> AXIS_XYZ = EnumStateProperty<Axis>.Create(StringID.Create(Constants.DEFAULT_NAMESPACE, "axis_xyz"), new Axis[3] { Axis.X, Axis.Y, Axis.Z });

@@ -2,10 +2,11 @@
 using StarCube.Bootstrap.Attributes;
 
 using StarCube.Core.Registries;
+using StarCube.Game.Items;
 
+[assembly: BootstrapClass(typeof(BuiltinItems))]
 namespace StarCube.Game.Items
 {
-    [BootstrapClass]
     public class BuiltinItems
     {
         public static Item Air = new Item(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"));

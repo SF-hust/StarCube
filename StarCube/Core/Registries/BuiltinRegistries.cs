@@ -5,7 +5,9 @@ using StarCube.Game.Blocks;
 using StarCube.Game.Items;
 using StarCube.Game.BlockEntities;
 using StarCube.Game.Entities;
+using StarCube.Core.Registries;
 
+[assembly: BootstrapClass(typeof(BuiltinRegistries))]
 namespace StarCube.Core.Registries
 {
     /// <summary>
@@ -16,7 +18,6 @@ namespace StarCube.Core.Registries
     /// 2. mod 读取完成后：获取所有 mod 自定义 Registry，将其加入到 RootRegistry 中
     /// 3. 为所有 Registry 发射注册事件，构造每个 RegistryEntry 实例并加入到 Registry 中
     /// 4. 对每个 RegistryEntry 执行构建，填充其字段，使其功能完整
-    [BootstrapClass]
     public static class BuiltinRegistries
     {
         public static readonly RootRegistry Root = new RootRegistry();

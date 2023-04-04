@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -10,23 +11,19 @@ namespace StarCube.Bootstrap
     {
         public static void InitCore()
         {
-            EnsureConstructClassesInAssembly(Assembly.GetExecutingAssembly());
+            BootstrapAssembly(Assembly.GetAssembly(typeof(CoreBootstrap)));
         }
 
-        public static void EnsureConstructClass(Type type)
+        public static void BootstrapAssembly(Assembly assembly)
         {
-            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-        }
-
-        public static void EnsureConstructClassesInAssembly(Assembly assembly)
-        {
-            foreach (Type type in assembly.GetTypes())
+            foreach (BootstrapClassAttribute attr in assembly.GetCustomAttributes<BootstrapClassAttribute>())
             {
-                if (type.GetCustomAttribute(typeof(BootstrapClassAttribute)) == null)
-                {
-                    continue;
-                }
-                EnsureConstructClass(type);
+                RuntimeHelpers.RunClassConstructor(attr.type.TypeHandle);
+            }
+
+            foreach (BootstrapActionAttribute attr in assembly.GetCustomAttributes<BootstrapActionAttribute>())
+            {
+                attr.action.Invoke();
             }
         }
     }
