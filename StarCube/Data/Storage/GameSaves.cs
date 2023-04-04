@@ -52,14 +52,14 @@ namespace StarCube.Data.Storage
             return true;
         }
 
-        private string GetFullPath(string path)
+        private string GetFullPath(string relativePath)
         {
-            if (relativeToFullPath.TryGetValue(path, out string fullPath))
+            if (relativeToFullPath.TryGetValue(relativePath, out string fullPath))
             {
                 return fullPath;
             }
 
-            fullPath = Path.Combine(directoryPath, path.Replace('/', Path.PathSeparator));
+            fullPath = Path.Combine(directoryPath, relativePath.Replace('/', Path.PathSeparator));
             return fullPath;
         }
 
