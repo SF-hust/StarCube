@@ -7,7 +7,6 @@ using StarCube.Core.Registries;
 
 namespace StarCube.Game.Blocks.Components
 {
-    [ComponentType]
     public abstract class RandomTickComponent : Component<Block>
     {
         public static readonly StringID ComponentTypeID = StringID.Create(Constants.DEFAULT_NAMESPACE, "random_tick");

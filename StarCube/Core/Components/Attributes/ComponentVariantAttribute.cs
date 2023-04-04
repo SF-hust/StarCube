@@ -2,8 +2,14 @@
 
 namespace StarCube.Core.Components.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class ComponentVariantAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public sealed class ComponentVariantAttribute : Attribute
     {
+        public ComponentVariantAttribute(Type type)
+        {
+            this.type = type;
+        }
+
+        public Type type;
     }
 }

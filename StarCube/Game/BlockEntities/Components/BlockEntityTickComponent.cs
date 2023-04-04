@@ -5,7 +5,6 @@ using StarCube.Core.Registries;
 
 namespace StarCube.Game.BlockEntities.Components
 {
-    [ComponentType]
     public abstract class BlockEntityTickComponent :
         Component<BlockEntity>
     {

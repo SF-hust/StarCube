@@ -11,8 +11,6 @@ using StarCube.Core.Registries;
 
 namespace StarCube.Game.Entities.Components
 {
-    [ComponentType]
-    [ComponentVariant]
     public sealed class TransformComponent : Component<Entity>
     {
         public static readonly StringID ComponentID = StringID.Create(Constants.DEFAULT_NAMESPACE, "transform");

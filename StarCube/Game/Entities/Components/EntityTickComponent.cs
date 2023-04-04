@@ -2,10 +2,10 @@
 using StarCube.Core.Components;
 using StarCube.Core.Components.Attributes;
 using StarCube.Core.Registries;
+using StarCube.Game.Entities.Components;
 
 namespace StarCube.Game.Entities.Components
 {
-    [ComponentType]
     public abstract class EntityTickComponent : Component<Entity>
     {
         public static readonly StringID ComponentTypeID = StringID.Create(Constants.DEFAULT_NAMESPACE, "tick");
