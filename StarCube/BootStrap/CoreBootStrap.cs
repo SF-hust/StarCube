@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using StarCube.Bootstrap.Attributes;
@@ -19,11 +17,6 @@ namespace StarCube.Bootstrap
             foreach (BootstrapClassAttribute attr in assembly.GetCustomAttributes<BootstrapClassAttribute>())
             {
                 RuntimeHelpers.RunClassConstructor(attr.type.TypeHandle);
-            }
-
-            foreach (BootstrapActionAttribute attr in assembly.GetCustomAttributes<BootstrapActionAttribute>())
-            {
-                attr.action.Invoke();
             }
         }
     }
