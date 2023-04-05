@@ -8,6 +8,7 @@ using StarCube.Data.Loading;
 using StarCube.Data.Loading.Attributes;
 using StarCube.Data.Provider;
 using StarCube.Core.Registries;
+using StarCube.Core.Registries.Data;
 using StarCube.Game.Blocks.Data;
 
 [assembly: RegisterDataLoader(typeof(BlockStateCollisionDataLoader))]
@@ -15,7 +16,7 @@ namespace StarCube.Game.Blocks.Data
 {
     public class BlockStateCollisionDataLoader : DataLoader
     {
-        public static readonly StringID LoaderID = BlockStateCollisionData.DataRegistry;
+        public static readonly StringID ID = BlockStateCollisionData.DataRegistry;
 
         public override void Run(DataLoadingContext context)
         {
@@ -33,12 +34,14 @@ namespace StarCube.Game.Blocks.Data
                 LogUtil.Logger.Warning(builder.ToString());
             }
 
-            context.AddDataResult(LoaderID, idToBlockStateCollisionData);
+            context.AddDataResult(ID, idToBlockStateCollisionData);
         }
 
         public BlockStateCollisionDataLoader()
-            : base(LoaderID, false)
+            : base(ID, false)
         {
+            dependencies.Add(BlockRegistryDataLoader.ID);
+            dependencies.Add(RegistryLoader.ID);
         }
     }
 }

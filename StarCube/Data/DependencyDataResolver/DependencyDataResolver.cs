@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using StarCube.Utility;
 
-namespace StarCube.Data.DependencyResolver
+namespace StarCube.Data.DependencyDataResolver
 {
     public class DependencyDataResolver<UD, RD>
         where UD : class, IUnresolvedData<UD>

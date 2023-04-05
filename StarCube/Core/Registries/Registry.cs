@@ -133,7 +133,7 @@ namespace StarCube.Core.Registries
             entry.IntegerID = integerID;
 
             entries.Add(entry);
-            stringIDToIntegerID.Add(id, integerID);
+            stringIDToIntegerID.Add(entry.ID, integerID);
 
             LogUtil.Logger.Info($"new entry \"{entry.ID}\" added to registry \"{id}\"");
 

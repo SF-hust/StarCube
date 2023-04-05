@@ -2,9 +2,10 @@
 
 using StarCube.Utility;
 using StarCube.Data.Loading;
+using StarCube.Data.Loading.Attributes;
 using StarCube.Data.Provider;
 using StarCube.Core.Registries;
-using StarCube.Data.Loading.Attributes;
+using StarCube.Core.Registries.Data;
 using StarCube.Game.Blocks.Data;
 
 [assembly: RegisterDataLoader(typeof(BlockRegistryDataLoader))]
@@ -12,7 +13,7 @@ namespace StarCube.Game.Blocks.Data
 {
     public class BlockRegistryDataLoader : DataLoader
     {
-        public readonly static StringID LoaderID = BlockRegistryData.DataRegistry;
+        public readonly static StringID ID = BlockRegistryData.DataRegistry;
 
         public override void Run(DataLoadingContext context)
         {
@@ -29,8 +30,9 @@ namespace StarCube.Game.Blocks.Data
             }
         }
 
-        public BlockRegistryDataLoader() : base(LoaderID, false)
+        public BlockRegistryDataLoader() : base(ID, false)
         {
+            followers.Add(RegistryLoader.ID);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace StarCube.Game.Blocks.Data
         /// <returns></returns>
         public static BlockStateCollisionData CreateSolid(StringID id)
         {
-            KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry> pair = 
+            KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry> pair =
                 new KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>(BlockStatePropertyMatcher.ANY, CollisionDataEntry.SOLID);
             return new BlockStateCollisionData(id, false, new List<KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry>> { pair });
         }
@@ -43,7 +43,7 @@ namespace StarCube.Game.Blocks.Data
             {
                 multipart = false;
             }
-            else if(json.TryGetArray("multiparts", out matcherToEntryArray))
+            else if (json.TryGetArray("multiparts", out matcherToEntryArray))
             {
                 multipart = true;
             }
@@ -56,11 +56,11 @@ namespace StarCube.Game.Blocks.Data
             }
 
             // 按顺序遍历解析出所有匹配规则与其对应的值
-            if(matcherToEntryArray != null)
+            if (matcherToEntryArray != null)
             {
                 foreach (JToken token in matcherToEntryArray)
                 {
-                    if ((token is JObject matcherToEntryObject) == false)
+                    if (token is JObject matcherToEntryObject == false)
                     {
                         return false;
                     }
@@ -102,7 +102,7 @@ namespace StarCube.Game.Blocks.Data
 
             public static CollisionDataEntry ParseFromJson(JObject json)
             {
-                if(!json.TryGetStringID("collision", out StringID collisionID))
+                if (!json.TryGetStringID("collision", out StringID collisionID))
                 {
                     collisionID = CollisionData.AIR_COLLISION_ID;
                 }
@@ -156,7 +156,7 @@ namespace StarCube.Game.Blocks.Data
 
             foreach (KeyValuePair<BlockStatePropertyMatcher, CollisionDataEntry> pair in matcherToEntry)
             {
-                if(pair.Key.Match(blockState))
+                if (pair.Key.Match(blockState))
                 {
                     matchingEntries.Add(pair.Value);
                     // 如果没有 multipart 标记则停止匹配

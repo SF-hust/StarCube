@@ -30,6 +30,7 @@ namespace StarCube.Utility.Functions
                         continue;
                     }
 
+                    resolvedCount++;
                     resolvedList.Add(value);
                     toRemoveList.Add(idGetter(value));
                 }

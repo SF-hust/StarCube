@@ -95,6 +95,13 @@ namespace StarCube.Game.Blocks.Data
             return true;
         }
 
+        public BlockRegistryDataEntry(string name)
+        {
+            this.name = name;
+            properties = BlockProperties.Default;
+            stateDefinition = new List<StatePropertyEntry>();
+        }
+
         public BlockRegistryDataEntry(string name, in BlockProperties properties, List<StatePropertyEntry> stateDefinition)
         {
             this.name = name;
@@ -127,6 +134,11 @@ namespace StarCube.Game.Blocks.Data
             {
                 foreach (JToken token in entryArray)
                 {
+                    if (token.ToStringValue(out string name))
+                    {
+                        entries.Add(new BlockRegistryDataEntry(name));
+                        continue;
+                    }
                     if (token is JObject entryObject && BlockRegistryDataEntry.TryParseFromJson(entryObject, out BlockRegistryDataEntry entry))
                     {
                         entries.Add(entry);

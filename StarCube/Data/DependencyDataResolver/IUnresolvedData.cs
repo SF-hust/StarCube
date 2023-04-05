@@ -2,7 +2,7 @@
 
 using StarCube.Utility;
 
-namespace StarCube.Data.DependencyResolver
+namespace StarCube.Data.DependencyDataResolver
 {
     /// <summary>
     /// 表示一份尚未解析依赖关系的数据

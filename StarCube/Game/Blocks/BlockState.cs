@@ -19,7 +19,7 @@ namespace StarCube.Game.Blocks
             return new BlockState(block, properties);
         }
 
-        public static void GatherBlockStates()
+        public static void BuildGlobalBlockStateIDMap()
         {
             int i = 0;
             IntegerIDMap<BlockState> blockStates = new IntegerIDMap<BlockState>();

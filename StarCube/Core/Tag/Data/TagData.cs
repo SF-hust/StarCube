@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 using StarCube.Utility;
 using StarCube.Data.Loading;
-using StarCube.Data.DependencyResolver;
+using StarCube.Data.DependencyDataResolver;
 
 namespace StarCube.Core.Tag.Data
 {

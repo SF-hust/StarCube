@@ -9,17 +9,18 @@ using StarCube.Data.Loading.Attributes;
 using StarCube.Data.Provider;
 using StarCube.Core.Collision.Data;
 using StarCube.Game.Blocks.Data;
+using StarCube.Game.Blocks.Collision.Data;
 
 [assembly: RegisterDataLoader(typeof(BlockCollisionDataLoader))]
-namespace StarCube.Game.Blocks.Data
+namespace StarCube.Game.Blocks.Collision.Data
 {
     public class BlockCollisionDataLoader : DataLoader
     {
-        public static readonly StringID LoaderID = StringID.Create(Constants.DEFAULT_NAMESPACE, "collision/block");
+        public static readonly StringID ID = StringID.Create(Constants.DEFAULT_NAMESPACE, "collision/block");
 
         public override void Run(DataLoadingContext context)
         {
-            if(!context.TryGetDataResult(BlockStateCollisionData.DataRegistry, out Dictionary<StringID, BlockStateCollisionData>? idToBlockStateCollisionData))
+            if (!context.TryGetDataResult(BlockStateCollisionData.DataRegistry, out Dictionary<StringID, BlockStateCollisionData>? idToBlockStateCollisionData))
             {
                 throw new InvalidOperationException();
             }
@@ -43,12 +44,12 @@ namespace StarCube.Game.Blocks.Data
                 LogUtil.Logger.Warning(builder.ToString());
             }
 
-            context.AddDataResult(LoaderID, idToBlockCollisionData);
+            context.AddDataResult(ID, idToBlockCollisionData);
         }
 
-        public BlockCollisionDataLoader() : base(LoaderID, false)
+        public BlockCollisionDataLoader() : base(ID, false)
         {
-            follows.Add(BlockStateCollisionDataLoader.LoaderID);
+            dependencies.Add(BlockStateCollisionDataLoader.ID);
         }
     }
 }

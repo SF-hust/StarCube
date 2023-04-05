@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-using StarCube.Data.DependencyResolver;
+using StarCube.Data.DependencyDataResolver;
 
 namespace StarCube.Core.Components.Data
 {

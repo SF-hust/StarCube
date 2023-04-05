@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility;
-using StarCube.Data.DependencyResolver;
+using StarCube.Data.DependencyDataResolver;
 
 namespace StarCube.Core.Tag.Data
 {

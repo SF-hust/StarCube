@@ -4,7 +4,7 @@ using System.IO;
 
 using StarCube.Utility;
 using StarCube.Data.Loading;
-using StarCube.Data.DependencyResolver;
+using StarCube.Data.DependencyDataResolver;
 
 namespace StarCube.Data.Provider
 {
