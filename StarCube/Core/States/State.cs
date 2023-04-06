@@ -119,8 +119,8 @@ namespace StarCube.Core.States
         {
             this.owner = owner;
             this.propertyList = propertyList;
-            constructed = (propertyList == null);
-            hashcodeCache = 31 * owner.GetHashCode() + (propertyList == null ? 0 : propertyList.GetHashCode());
+            constructed = propertyList.Count == 0;
+            hashcodeCache = HashCode.Combine(propertyList, owner);
         }
 
         /// <summary>

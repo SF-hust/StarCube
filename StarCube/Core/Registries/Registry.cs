@@ -171,7 +171,7 @@ namespace StarCube.Core.Registries
         /// </summary>
         public event EventHandler<EventArgs>? OnEntryAddEvent;
 
-        public StringID ID => id;
+        StringID IStringID.ID => id;
 
         /* ~ IRegistry 接口实现 start ~ */
         Type IRegistry.EntryType => typeof(T);
@@ -225,7 +225,15 @@ namespace StarCube.Core.Registries
         }
         /* IEnumrable<T> 接口实现 end */
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(id, typeof(T));
+        }
 
+        public override string ToString()
+        {
+            return id.ToString();
+        }
 
         public Registry(StringID id)
         {
@@ -235,7 +243,7 @@ namespace StarCube.Core.Registries
             locked = true;
         }
 
-        private readonly StringID id;
+        public readonly StringID id;
 
         private readonly List<T> entries;
 

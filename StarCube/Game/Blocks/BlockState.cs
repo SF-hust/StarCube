@@ -5,6 +5,7 @@ using StarCube.Utility.Container;
 using StarCube.Core.States;
 using StarCube.Core.States.Property;
 using StarCube.Core.Registries;
+using System.Text;
 
 namespace StarCube.Game.Blocks
 {
@@ -44,9 +45,16 @@ namespace StarCube.Game.Blocks
             this.integerID = integerID;
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Block, propertyList);
+        }
+
         public override string ToString()
         {
-            return Block.ToString() + " " + integerID.ToString();
+            StringBuilder builder = StringUtil.StringBuilder;
+            builder.Append(Block.ID).Append('[').Append(integerID).Append(']');
+            return builder.ToString();
         }
 
         private BlockState(Block block, StatePropertyList properties)

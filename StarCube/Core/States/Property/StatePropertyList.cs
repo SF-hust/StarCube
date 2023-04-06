@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
+using StarCube.Utility;
 
 namespace StarCube.Core.States.Property
 {
@@ -132,11 +134,6 @@ namespace StarCube.Core.States.Property
             return propertyEntries[i].valueIndex;
         }
 
-        public override int GetHashCode()
-        {
-            return packedProperties;
-        }
-
         private static void CalculatePackedPropertiesAndBitCount(ImmutableArray<StatePropertyEntry> propertyEntries, out int packed, out int bitCount)
         {
             packed = 0;
@@ -160,6 +157,23 @@ namespace StarCube.Core.States.Property
             return GetEnumerator();
         }
         /* ~ IEnumerable<StatePropertyEntry> 接口实现 end ~ */
+
+        public override int GetHashCode()
+        {
+            return packedProperties;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = StringUtil.StringBuilder;
+            foreach (StatePropertyEntry entry in propertyEntries)
+            {
+                builder.Append('\"').Append(entry.name).Append("\" : ")
+                    .Append(entry.property.IndexToString(entry.valueIndex)).Append(", ");
+            }
+            builder.Length = Math.Max(0, builder.Length - 2);
+            return builder.ToString();
+        }
 
         private StatePropertyList(ImmutableArray<StatePropertyEntry> propertyEntries)
         {

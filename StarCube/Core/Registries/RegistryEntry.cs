@@ -43,6 +43,15 @@ namespace StarCube.Core.Registries
         Type IRegistryEntry.EntryType => typeof(T);
         /* ~ IRegistryEntry 接口实现 end ~ */
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(id, registry);
+        }
+
+        public override string ToString()
+        {
+            return id.ToString();
+        }
 
         public RegistryEntry(Registry<T> registry, StringID id)
         {
