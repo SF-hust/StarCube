@@ -54,8 +54,6 @@ namespace StarCube.Game.Levels.Chunks.Source
         {
             this.level = level;
 
-            this.bound = bound;
-
             this.generator = generator;
             this.storage = storage;
 
@@ -63,8 +61,6 @@ namespace StarCube.Game.Levels.Chunks.Source
         }
 
         public readonly ServerLevel level;
-
-        private readonly ILevelBound bound;
 
         private readonly ILevelGenerator generator;
         private readonly LevelDataStorage storage;

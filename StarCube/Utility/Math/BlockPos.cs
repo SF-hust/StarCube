@@ -24,15 +24,19 @@ namespace StarCube.Utility.Math
             this.z = z;
         }
 
+        /// <summary>
+        /// 只对 chunk 中的相对方块坐标有效
+        /// </summary>
+        public int ToIndex() => (y << 8) + (z << 4) + x;
 
         public Vector3i ToVector3i => new Vector3i(x, y, z);
 
+        public BlockPos North => new BlockPos(x, y, z + 1);
+        public BlockPos South => new BlockPos(x, y, z - 1);
+        public BlockPos East => new BlockPos(x + 1, y, z);
+        public BlockPos West => new BlockPos(x - 1, y, z);
         public BlockPos Up => new BlockPos(x, y + 1, z);
         public BlockPos Down => new BlockPos(x, y - 1, z);
-        public BlockPos North => new BlockPos(x, y, z + 1);
-        public BlockPos East => new BlockPos(x + 1, y, z);
-        public BlockPos South => new BlockPos(x, y, z - 1);
-        public BlockPos West => new BlockPos(x - 1, y, z);
 
         public override int GetHashCode()
         {

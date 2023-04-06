@@ -26,6 +26,8 @@ namespace StarCube.Utility.Math
             this.z = z;
         }
 
+        public int ToIndex() => (y << 8) + (z << 4) + x;
+
         public Vector3i ToVector3i => new Vector3i(x, y, z);
 
         public ChunkPos SetX(int newX) => new ChunkPos(newX, y, z);
