@@ -2,13 +2,12 @@
 
 using StarCube.Utility.Math;
 using StarCube.Core.Components;
-using StarCube.Core.Components.Attributes;
 using StarCube.Game.Blocks;
 using StarCube.Game.Blocks.Components;
 using StarCube.Game.Levels;
 using StarCube.Game.Blocks.StateProperties;
 
-namespace Coremod.Game.Blocks.Components
+namespace StarCube.Coremod.Game.Blocks.Components
 {
     public sealed class FenceBlockUpdateComponent : BlockUpdateComponent
     {

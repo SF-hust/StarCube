@@ -1,20 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 
 namespace StarCube.Mod
 {
-    public class ModInfo
+    public sealed class ModInfo
     {
-        internal ModInfo(string modid, string path, List<string> dependencies)
+        internal ModInfo(string modid, string path, string description, ImmutableArray<string> dependencies, ImmutableArray<string> followers)
         {
             this.modid = modid;
             this.path = path;
+            this.description = description;
             this.dependencies = dependencies;
+            this.followers = followers;
         }
 
         public readonly string modid;
 
         public readonly string path;
 
-        public readonly List<string> dependencies;
+        public readonly string description;
+
+        public readonly ImmutableArray<string> dependencies;
+
+        public readonly ImmutableArray<string> followers;
     }
 }

@@ -2,9 +2,9 @@
 using StarCube.Mod;
 using StarCube.Mod.Attributes;
 
-namespace Coremod
+[assembly: RegisterMod(Constants.DEFAULT_NAMESPACE, typeof(StarCube.Coremod.Coremod))]
+namespace StarCube.Coremod
 {
-    [Mod(Constants.DEFAULT_NAMESPACE)]
     public class Coremod : IMod
     {
     }

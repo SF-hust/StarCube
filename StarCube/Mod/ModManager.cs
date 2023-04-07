@@ -1,102 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-
-using StarCube.Utility;
-using StarCube.Mod.Attributes;
 
 namespace StarCube.Mod
 {
     public class ModManager
     {
-        private static readonly ModManager instance = new ModManager();
+        private static ModManager? instance = null;
 
-        public static ModManager Instance => instance;
+        public static ModManager Instance => instance ?? throw new NullReferenceException();
 
-        private readonly Dictionary<string, ModInfo> mods = new Dictionary<string, ModInfo>();
-
-        private ModManager()
+        public static void LoadMods(string modDirectoryPath)
         {
+            ModLoader modLoader = new ModLoader(modDirectoryPath);
+            if(!modLoader.TryLoadMods(out ImmutableArray<ModInstance> modList))
+            {
+                throw new Exception();
+            }
+
+            instance = new ModManager(modList);
         }
 
-        public void LoadMods(string modDirectoryPath)
+        private static bool TryLoadInactiveModList(string modDirectoryPath, out List<string> inactiveModids)
         {
-            foreach (string modPath in Directory.EnumerateDirectories(modDirectoryPath))
+            inactiveModids = new List<string>();
+            return false;
+        }
+
+        private ModManager(ImmutableArray<ModInstance> modList)
+        {
+            this.modList = modList;
+            modidToInstance = new Dictionary<string, ModInstance>();
+            foreach (ModInstance mod in modList)
             {
-                LoadMod(modPath);
+                modidToInstance.Add(mod.modData.modid, mod);
             }
         }
 
-        private bool LoadMod(string modPath)
-        {
-            string modAssemblyDirectory = Path.Combine(modPath, "/assembly/");
-            List<string> modAssemblyPaths = new List<string>();
-            foreach (string modAssemblyPath in Directory.EnumerateFiles(modAssemblyDirectory))
-            {
-                if (string.Equals(Path.GetExtension(modAssemblyPath), ".dll", StringComparison.OrdinalIgnoreCase))
-                {
-                    modAssemblyPaths.Add(modAssemblyPath);
-                }
-            }
-            if (modAssemblyPaths.Count != 1)
-            {
-                throw new Exception($"only 1 .dll file can be in /[mod]/assembly/ directory (directory = \"{modAssemblyDirectory}\")");
-            }
+        public readonly ImmutableArray<ModInstance> modList;
 
-            Assembly assembly = Assembly.LoadFrom(modAssemblyPaths[0]);
-            bool isModFound = false;
-            string modid = string.Empty;
-            IMod? foundMod = null;
-            foreach (Type type in assembly.ExportedTypes)
-            {
-                ModAttribute modAttribute = type.GetCustomAttribute<ModAttribute>();
-                if (modAttribute == null)
-                {
-                    continue;
-                }
-
-                if (isModFound)
-                {
-                    throw new Exception($"there are more than 1 class with ModAttribute defined in mod(directory = \"{modPath}\")");
-                }
-                if (!type.IsSubclassOf(typeof(IMod)))
-                {
-                    throw new Exception($"type \"{type.FullName}\" with ModAttribute does not implement IMod inteface");
-                }
-                if (!type.IsClass || type.IsGenericType || type.IsAbstract)
-                {
-                    throw new Exception($"type \"{type.FullName}\" with ModAttribute must be a non-generic and non-abstract public class");
-                }
-
-                modid = modAttribute.modid;
-                if (!StringID.IsValidModid(modAttribute.modid))
-                {
-                    throw new Exception($"modid \"{modid}\" is invalid");
-                }
-
-                List<ConstructorInfo> constructors = type.GetConstructors().ToList();
-                if (constructors.Count != 1 || constructors[0].GetParameters().Length > 0)
-                {
-                    throw new Exception($"there is only 1 constructor with 0 parameter can be in a mod class (modid = \"{modid}\")");
-                }
-
-                foundMod = (IMod)constructors[0].Invoke(null);
-                if (foundMod == null)
-                {
-                    throw new Exception($"fail to construct mod instance (modid = \"{modid}\")");
-                }
-
-                isModFound = true;
-            }
-            if (isModFound == false || foundMod == null)
-            {
-                throw new Exception($"no mod class found (assembly = \"{assembly.GetName()}\")");
-            }
-
-            return true;
-        }
+        private readonly Dictionary<string, ModInstance> modidToInstance;
     }
 }
