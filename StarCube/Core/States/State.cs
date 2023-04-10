@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics;
 
 using StarCube.Core.States.Property;
 
@@ -17,39 +16,27 @@ namespace StarCube.Core.States
         where S : State<O, S>
     {
         /// <summary>
-        /// 一个可以根据 owner 和 propertyList 创建相应 State 的工厂委托
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="properties"></param>
-        /// <returns></returns>
-        public delegate S Factory(O owner, StatePropertyList properties);
-
-
-
-        /// <summary>
         /// 此 State 是否是其 Owner 的唯一 State
         /// </summary>
-        public bool IsSingle => propertyList == null;
+        public bool Single => propertyList == null;
 
-        public ImmutableDictionary<StateProperty, ImmutableArray<S>> Neighbours => neighbours!;
+        public ImmutableDictionary<StateProperty, ImmutableArray<S>> Neighbours => neighbours ?? throw new NullReferenceException();
 
-        public ImmutableDictionary<StateProperty, S> Followers => followers!;
+        public ImmutableDictionary<StateProperty, S> Followers => followers ?? throw new NullReferenceException();
 
 
         /// <summary>
-        /// 为 StateHolder 设置 neighbours 和 followers
+        /// 为 State 设置 neighbours 和 followers
         /// </summary>
         /// <param name="neighbours"></param>
         /// <param name="followers"></param>
         /// <exception cref="InvalidOperationException"></exception>
         internal void SetNeighboursAndFollowers(ImmutableDictionary<StateProperty, ImmutableArray<S>> neighbours, ImmutableDictionary<StateProperty, S> followers)
         {
-            if (constructed)
+            if (propertyList.Count == 0 || this.neighbours != null || this.followers != null)
             {
-                throw new InvalidOperationException("can't set neighbours and followers for a StateHolder twice");
+                throw new InvalidOperationException("can't set neighbours and followers for a State twice, or this State is single");
             }
-            Debug.Assert(neighbours != null && followers != null);
-            constructed = true;
             this.neighbours = neighbours;
             this.followers = followers;
         }
@@ -115,12 +102,12 @@ namespace StarCube.Core.States
             return hashcodeCache;
         }
 
-        public State(O owner, StatePropertyList propertyList)
+        public State(O owner, StatePropertyList propertyList, int localID)
         {
             this.owner = owner;
             this.propertyList = propertyList;
-            constructed = propertyList.Count == 0;
             hashcodeCache = HashCode.Combine(propertyList, owner);
+            this.localID = localID;
         }
 
         /// <summary>
@@ -136,11 +123,8 @@ namespace StarCube.Core.States
         private ImmutableDictionary<StateProperty, ImmutableArray<S>>? neighbours = null;
         private ImmutableDictionary<StateProperty, S>? followers = null;
 
-        private readonly int hashcodeCache;
+        public readonly int localID;
 
-        /// <summary>
-        /// 指示 State 是否已经构造完成
-        /// </summary>
-        private bool constructed;
+        private readonly int hashcodeCache;
     }
 }

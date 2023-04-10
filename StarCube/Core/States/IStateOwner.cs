@@ -30,7 +30,7 @@ namespace StarCube.Core.States
             where O : class, IStateOwner<O, S>
             where S : State<O, S>
         {
-            return owner.StateDefinition.singleState;
+            return owner.StateDefinition.SingleState;
         }
 
         public static S DefaultState<O, S>(this IStateOwner<O, S> owner)

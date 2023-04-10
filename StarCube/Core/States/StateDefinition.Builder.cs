@@ -10,16 +10,16 @@ namespace StarCube.Core.States
         where O : class, IStateOwner<O, S>
         where S : State<O, S>
     {
-        public static StateDefinition<O, S> BuildSingle(O owner, State<O, S>.Factory factory)
+        public static StateDefinition<O, S> BuildSingle(O owner, Func<O, StatePropertyList, int, S> factory)
         {
             List<S> states;
             states = new List<S>(1);
-            S state = factory(owner, StatePropertyList.EMPTY);
+            S state = factory(owner, StatePropertyList.EMPTY, 0);
             states.Add(state);
             return new StateDefinition<O, S>(owner, states.ToImmutableArray(), state);
         }
 
-        public static StateDefinition<O, S> BuildFromPropertyEntryList(O owner, State<O, S>.Factory factory, List<StatePropertyEntry> entries)
+        public static StateDefinition<O, S> BuildFromPropertyEntryList(O owner, Func<O, StatePropertyList, int, S> factory, List<StatePropertyEntry> entries)
         {
             Builder builder = Builder.Create(owner, factory);
             foreach (var entry in entries)
@@ -33,12 +33,12 @@ namespace StarCube.Core.States
         {
             private readonly O owner;
             private readonly List<StatePropertyEntry> propertyEntries = new List<StatePropertyEntry>();
-            private readonly State<O, S>.Factory stateFactory;
+            private readonly Func<O, StatePropertyList, int, S> createState;
 
-            public Builder(O owner, State<O, S>.Factory factory)
+            public Builder(O owner, Func<O, StatePropertyList, int, S> factory)
             {
                 this.owner = owner;
-                stateFactory = factory;
+                createState = factory;
             }
 
             /// <summary>
@@ -47,7 +47,7 @@ namespace StarCube.Core.States
             /// <param name="owner">State 的所有者</param>
             /// <param name="factory">创建 State 的工厂方法</param>
             /// <returns></returns>
-            public static Builder Create(O owner, State<O, S>.Factory factory)
+            public static Builder Create(O owner, Func<O, StatePropertyList, int, S> factory)
             {
                 return new Builder(owner, factory);
             }
@@ -120,7 +120,7 @@ namespace StarCube.Core.States
                 // 如果无属性定义，只有一个状态，直接构造返回
                 if (propertyEntries.Count == 0)
                 {
-                    return BuildSingle(owner, stateFactory);
+                    return BuildSingle(owner, createState);
                 }
 
                 // 计算 :
@@ -170,7 +170,7 @@ namespace StarCube.Core.States
                 propertyListBuilder.StartBuild();
                 for (int i = 0; i < stateCount; ++i)
                 {
-                    S state = stateFactory(owner, propertyListBuilder.BuildNext());
+                    S state = createState(owner, propertyListBuilder.BuildNext(), i);
                     states.Add(state);
                 }
 

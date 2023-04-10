@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Text;
 
 using StarCube.Utility;
 using StarCube.Utility.Container;
 using StarCube.Core.States;
 using StarCube.Core.States.Property;
 using StarCube.Core.Registries;
-using System.Text;
 
 namespace StarCube.Game.Blocks
 {
@@ -15,9 +15,9 @@ namespace StarCube.Game.Blocks
 
         private static IIDMap<BlockState>? blockStates = null;
 
-        public static BlockState Create(Block block, StatePropertyList properties)
+        public static BlockState Create(Block block, StatePropertyList properties, int localID)
         {
-            return new BlockState(block, properties);
+            return new BlockState(block, properties, localID);
         }
 
         public static void BuildGlobalBlockStateIDMap()
@@ -57,8 +57,8 @@ namespace StarCube.Game.Blocks
             return builder.ToString();
         }
 
-        private BlockState(Block block, StatePropertyList properties)
-            : base(block, properties)
+        private BlockState(Block block, StatePropertyList properties, int localID)
+            : base(block, properties, localID)
         {
             integerID = -1;
         }
