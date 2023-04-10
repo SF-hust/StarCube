@@ -22,14 +22,9 @@ namespace StarCube.Game.Blocks
         /* ~ Block 属性 end ~ */
 
 
-        /* ~ IStateDefiner<Block, BlockState> 接口实现 start ~ */
-        public StateDefinition<Block, BlockState> StateDefinition
-        {
-            get => stateDefinition!;
-            set => stateDefinition ??= value;
-        }
-        private StateDefinition<Block, BlockState>? stateDefinition;
-        /* ~ IStateDefiner<Block, BlockState> 接口实现 end ~ */
+        /* ~ IStateOwner<Block, BlockState> 接口实现 start ~ */
+        public StateDefinition<Block, BlockState> StateDefinition => stateDefinition;
+        /* ~ IStateOwner<Block, BlockState> 接口实现 end ~ */
 
 
         /* ~ IComponentHolder<Block> 接口实现 start ~ */
@@ -48,11 +43,13 @@ namespace StarCube.Game.Blocks
             : base(BuiltinRegistries.BLOCK, id)
         {
             this.properties = properties;
-            components = new ComponentContainer<Block>(this);
             stateDefinition = StateDefinition<Block, BlockState>.BuildFromPropertyEntryList(this, BlockState.Create, entries);
+            components = new ComponentContainer<Block>(this);
         }
 
         private readonly BlockProperties properties;
+
+        private readonly StateDefinition<Block, BlockState> stateDefinition;
 
         private readonly ComponentContainer<Block> components;
     }
