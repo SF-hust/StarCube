@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StarCube.Mod.Attributes
+namespace StarCube.Mods.Attributes
 {
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class RegisterModAttribute : Attribute

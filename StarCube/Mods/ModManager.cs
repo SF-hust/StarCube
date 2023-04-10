@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace StarCube.Mod
+namespace StarCube.Mods
 {
     public class ModManager
     {
@@ -13,11 +13,7 @@ namespace StarCube.Mod
         public static void LoadMods(string modDirectoryPath)
         {
             ModLoader modLoader = new ModLoader(modDirectoryPath);
-            if(!modLoader.TryLoadMods(out ImmutableArray<ModInstance> modList))
-            {
-                throw new Exception();
-            }
-
+            ImmutableArray<ModInstance> modList = modLoader.LoadMods();
             instance = new ModManager(modList);
         }
 
@@ -33,7 +29,7 @@ namespace StarCube.Mod
             modidToInstance = new Dictionary<string, ModInstance>();
             foreach (ModInstance mod in modList)
             {
-                modidToInstance.Add(mod.modData.modid, mod);
+                modidToInstance.Add(mod.modInfo.modid, mod);
             }
         }
 

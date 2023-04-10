@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace StarCube.Mod
+namespace StarCube.Mods
 {
     public sealed class ModInfo
     {

@@ -1,11 +1,13 @@
 ﻿using StarCube.Utility;
-using StarCube.Mod;
-using StarCube.Mod.Attributes;
+using StarCube.Mods;
+using StarCube.Mods.Attributes;
 
-[assembly: RegisterMod(Constants.DEFAULT_NAMESPACE, typeof(StarCube.Coremod.Coremod))]
+using StarCube.Coremod;
+
+[assembly: RegisterMod(Constants.DEFAULT_NAMESPACE, typeof(Coremod))]
 namespace StarCube.Coremod
 {
-    public class Coremod : IMod
+    public class Coremod : Mod
     {
     }
 }
