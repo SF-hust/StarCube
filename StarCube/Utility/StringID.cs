@@ -53,10 +53,8 @@ namespace StarCube.Utility
                 throw new ArgumentException($"Fail to create ResourceLocation : name \"{name}\" is invalid");
             }
 
-            StringBuilder stringBuilder = StringUtil.StringBuilder;
-            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
-
-            return InternelCreate(stringBuilder.ToString(), modid.Length, modid, name);
+            string idString = CreateIDString(modid, name);
+            return InternelCreate(idString, modid.Length, modid, name);
         }
 
 
@@ -78,10 +76,8 @@ namespace StarCube.Utility
                 throw new ArgumentException($"Fail to create ResourceLocation : name \"{name.ToString()}\" is invalid");
             }
 
-            StringBuilder stringBuilder = StringUtil.StringBuilder;
-            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
-
-            return InternelCreate(stringBuilder.ToString(), modid.Length);
+            string idString = CreateIDString(modid, name);
+            return InternelCreate(idString, modid.Length);
         }
 
 
@@ -121,10 +117,8 @@ namespace StarCube.Utility
                 return false;
             }
 
-            StringBuilder stringBuilder = StringUtil.StringBuilder;
-            stringBuilder.Append(modid).Append(SEPARATOR_CHAR).Append(name);
-
-            id = InternelCreate(stringBuilder.ToString(), modid.Length);
+            string idString = CreateIDString(modid, name);
+            id = InternelCreate(idString, modid.Length);
             return true;
         }
 
@@ -193,6 +187,15 @@ namespace StarCube.Utility
             }
             id = Failed;
             return false;
+        }
+
+        private static unsafe string CreateIDString(ReadOnlySpan<char> modid, ReadOnlySpan<char> name)
+        {
+            Span<char> buffer = stackalloc char[modid.Length + name.Length + 1];
+            modid.CopyTo(buffer);
+            buffer[modid.Length] = SEPARATOR_CHAR;
+            name.CopyTo(buffer.Slice(modid.Length + 1, name.Length));
+            return buffer.ToString();
         }
 
         private static StringID InternelCreate(string idString, int separatorIndex, string? modid = null, string? name = null)
