@@ -189,7 +189,7 @@ namespace StarCube.Utility
             return false;
         }
 
-        private static unsafe string CreateIDString(ReadOnlySpan<char> modid, ReadOnlySpan<char> name)
+        private static string CreateIDString(ReadOnlySpan<char> modid, ReadOnlySpan<char> name)
         {
             Span<char> buffer = stackalloc char[modid.Length + name.Length + 1];
             modid.CopyTo(buffer);
