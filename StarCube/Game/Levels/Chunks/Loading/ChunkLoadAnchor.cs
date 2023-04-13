@@ -1,22 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 using StarCube.Utility.Math;
 
 namespace StarCube.Game.Levels.Loading
 {
-    public struct AnchorData : IEquatable<AnchorData>
+    public readonly struct AnchorData : IEquatable<AnchorData>
     {
         /// <summary>
         /// 获取此数据对应的 Anchor 在指定半径上会加载的 chunk 的坐标
         /// </summary>
         /// <param name="r"></param>
         /// <param name="positions"></param>
-        public void GetLoadChunkPos(int r, List<ChunkPos> positions)
+        /// <param name="bound"></param>
+        public void GetLoadChunkPos(int r, List<ChunkPos> positions, ILevelBound bound)
         {
             if (r == 0)
             {
-                positions.Add(chunkPos);
+                if (bound.InRange(chunkPos))
+                {
+                    positions.Add(chunkPos);
+                }
                 return;
             }
 
@@ -24,10 +29,17 @@ namespace StarCube.Game.Levels.Loading
             for (int x = (chunkPos.x - r); x <= (chunkPos.x + r); ++x)
             {
                 for (int y = (chunkPos.y - r); y <= (chunkPos.y + r); ++y)
-
                 {
-                    positions.Add(new ChunkPos(x, y, chunkPos.z + r));
-                    positions.Add(new ChunkPos(x, y, chunkPos.z - r));
+                    ChunkPos front = new ChunkPos(x, y, chunkPos.z + r);
+                    if (bound.InRange(front))
+                    {
+                        positions.Add(front);
+                    }
+                    ChunkPos back = new ChunkPos(x, y, chunkPos.z - r);
+                    if (bound.InRange(back))
+                    {
+                        positions.Add(back);
+                    }
                 }
             }
             // 左右
@@ -35,8 +47,16 @@ namespace StarCube.Game.Levels.Loading
             {
                 for (int y = (chunkPos.y - r); y <= (chunkPos.y + r); ++y)
                 {
-                    positions.Add(new ChunkPos(chunkPos.x + r, y, z));
-                    positions.Add(new ChunkPos(chunkPos.x - r, y, z));
+                    ChunkPos left = new ChunkPos(chunkPos.x - r, y, z);
+                    if (bound.InRange(left))
+                    {
+                        positions.Add(left);
+                    }
+                    ChunkPos right = new ChunkPos(chunkPos.x + r, y, z);
+                    if (bound.InRange(right))
+                    {
+                        positions.Add(right);
+                    }
                 }
             }
             // 上下
@@ -44,8 +64,16 @@ namespace StarCube.Game.Levels.Loading
             {
                 for (int z = (chunkPos.z - r + 1); z <= (chunkPos.z + r - 1); ++z)
                 {
-                    positions.Add(new ChunkPos(x, chunkPos.y + r, z));
-                    positions.Add(new ChunkPos(x, chunkPos.y - r, z));
+                    ChunkPos up = new ChunkPos(x, chunkPos.y + r, z);
+                    if (bound.InRange(up))
+                    {
+                        positions.Add(up);
+                    }
+                    ChunkPos down = new ChunkPos(x, chunkPos.y - r, z);
+                    if (bound.InRange(down))
+                    {
+                        positions.Add(down);
+                    }
                 }
             }
         }
@@ -81,33 +109,59 @@ namespace StarCube.Game.Levels.Loading
             this.radius = radius;
         }
 
-        public ChunkPos chunkPos;
-        public int radius;
+        public readonly ChunkPos chunkPos;
+        public readonly int radius;
     }
 
+    /// <summary>
+    /// 表示一个可以加载 Level 中 Chunk 的锚点，线程安全
+    /// </summary>
     public sealed class ChunkLoadAnchor
     {
-        public ChunkPos ChunkPos => anchorData.chunkPos;
-        public int Radius => anchorData.radius;
+        public ChunkPos ChunkPos => Current.chunkPos;
 
-        public AnchorData Current => anchorData;
+        public int Radius => Current.radius;
 
-        public void SetPos(ChunkPos pos)
+        public AnchorData Current
         {
-            anchorData.chunkPos = pos;
+            get
+            {
+                rwLock.EnterReadLock();
+                AnchorData data = anchorData;
+                rwLock.ExitReadLock();
+                return data;
+            }
+        }
+
+        public void SetChunkPos(ChunkPos pos)
+        {
+            rwLock.EnterWriteLock();
+            anchorData = new AnchorData(pos, anchorData.radius);
+            rwLock.ExitWriteLock();
         }
 
         public void SetRadius(int radius)
         {
-            anchorData.radius = radius;
+            rwLock.EnterWriteLock();
+            anchorData = new AnchorData(anchorData.chunkPos, radius);
+            rwLock.ExitWriteLock();
         }
 
+        public void SetPosAndRadius(ChunkPos pos, int radius)
+        {
+            rwLock.EnterWriteLock();
+            anchorData = new AnchorData(pos, radius);
+            rwLock.ExitWriteLock();
+        }
 
         public ChunkLoadAnchor(int radius)
         {
             anchorData = new AnchorData(ChunkPos.Zero, radius);
+            rwLock = new ReaderWriterLockSlim();
         }
 
         private AnchorData anchorData;
+
+        private readonly ReaderWriterLockSlim rwLock;
     }
 }
