@@ -33,17 +33,17 @@ namespace StarCube.Game.Levels.Generation.Flat
             return this;
         }
 
-        public BlockState GetBlockStateForHeight(int height)
+        public int GetBlockStateIDForHeight(int height)
         {
-            foreach (Layer slice in layers)
+            foreach (Layer layer in layers)
             {
-                if(slice.start < height && slice.end > height)
+                if(layer.start <= height && layer.end > height)
                 {
-                    return globalBlockStateIDMap.ValueFor(slice.blockStateID);
+                    return layer.blockStateID;
                 }
             }
 
-            return BuiltinBlocks.Air.StateDefinition.defaultState;
+            return 0;
         }
 
         public FlatLayerList(IIDMap<BlockState> globalBlockStateIDMap)

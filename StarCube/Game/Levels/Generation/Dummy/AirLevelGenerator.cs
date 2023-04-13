@@ -7,7 +7,14 @@ namespace StarCube.Game.Levels.Generation.Dummy
     {
         public Chunk GenerateChunk(ChunkPos pos)
         {
-            return new EmptyChunk(pos);
+            return chunkFactory.CreateEmpty(pos);
         }
+
+        public AirLevelGenerator(IChunkFactory chunkFactory)
+        {
+            this.chunkFactory = chunkFactory;
+        }
+
+        private readonly IChunkFactory chunkFactory;
     }
 }

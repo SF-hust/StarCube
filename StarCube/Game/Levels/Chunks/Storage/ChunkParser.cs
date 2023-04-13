@@ -27,7 +27,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
 
             if (blockBitSize == 0)
             {
-                chunk = new PalettedChunk(pos, blockStateIDMap, BuiltinBlocks.Air.StateDefinition.defaultState);
+                chunk = chunkFactory.CreateEmpty(pos);
                 return true;
             }
 
@@ -41,16 +41,16 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 return false;
             }
 
-            chunk = new PalettedChunk(pos, blockStateIDMap, blockStates, false);
+            chunk = chunkFactory.Create(pos, blockStates);
 
             return true;
         }
 
-        public DefaultChunkParser(IIDMap<BlockState> blockStateIDMap)
+        public DefaultChunkParser()
         {
-            this.blockStateIDMap = blockStateIDMap;
+            this.chunkFactory = new PalettedChunkFactory(BlockState.GlobalBlockStateIDMap);
         }
 
-        private readonly IIDMap<BlockState> blockStateIDMap;
+        private readonly IChunkFactory chunkFactory;
     }
 }

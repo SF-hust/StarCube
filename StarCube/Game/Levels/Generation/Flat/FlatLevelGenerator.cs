@@ -10,23 +10,23 @@ namespace StarCube.Game.Levels.Generation.Flat
     {
         public Chunk GenerateChunk(ChunkPos pos)
         {
-            Chunk chunk = emptyChunkFactory(pos);
+            int[] buffer = Chunk.ThreadLocalChunkDataBuffer.Value;
             for (int y = 0; y < 16; ++y)
             {
-                BlockState blockState = layerList.GetBlockStateForHeight(y + pos.y * 16);
-                chunk.FillBlockState(0, y, 0, 15, y, 15, blockState);
+                int id = layerList.GetBlockStateIDForHeight(y + pos.y * 16);
+                buffer.AsSpan(y * 256, 256).Fill(id);
             }
-
+            Chunk chunk = chunkFactory.Create(pos, buffer);
             return chunk;
         }
 
-        public FlatLevelGenerator(Func<ChunkPos, Chunk> emptyChunkFactory, FlatLayerList layerList)
+        public FlatLevelGenerator(IChunkFactory chunkFactory, FlatLayerList layerList)
         {
-            this.emptyChunkFactory = emptyChunkFactory;
+            this.chunkFactory = chunkFactory;
             this.layerList = layerList;
         }
 
-        private readonly Func<ChunkPos, Chunk> emptyChunkFactory;
+        private readonly IChunkFactory chunkFactory;
         private readonly FlatLayerList layerList;
     }
 }

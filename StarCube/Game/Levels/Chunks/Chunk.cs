@@ -6,11 +6,16 @@ using LiteDB;
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
+using System.Threading;
 
 namespace StarCube.Game.Levels.Chunks
 {
     public abstract class Chunk
     {
+        public const int ChunkSize = 16 * 16 * 16;
+
+        public static ThreadLocal<int[]> ThreadLocalChunkDataBuffer = new ThreadLocal<int[]>(() => new int[ChunkSize]);
+
         public int X => pos.x;
         public int Y => pos.y;
         public int Z => pos.z;
@@ -44,13 +49,13 @@ namespace StarCube.Game.Levels.Chunks
             return GetAndSetBlockState(pos.x, pos.y, pos.z, blockState);
         }
 
-        public abstract void CopyTo(BlockState[] array);
+        public abstract void CopyBlockStatesTo(BlockState[] array);
 
-        public abstract void CopyTo(Span<int> array);
+        public abstract void CopyBlockStatesTo(Span<int> array);
 
-        public virtual void CopyTo(int[] array)
+        public virtual void CopyBlockStatesTo(int[] array)
         {
-            CopyTo(array.AsSpan());
+            CopyBlockStatesTo(array.AsSpan());
         }
 
         public abstract void StoreTo(BsonDocument bson);

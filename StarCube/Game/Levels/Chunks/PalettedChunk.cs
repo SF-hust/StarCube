@@ -1,66 +1,63 @@
 ﻿using System;
 
+using LiteDB;
+
 using StarCube.Utility.Math;
 using StarCube.Utility.Container;
 using StarCube.Game.Blocks;
-using LiteDB;
 
 namespace StarCube.Game.Levels.Chunks
 {
-    public sealed class PalettedChunk : Chunk
+    public class PalettedChunk : Chunk
     {
         public override bool Writable => true;
 
-        public override bool Empty => false;
-
-        public override BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState)
-        {
-            int index = BlockPos.InChunkPosToIndex(x, y, z);
-            BlockState old = globalBlockStateMap.ValueFor(data[index]);
-            data[index] = globalBlockStateMap.IdFor(blockState);
-            return old;
-        }
+        public override bool Empty => blockStates.Level == 0;
 
         public override BlockState GetBlockState(int x, int y, int z)
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
-            return globalBlockStateMap.ValueFor(data[index]);
+            return blockStates.Get(index);
         }
 
         public override void SetBlockState(int x, int y, int z, BlockState blockState)
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
-            data[index] = globalBlockStateMap.IdFor(blockState);
+            blockStates.Set(index, blockState);
         }
 
         public override void FillBlockState(int x0, int y0, int z0, int x1, int y1, int z1, BlockState blockState)
         {
-            int blockStateIndex = globalBlockStateMap.IdFor(blockState);
-
-            for(int y = y0; y < y1 + 1; ++y)
+            int blockStateIndex = blockState.IntegerID;
+            for (int y = y0; y < y1 + 1; ++y)
             {
-                for(int z = z0; z < z1 + 1; ++z)
+                for (int z = z0; z < z1 + 1; ++z)
                 {
-                    for(int x = x0; x < x1 + 1; ++x)
+                    for (int x = x0; x < x1 + 1; ++x)
                     {
                         int index = BlockPos.InChunkPosToIndex(x, y, z);
-                        data[index] = blockStateIndex;
+                        blockStates.SetRaw(index, blockStateIndex);
                     }
                 }
             }
         }
 
-        public override void CopyTo(BlockState[] array)
+        public override BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState)
         {
-            for (int i = 0; i < 4096; ++i)
-            {
-                array[i] = globalBlockStateMap.ValueFor(data[i]);
-            }
+            int index = BlockPos.InChunkPosToIndex(x, y, z);
+            BlockState old = blockStates.Get(index);
+            blockStates.Set(index, blockState);
+            return old;
         }
 
-        public override void CopyTo(Span<int> array)
+        public override void CopyBlockStatesTo(BlockState[] blockStates)
         {
-            data.CopyTo(array);
+            this.blockStates.CopyTo(blockStates);
+        }
+
+        public override void CopyBlockStatesTo(Span<int> buffer)
+        {
+            blockStates.CopyRawTo(buffer);
         }
 
         public override void StoreTo(BsonDocument bson)
@@ -68,29 +65,42 @@ namespace StarCube.Game.Levels.Chunks
             throw new NotImplementedException();
         }
 
+        public void Clear()
+        {
+            blockStates.Clear();
+        }
+
         public override Chunk Clone()
         {
-            return new PalettedChunk(pos, globalBlockStateMap, data, true);
+            PalettedChunkData<BlockState> blockStates = this.blockStates.Clone();
+            PalettedChunk clone = new PalettedChunk(pos, blockStates);
+            return clone;
         }
 
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, BlockState initState)
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool)
             : base(pos)
         {
-            this.globalBlockStateMap = globalBlockStateMap;
-            data = new int[4096];
-            Array.Fill(data, globalBlockStateMap.IdFor(initState));
+            blockStates = new PalettedChunkData<BlockState>(globalBlockStateMap, pool);
         }
 
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, int[] data, bool copy = true)
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, int[] blockStates)
+            : this(pos, globalBlockStateMap, pool)
+        {
+            this.blockStates.CopyRawFrom(blockStates);
+        }
+
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, BlockState[] blockStates)
+            : this(pos, globalBlockStateMap, pool)
+        {
+            this.blockStates.CopyFrom(blockStates);
+        }
+
+        private PalettedChunk(ChunkPos pos, PalettedChunkData<BlockState> blockStates)
             : base(pos)
         {
-            this.globalBlockStateMap = globalBlockStateMap;
-
-            this.data = copy ? (int[])data.Clone() : data;
+            this.blockStates = blockStates;
         }
 
-        private readonly IIDMap<BlockState> globalBlockStateMap;
-
-        private readonly int[] data;
+        private readonly PalettedChunkData<BlockState> blockStates;
     }
 }
