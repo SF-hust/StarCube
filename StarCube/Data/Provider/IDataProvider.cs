@@ -132,7 +132,6 @@ namespace StarCube.Data.Provider
 
             foreach (StringID id in dataIDs)
             {
-
                 if (loadedDataID.Contains(id))
                 {
                     continue;

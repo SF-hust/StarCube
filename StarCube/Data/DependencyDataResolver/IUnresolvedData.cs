@@ -12,11 +12,6 @@ namespace StarCube.Data.DependencyDataResolver
         where UD : class, IUnresolvedData<UD>
     {
         /// <summary>
-        /// 数据的 ID
-        /// </summary>
-        abstract StringID IStringID.ID { get; }
-
-        /// <summary>
         /// 对此数据对象本身的引用
         /// </summary>
         public UD UnresolvedData { get; }
