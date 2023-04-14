@@ -1,6 +1,7 @@
 ﻿using System;
 
 using StarCube.Game.Levels;
+using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Generation;
 
 namespace StarCube.Game
@@ -9,7 +10,7 @@ namespace StarCube.Game
     {
         public ServerGame(ILevelBound bound, ILevelGenerator generator)
         {
-            level = new ServerLevel(Guid.NewGuid(), bound, generator);
+            level = new ServerLevel(Guid.NewGuid(), bound, generator, DummyChunkUpdateHandler.Instance);
         }
 
         public readonly ServerLevel level;

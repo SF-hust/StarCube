@@ -39,25 +39,19 @@ namespace StarCube.Game.Levels.Chunks.Source
             chunkMap.Flush();
         }
 
-        private Chunk LoadOrGenerateChunk(ChunkPos pos)
+        public void Stop()
         {
-            if(storage.TryLoadChunk(pos, out Chunk? chunk))
-            {
-                return chunk;
-            }
-
-            chunk = generator.GenerateChunk(pos);
-            return chunk;
+            chunkMap.Stop();
         }
 
-        public ServerChunkSource(ServerLevel level, ILevelBound bound, ILevelGenerator generator, LevelDataStorage storage)
+        public ServerChunkSource(ServerLevel level, ILevelBound bound, ILevelGenerator generator, LevelDataStorage storage, IChunkUpdateHandler chunkHandler)
         {
             this.level = level;
 
             this.generator = generator;
             this.storage = storage;
 
-            chunkMap = new ChunkMap(LoadOrGenerateChunk, bound);
+            chunkMap = new ChunkMap(new ChunkProvider(generator, storage, 4096), this, bound, chunkHandler);
         }
 
         public readonly ServerLevel level;

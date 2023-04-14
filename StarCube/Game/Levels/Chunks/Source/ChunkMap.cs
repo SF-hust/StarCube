@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Levels.Loading;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
-    internal class ChunkDataEntry
+    internal readonly struct ChunkMapEntry
     {
         /// <summary>
-        /// chunk 的加载任务是否已经开始
+        /// 获取 chunk
         /// </summary>
-        public bool Scheduled => chunkTask != null;
+        public Chunk Chunk => chunk ?? throw new NullReferenceException();
 
         /// <summary>
-        /// Chunk 是否已经在内存中
+        /// Chunk 是否被加载进内存中
         /// </summary>
         public bool Loaded => chunk != null;
 
         /// <summary>
-        /// Chunk 是否应该留在内存中
+        /// Chunk 是否应该驻留在内存中
         /// </summary>
         public bool Alive => activeCount + loadCount > 0;
 
@@ -31,61 +30,27 @@ namespace StarCube.Game.Levels.Chunks.Source
         public bool Active => activeCount > 0;
 
         /// <summary>
-        /// 如果此 chunk 正在加载中，尝试获取加载结果
+        /// chunk 加载完毕
         /// </summary>
-        /// <param name="flush">是否要以阻塞的方式强制刷新</param>
-        /// <returns></returns>
-        public bool Update(bool flush = false)
+        /// <param name="chunk"></param>
+        public ChunkMapEntry OnLoadChunk(Chunk chunk)
         {
-            if (chunkTask == null)
-            {
-                return false;
-            }
-
-            if (!chunkTask.IsCompleted)
-            {
-                if (flush)
-                {
-                    chunkTask.Wait();
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            chunk = chunkTask.Result;
-            chunkTask = null;
-            return true;
-        }
-
-        /// <summary>
-        /// 为 entry 设置 chunk 加载任务
-        /// </summary>
-        /// <param name="chunkTask"></param>
-        public void OnScheduleChunkTask(Task<Chunk> chunkTask)
-        {
-            this.chunkTask = chunkTask;
-        }
-
-        public void OnLoadChunk(Chunk chunk)
-        {
-            this.chunk = chunk;
+            return new ChunkMapEntry(chunk, loadCount, activeCount);
         }
 
         /// <summary>
         /// 给 chunk 施加加载锚的影响，这会改变 chunk 的引用计数
         /// </summary>
         /// <param name="active"></param>
-        public void OnAnchor(bool active)
+        public ChunkMapEntry OnAnchor(bool active)
         {
             if (active)
             {
-                activeCount++;
+                return new ChunkMapEntry(chunk, loadCount, activeCount + 1);
             }
             else
             {
-                loadCount++;
+                return new ChunkMapEntry(chunk, loadCount + 1, activeCount);
             }
         }
 
@@ -93,47 +58,22 @@ namespace StarCube.Game.Levels.Chunks.Source
         /// 给 chunk 施加加载锚被移除的影响，这会改变 chunk 的引用计数
         /// </summary>
         /// <param name="active"></param>
-        public void OnAnchorRemove(bool active)
+        public ChunkMapEntry OnAnchorRemove(bool active)
         {
             if (active)
             {
-                activeCount--;
+                return new ChunkMapEntry(chunk, loadCount, activeCount - 1);
             }
             else
             {
-                loadCount--;
+                return new ChunkMapEntry(chunk, loadCount - 1, activeCount);
             }
         }
 
-        /// <summary>
-        /// 创建一个包含有已加载 chunk 数据的 entry
-        /// </summary>
-        /// <param name="chunk"></param>
-        /// <param name="active"></param>
-        public ChunkDataEntry(Chunk chunk, bool active) : this(active)
-        {
-            this.chunk = chunk;
-        }
 
-        /// <summary>
-        /// 创建一个正在加载的 chunk 的 entry
-        /// </summary>
-        /// <param name="chunkTask"></param>
-        /// <param name="active"></param>
-        public ChunkDataEntry(Task<Chunk> chunkTask, bool active) : this(active)
-        {
-            this.chunkTask = chunkTask;
-        }
-
-        /// <summary>
-        /// 创建一个等待被 schedule 的加载中 chunk 的 entry
-        /// </summary>
-        /// <param name="active"></param>
-        public ChunkDataEntry(bool active)
+        public ChunkMapEntry(bool active)
         {
             chunk = null;
-            chunkTask = null;
-
             if (active)
             {
                 loadCount = 0;
@@ -146,33 +86,34 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
         }
 
-        /// <summary>
-        /// 获取已加载好的 chunk
-        /// </summary>
-        public Chunk Chunk => chunk ?? throw new NullReferenceException();
+        private ChunkMapEntry(Chunk? chunk, int loadCount, int activeCount)
+        {
+            this.chunk = chunk;
+            this.loadCount = loadCount;
+            this.activeCount = activeCount;
+        }
 
-        private Chunk? chunk;
-        private Task<Chunk>? chunkTask;
+        private readonly int loadCount;
+        private readonly int activeCount;
 
-        private int loadCount;
-        private int activeCount;
+        private readonly Chunk? chunk;
     }
 
     public class ChunkMap
     {
         public bool IsLoaded(ChunkPos pos)
         {
-            return posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry chunkDataEntry) && chunkDataEntry.Loaded;
+            return posToChunkMapEntry.TryGetValue(pos, out ChunkMapEntry entry) && entry.Loaded;
         }
 
         public bool IsActive(ChunkPos pos)
         {
-            return posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry chunkDataEntry) && chunkDataEntry.Active;
+            return posToChunkMapEntry.TryGetValue(pos, out ChunkMapEntry entry) && entry.Active;
         }
 
         public bool IsLoading(ChunkPos pos)
         {
-            return posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry chunkDataEntry) && !chunkDataEntry.Loaded;
+            return posToChunkMapEntry.TryGetValue(pos, out ChunkMapEntry entry) && !entry.Loaded;
         }
 
         /// <summary>
@@ -183,7 +124,7 @@ namespace StarCube.Game.Levels.Chunks.Source
         /// <returns></returns>
         public bool TryGet(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
-            if (posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry? entry) && entry.Loaded)
+            if (posToChunkMapEntry.TryGetValue(pos, out ChunkMapEntry entry) && entry.Loaded)
             {
                 chunk = entry.Chunk;
                 return true;
@@ -209,7 +150,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             // 加载活跃区块
             for (int i = 0; i <= data.radius; ++i)
             {
-                data.GetLoadChunkPos(i, chunkPosCache);
+                data.GetLoadChunkPos(i, chunkPosCache, bound);
                 foreach (ChunkPos pos in chunkPosCache)
                 {
                     OnChunkAnchored(pos, true);
@@ -218,7 +159,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
 
             // 加载非活跃区块
-            data.GetLoadChunkPos(data.radius + 1, chunkPosCache);
+            data.GetLoadChunkPos(data.radius + 1, chunkPosCache, bound);
             foreach (ChunkPos pos in chunkPosCache)
             {
                 OnChunkAnchored(pos, false);
@@ -228,31 +169,16 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         private void OnChunkAnchored(ChunkPos pos, bool active)
         {
-            if(!bound.InRange(pos))
+            // chunk 已被加载或在加载中，增加其加载计数
+            if (posToChunkMapEntry.TryGetValue(pos, out ChunkMapEntry entry))
             {
+                posToChunkMapEntry[pos] = entry.OnAnchor(active);
                 return;
             }
 
-            // chunk 已经在加载中，增加其加载计数
-            if (posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry? entry))
-            {
-                entry.OnAnchor(active);
-                return;
-            }
-
-            // 运行中的 chunk 加载任务数量少于上限，创建任务并运行
-            if (runningChunkTaskPos.Count < maxRunningChunkTask)
-            {
-                Task<Chunk> chunkTask = new Task<Chunk>(() => loadChunk(pos));
-                chunkTask.Start();
-                posToChunkDataEntry[pos] = new ChunkDataEntry(chunkTask, active);
-                runningChunkTaskPos.Add(pos);
-                return;
-            }
-
-            // 运行中的 chunk 加载任务数量已达到上限，先放进队列中
-            posToChunkDataEntry[pos] = new ChunkDataEntry(active);
-            pendingScheduleChunkTaskPos.Enqueue(pos);
+            // chunk 没有加载，创建 ChunkMapEntry 并发出加载请求
+            posToChunkMapEntry[pos] = new ChunkMapEntry(active);
+            chunkProvider.Request(pos);
         }
 
         /// <summary>
@@ -277,7 +203,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             // 卸载活跃区块
             for (int i = 0; i <= data.radius; ++i)
             {
-                data.GetLoadChunkPos(i, chunkPosCache);
+                data.GetLoadChunkPos(i, chunkPosCache, bound);
                 foreach (ChunkPos pos in chunkPosCache)
                 {
                     OnChunkAnchorRemoved(pos, true);
@@ -286,7 +212,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
 
             // 卸载非活跃区块
-            data.GetLoadChunkPos(data.radius + 1, chunkPosCache);
+            data.GetLoadChunkPos(data.radius + 1, chunkPosCache, bound);
             foreach (ChunkPos pos in chunkPosCache)
             {
                 OnChunkAnchorRemoved(pos, false);
@@ -296,13 +222,9 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         private void OnChunkAnchorRemoved(ChunkPos pos, bool active)
         {
-            if(!bound.InRange(pos))
-            {
-                return;
-            }
-
-            ChunkDataEntry entry = posToChunkDataEntry[pos];
-            entry.OnAnchorRemove(active);
+            ChunkMapEntry entry = posToChunkMapEntry[pos];
+            entry = entry.OnAnchorRemove(active);
+            posToChunkMapEntry[pos] = entry;
             if (!entry.Alive)
             {
                 pendingUnloadChunkPos.Add(pos);
@@ -326,20 +248,6 @@ namespace StarCube.Game.Levels.Chunks.Source
         /// </summary>
         public void Flush()
         {
-            // 刷新所有运行中的 chunk 加载任务
-            foreach (ChunkPos pos in runningChunkTaskPos)
-            {
-                posToChunkDataEntry[pos].Update(true);
-            }
-            runningChunkTaskPos.Clear();
-
-            // 运行并刷新所有等待运行的任务
-            foreach (ChunkPos pos in pendingScheduleChunkTaskPos)
-            {
-                Chunk chunk = loadChunk(pos);
-                posToChunkDataEntry[pos].OnLoadChunk(chunk);
-            }
-            pendingScheduleChunkTaskPos.Clear();
         }
 
         private void UpdateAnchors()
@@ -366,39 +274,58 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         private void UpdateChunkLoading()
         {
-            // 更新已完成的 chunk 任务
-            int loadingChunkCount = 0;
-            for (int i = 0; i < runningChunkTaskPos.Count; ++i)
+            while (chunkProvider.TryGet(out Chunk? chunk))
             {
                 // 此 chunk 已经不再需要加载，丢弃掉相应的结果
-                if (!posToChunkDataEntry.TryGetValue(runningChunkTaskPos[i], out ChunkDataEntry? entry))
+                if (!posToChunkMapEntry.TryGetValue(chunk.pos, out ChunkMapEntry entry))
                 {
+                    chunk.Clear();
                     continue;
                 }
 
-                bool complete = entry.Update(false);
-                if (complete)
-                {
-                    continue;
-                }
-
-                runningChunkTaskPos[loadingChunkCount] = runningChunkTaskPos[i];
-                loadingChunkCount++;
+                // 更新 ChunkMapEntry
+                posToChunkMapEntry[chunk.pos] = entry.OnLoadChunk(chunk);
+                chunkHandler.OnChunkLoad(chunk, entry.Active);
             }
-            runningChunkTaskPos.RemoveRange(runningChunkTaskPos.Count - loadingChunkCount, loadingChunkCount);
 
-            // 创建并运行待加载的 chunk 任务
-            while (runningChunkTaskPos.Count < maxRunningChunkTask && pendingScheduleChunkTaskPos.TryDequeue(out ChunkPos pos))
-            {
-                // 此 chunk 已经不再需要加载，跳过它
-                if (!posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry? entry))
-                {
-                    continue;
-                }
+            //// 更新已完成的 chunk 任务
+            //int loadingChunkCount = 0;
+            //for (int i = 0; i < runningChunkTaskPos.Count; ++i)
+            //{
+            //    if (!posToChunkMapEntry.TryGetValue(runningChunkTaskPos[i], out ChunkMapEntry entry))
+            //    {
+            //        continue;
+            //    }
 
-                Task<Chunk> chunkTask = new Task<Chunk>(() => loadChunk(pos));
-                entry.OnScheduleChunkTask(chunkTask);
-            }
+            //    // 成功加载区块
+            //    bool complete = entry.Update(false);
+            //    if (complete)
+            //    {
+            //        chunkHandler.OnChunkLoad(entry.Chunk, entry.Active);
+            //        continue;
+            //    }
+
+            //    // 仍在加载中
+            //    runningChunkTaskPos[loadingChunkCount] = runningChunkTaskPos[i];
+            //    loadingChunkCount++;
+            //}
+            //runningChunkTaskPos.RemoveRange(loadingChunkCount, runningChunkTaskPos.Count - loadingChunkCount);
+
+            //// 创建并运行待加载的 chunk 任务
+            //while (runningChunkTaskPos.Count < maxRunningChunkTask && pendingScheduleChunkTaskPos.TryDequeue(out ChunkPos pos))
+            //{
+            //    // 此 chunk 已经不再需要加载，跳过它
+            //    if (!posToChunkMapEntry.TryGetValue(pos, out ChunkDataEntry? entry))
+            //    {
+            //        continue;
+            //    }
+
+            //    // 创建加载任务
+            //    chunkProvider.Request(pos);
+            //    //Task<Chunk> chunkTask = Task.Run(() => loadChunk(pos));
+            //    //entry.OnScheduleChunkTask(chunkTask);
+            //    runningChunkTaskPos.Add(pos);
+            //}
         }
 
         private void UpdateUnloadChunks()
@@ -406,17 +333,28 @@ namespace StarCube.Game.Levels.Chunks.Source
             foreach (ChunkPos pos in pendingUnloadChunkPos)
             {
                 // 如果由于锚点更新等原因导致 chunk 又被加载了，停止卸载此 chunk
-                if (posToChunkDataEntry.TryGetValue(pos, out ChunkDataEntry? entry) && entry.Alive)
+                if (posToChunkMapEntry.TryGetValue(pos, out ChunkMapEntry entry) && entry.Alive)
                 {
                     continue;
                 }
 
-                posToChunkDataEntry.Remove(pos);
+                // 卸载区块
+                if(posToChunkMapEntry.Remove(pos, out ChunkMapEntry removedEntry) && removedEntry.Loaded)
+                {
+                    ChunkPos removedPos = removedEntry.Chunk.pos;
+                    removedEntry.Chunk.Clear();
+                    chunkHandler.OnChunkUnload(removedPos);
+                }
             }
 
             pendingUnloadChunkPos.Clear();
         }
 
+        /// <summary>
+        /// 当锚点移动时
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="after"></param>
         private void OnAnchorMove(AnchorData origin, AnchorData after)
         {
             // 简单实现，先放置新 anchor，再移除旧 anchor
@@ -424,42 +362,36 @@ namespace StarCube.Game.Levels.Chunks.Source
             OnAnchorRemove(origin);
         }
 
-
-
-        public ChunkMap(Func<ChunkPos, Chunk> chunkLoader, ILevelBound bound)
+        public void Stop()
         {
-            loadChunk = chunkLoader;
+            chunkProvider.Stop();
+        }
+
+        public ChunkMap(ChunkProvider chunkProvider, ServerChunkSource chunkSource, ILevelBound bound, IChunkUpdateHandler chunkHandler)
+        {
+            this.chunkProvider = chunkProvider;
+            chunkProvider.Start();
+            this.chunkSource = chunkSource;
+            this.chunkHandler = chunkHandler;
 
             this.bound = bound;
-
-            posToChunkDataEntry = new Dictionary<ChunkPos, ChunkDataEntry>();
-
-            anchors = new List<KeyValuePair<ChunkLoadAnchor, AnchorData>>();
-            pendingRemoveAnchorData = new List<AnchorData>();
-
-            runningChunkTaskPos = new List<ChunkPos>(maxRunningChunkTask);
-            pendingScheduleChunkTaskPos = new Queue<ChunkPos>(8192);
-
-            pendingUnloadChunkPos = new HashSet<ChunkPos>();
 
             chunkPosCache = new List<ChunkPos>(4096);
         }
 
 
-        private readonly Func<ChunkPos, Chunk> loadChunk;
+        private readonly ChunkProvider chunkProvider;
+        private readonly ServerChunkSource chunkSource;
+        private readonly IChunkUpdateHandler chunkHandler;
 
         private readonly ILevelBound bound;
 
-        private readonly Dictionary<ChunkPos, ChunkDataEntry> posToChunkDataEntry;
+        private readonly Dictionary<ChunkPos, ChunkMapEntry> posToChunkMapEntry = new Dictionary<ChunkPos, ChunkMapEntry>();
 
-        private readonly List<KeyValuePair<ChunkLoadAnchor, AnchorData>> anchors;
-        private readonly List<AnchorData> pendingRemoveAnchorData;
+        private readonly List<KeyValuePair<ChunkLoadAnchor, AnchorData>> anchors = new List<KeyValuePair<ChunkLoadAnchor, AnchorData>>();
+        private readonly List<AnchorData> pendingRemoveAnchorData = new List<AnchorData>();
 
-        private readonly int maxRunningChunkTask = 256;
-        private readonly List<ChunkPos> runningChunkTaskPos;
-        private readonly Queue<ChunkPos> pendingScheduleChunkTaskPos;
-
-        private readonly HashSet<ChunkPos> pendingUnloadChunkPos;
+        private readonly HashSet<ChunkPos> pendingUnloadChunkPos = new HashSet<ChunkPos>();
 
         private readonly List<ChunkPos> chunkPosCache;
     }
