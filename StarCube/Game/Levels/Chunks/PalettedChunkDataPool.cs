@@ -79,13 +79,13 @@ namespace StarCube.Game.Levels.Chunks
 
         public PalettedChunkDataPool(int sizeLevel1, int sizeLevel2, int sizeLevel3, int sizeLevel4, int sizeLevel5, int sizeLevel6, int sizeLinearPalette)
         {
-            poolLevel1 = new ConcurrentFixedArrayPool<uint>(sizeLevel1, 128);
-            poolLevel2 = new ConcurrentFixedArrayPool<uint>(sizeLevel2, 256);
-            poolLevel3 = new ConcurrentFixedArrayPool<uint>(sizeLevel3, 512);
-            poolLevel4 = new ConcurrentFixedArrayPool<uint>(sizeLevel4, 1024);
-            poolLevel5 = new ConcurrentFixedArrayPool<uint>(sizeLevel5, 2048);
-            poolLevel6 = new ConcurrentFixedArrayPool<uint>(sizeLevel6, 4096);
-            linearPalettePool = new ConcurrentFixedListPool<int>(sizeLinearPalette, 16);
+            poolLevel1 = new ConcurrentFixedArrayPool<uint>(sizeLevel1, PooledCompressedIntArray.LevelToDataLength[1]);
+            poolLevel2 = new ConcurrentFixedArrayPool<uint>(sizeLevel2, PooledCompressedIntArray.LevelToDataLength[2]);
+            poolLevel3 = new ConcurrentFixedArrayPool<uint>(sizeLevel3, PooledCompressedIntArray.LevelToDataLength[3]);
+            poolLevel4 = new ConcurrentFixedArrayPool<uint>(sizeLevel4, PooledCompressedIntArray.LevelToDataLength[4]);
+            poolLevel5 = new ConcurrentFixedArrayPool<uint>(sizeLevel5, PooledCompressedIntArray.LevelToDataLength[5]);
+            poolLevel6 = new ConcurrentFixedArrayPool<uint>(sizeLevel6, PooledCompressedIntArray.LevelToDataLength[6]);
+            linearPalettePool = new ConcurrentFixedListPool<int>(sizeLinearPalette, PalettedChunkData.MaxLinearPaletteSize);
         }
 
         public readonly ConcurrentFixedArrayPool<uint> poolLevel1;

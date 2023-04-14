@@ -65,7 +65,7 @@ namespace StarCube.Game.Levels.Chunks
             throw new NotImplementedException();
         }
 
-        public void Clear()
+        public override void Clear()
         {
             blockStates.Clear();
         }
@@ -81,6 +81,17 @@ namespace StarCube.Game.Levels.Chunks
             : base(pos)
         {
             blockStates = new PalettedChunkData<BlockState>(globalBlockStateMap, pool);
+        }
+
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, int fillBlockState)
+            : this(pos, globalBlockStateMap, pool)
+        {
+            blockStates.Clear(fillBlockState);
+        }
+
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, BlockState fillBlockState)
+            : this(pos, globalBlockStateMap, pool, fillBlockState.IntegerID)
+        {
         }
 
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, int[] blockStates)

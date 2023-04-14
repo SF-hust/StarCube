@@ -60,6 +60,8 @@ namespace StarCube.Game.Levels.Chunks
 
         public abstract void StoreTo(BsonDocument bson);
 
+        public abstract void Clear();
+
         public abstract Chunk Clone();
 
         public override string ToString()

@@ -46,9 +46,9 @@ namespace StarCube.Game.Levels.Chunks.Storage
             return true;
         }
 
-        public DefaultChunkParser()
+        public DefaultChunkParser(IChunkFactory chunkFactory)
         {
-            this.chunkFactory = new PalettedChunkFactory(BlockState.GlobalBlockStateIDMap);
+            this.chunkFactory = chunkFactory;
         }
 
         private readonly IChunkFactory chunkFactory;

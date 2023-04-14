@@ -11,6 +11,16 @@ namespace StarCube.Game.Levels.Chunks
             return new PalettedChunk(pos, globalBlockStateIDMap, pool);
         }
 
+        public Chunk CreateWithFill(ChunkPos pos, int blockState)
+        {
+            return new PalettedChunk(pos, globalBlockStateIDMap, pool, blockState);
+        }
+
+        public Chunk CreateWithFill(ChunkPos pos, BlockState blockState)
+        {
+            return new PalettedChunk(pos, globalBlockStateIDMap, pool, blockState);
+        }
+
         public Chunk Create(ChunkPos pos, int[] blockStates)
         {
             return new PalettedChunk(pos, globalBlockStateIDMap, pool, blockStates);
