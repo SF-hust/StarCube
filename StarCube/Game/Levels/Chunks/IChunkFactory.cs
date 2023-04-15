@@ -1,4 +1,6 @@
-﻿using StarCube.Utility.Math;
+﻿using System;
+
+using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
 
 namespace StarCube.Game.Levels.Chunks
@@ -11,8 +13,8 @@ namespace StarCube.Game.Levels.Chunks
 
         public Chunk CreateWithFill(ChunkPos pos, BlockState blockState);
 
-        public Chunk Create(ChunkPos pos, int[] blockStates);
+        public Chunk Create(ChunkPos pos, ReadOnlySpan<int> blockStates);
 
-        public Chunk Create(ChunkPos pos, BlockState[] blockStates);
+        public Chunk Create(ChunkPos pos, ReadOnlySpan<BlockState> blockStates);
     }
 }

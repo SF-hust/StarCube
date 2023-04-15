@@ -1,4 +1,6 @@
-﻿using StarCube.Utility.Math;
+﻿using System;
+
+using StarCube.Utility.Math;
 using StarCube.Utility.Container;
 using StarCube.Game.Blocks;
 
@@ -21,12 +23,12 @@ namespace StarCube.Game.Levels.Chunks
             return new PalettedChunk(pos, globalBlockStateIDMap, pool, blockState);
         }
 
-        public Chunk Create(ChunkPos pos, int[] blockStates)
+        public Chunk Create(ChunkPos pos, ReadOnlySpan<int> blockStates)
         {
             return new PalettedChunk(pos, globalBlockStateIDMap, pool, blockStates);
         }
 
-        public Chunk Create(ChunkPos pos, BlockState[] blockStates)
+        public Chunk Create(ChunkPos pos, ReadOnlySpan<BlockState> blockStates)
         {
             return new PalettedChunk(pos, globalBlockStateIDMap, pool, blockStates);
         }

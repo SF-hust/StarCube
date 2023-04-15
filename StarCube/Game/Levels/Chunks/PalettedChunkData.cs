@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using StarCube.Utility;
 using StarCube.Utility.Container;
 
 namespace StarCube.Game.Levels.Chunks
 {
+
     /// <summary>
     /// 将这个类拆开仅仅是为了让 static 成员只有一份
     /// </summary>
@@ -14,7 +17,7 @@ namespace StarCube.Game.Levels.Chunks
     {
         public const int MaxLinearPaletteSize = 16;
 
-        protected static readonly ThreadLocal<Dictionary<int, int>> ThreadLocalDictionary = new ThreadLocal<Dictionary<int, int>>(() => new Dictionary<int, int>());
+        public static readonly ThreadLocal<Dictionary<int, int>> ThreadLocalDictionary = new ThreadLocal<Dictionary<int, int>>(() => new Dictionary<int, int>());
     }
 
     public sealed class PalettedChunkData<T> : PalettedChunkData
@@ -344,6 +347,11 @@ namespace StarCube.Game.Levels.Chunks
             }
         }
 
+        public PalettedChunkDataView AsReadOnlyView()
+        {
+            return new PalettedChunkDataView(compressedData.AsReadOnlyView(), linearPalette);
+        }
+
         public PalettedChunkData(IIDMap<T> globalPalette, PalettedChunkDataPool pool)
         {
             this.globalPalette = globalPalette;
@@ -359,5 +367,52 @@ namespace StarCube.Game.Levels.Chunks
         private List<int>? linearPalette;
 
         private CompressedIntArray compressedData;
+    }
+
+    public readonly ref struct PalettedChunkDataView
+    {
+        public int Level => rawData.level;
+
+        public bool Single => rawData.level == 0;
+
+        public int SingleValue => rawData.singleValue;
+
+        public int Get(int index)
+        {
+            if (linearPalette == null)
+            {
+                return rawData.Get(index);
+            }
+
+            return linearPalette[rawData.Get(index)];
+        }
+
+        public void CopyTo(Span<int> buffer)
+        {
+            Debug.Assert(buffer.Length == Chunk.ChunkSize);
+
+            // 使用全局调色盘
+            if (linearPalette == null)
+            {
+                rawData.CopyTo(buffer);
+                return;
+            }
+
+            // 使用线性调色盘
+            for (int i = 0; i < buffer.Length; ++i)
+            {
+                buffer[i] = linearPalette[rawData.Get(i)];
+            }
+        }
+
+        internal PalettedChunkDataView(CompressedIntArrayView rawData, List<int>? linearPalette)
+        {
+            this.rawData = rawData;
+            this.linearPalette = linearPalette;
+        }
+
+        private readonly CompressedIntArrayView rawData;
+
+        private readonly List<int>? linearPalette;
     }
 }

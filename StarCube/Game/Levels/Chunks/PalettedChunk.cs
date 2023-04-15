@@ -77,6 +77,11 @@ namespace StarCube.Game.Levels.Chunks
             return clone;
         }
 
+        public PalettedChunkDataView GetReadOnlyBlockStateDataView()
+        {
+            return blockStates.AsReadOnlyView();
+        }
+
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool)
             : base(pos)
         {
@@ -94,13 +99,13 @@ namespace StarCube.Game.Levels.Chunks
         {
         }
 
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, int[] blockStates)
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, ReadOnlySpan<int> blockStates)
             : this(pos, globalBlockStateMap, pool)
         {
             this.blockStates.CopyRawFrom(blockStates);
         }
 
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, BlockState[] blockStates)
+        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, ReadOnlySpan<BlockState> blockStates)
             : this(pos, globalBlockStateMap, pool)
         {
             this.blockStates.CopyFrom(blockStates);

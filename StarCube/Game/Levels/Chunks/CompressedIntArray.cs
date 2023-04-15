@@ -79,7 +79,7 @@ namespace StarCube.Game.Levels.Chunks
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetImpl(uint[] data, int level, int singleValue, int index)
+        internal static int GetImpl(ReadOnlySpan<uint> data, int level, int singleValue, int index)
         {
             return level switch
             {
@@ -95,7 +95,7 @@ namespace StarCube.Game.Levels.Chunks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SetImpl(uint[] data, int level, int index, int value)
+        internal static void SetImpl(Span<uint> data, int level, int index, int value)
         {
             switch (level)
             {
@@ -151,14 +151,14 @@ namespace StarCube.Game.Levels.Chunks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void FillImpl(uint[] data, int level, int value)
+        internal static void FillImpl(Span<uint> data, int level, int value)
         {
             for (int i = 0; i < (32 / LevelToBitSize[level]); ++i)
             {
                 SetImpl(data, level, i, value);
             }
             uint fillValue = data[0];
-            data.AsSpan().Fill(fillValue);
+            data.Fill(fillValue);
         }
 
 
@@ -367,6 +367,11 @@ namespace StarCube.Game.Levels.Chunks
             return clone;
         }
 
+        public CompressedIntArrayView AsReadOnlyView()
+        {
+            return new CompressedIntArrayView(level, singleValue, data);
+        }
+
         public IEnumerator<int> GetEnumerator()
         {
             return new Enumerator(this);
@@ -383,4 +388,40 @@ namespace StarCube.Game.Levels.Chunks
 
         private uint[] data;
     }
+
+    public readonly ref struct CompressedIntArrayView
+    {
+        public int Get(int index)
+        {
+            return CompressedIntArray.GetImpl(data, level, singleValue, index);
+        }
+
+        public void CopyTo(Span<int> buffer)
+        {
+            Debug.Assert(buffer.Length == Chunk.ChunkSize);
+
+            if (level == 0)
+            {
+                buffer.Fill(singleValue);
+                return;
+            }
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = Get(i);
+            }
+        }
+
+        internal CompressedIntArrayView(int level, int singleValue, ReadOnlySpan<uint> data)
+        {
+            this.level = level;
+            this.singleValue = singleValue;
+            this.data = data;
+        }
+
+        public readonly int level;
+        public readonly int singleValue;
+        public readonly ReadOnlySpan<uint> data;
+    }
+
 }
