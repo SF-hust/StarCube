@@ -147,7 +147,7 @@ namespace StarCube.Game.Levels.Chunks
             if (linearPalette != null || compressedData.Level == 0)
             {
                 Clear();
-                int level = PooledCompressedIntArray.GetRequiredLevel(globalPalette.Count - 1);
+                int level = CompressedIntArray.GetRequiredLevel(globalPalette.Count - 1);
                 compressedData.ExpandToLevelWithoutData(level, pool);
             }
             // 复制数据
@@ -216,7 +216,7 @@ namespace StarCube.Game.Levels.Chunks
             if (linearPalette != null || compressedData.Level == 0)
             {
                 Clear();
-                int level = PooledCompressedIntArray.GetRequiredLevel(globalPalette.Count - 1);
+                int level = CompressedIntArray.GetRequiredLevel(globalPalette.Count - 1);
                 compressedData.ExpandToLevelWithoutData(level, pool);
             }
             // 复制数据
@@ -300,7 +300,7 @@ namespace StarCube.Game.Levels.Chunks
                 }
 
                 // 要设置的值不在线性调色盘中，线性调色盘不可以继续扩张，改用全局调色盘
-                int level = PooledCompressedIntArray.GetRequiredLevel(globalPalette.Count - 1);
+                int level = CompressedIntArray.GetRequiredLevel(globalPalette.Count - 1);
                 compressedData.ExpandToLevelWithLinearPalette(level, pool, linearPalette);
                 // 释放线性调色盘
                 pool.linearPalettePool.Release(linearPalette);
@@ -349,7 +349,7 @@ namespace StarCube.Game.Levels.Chunks
             this.globalPalette = globalPalette;
             this.pool = pool;
             linearPalette = null;
-            compressedData = PooledCompressedIntArray.Empty;
+            compressedData = CompressedIntArray.Empty;
         }
 
         public readonly IIDMap<T> globalPalette;
@@ -358,6 +358,6 @@ namespace StarCube.Game.Levels.Chunks
 
         private List<int>? linearPalette;
 
-        private PooledCompressedIntArray compressedData;
+        private CompressedIntArray compressedData;
     }
 }

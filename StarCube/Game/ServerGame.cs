@@ -1,7 +1,7 @@
 ﻿using System;
 
 using StarCube.Game.Levels;
-using StarCube.Game.Levels.Chunks;
+using StarCube.Game.Levels.Chunks.Loading;
 using StarCube.Game.Levels.Generation;
 
 namespace StarCube.Game

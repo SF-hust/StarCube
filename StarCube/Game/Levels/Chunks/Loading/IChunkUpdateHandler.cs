@@ -1,6 +1,6 @@
 ﻿using StarCube.Utility.Math;
 
-namespace StarCube.Game.Levels.Chunks
+namespace StarCube.Game.Levels.Chunks.Loading
 {
     public interface IChunkUpdateHandler
     {

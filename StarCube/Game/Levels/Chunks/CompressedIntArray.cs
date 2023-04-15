@@ -15,7 +15,7 @@ namespace StarCube.Game.Levels.Chunks
     /// level = 0 时，data 长度为 0，认为数组中所有元素均取值 singleValue，singleValue 取值为 [0, int.MaxValue - 1]
     /// level = 1 ~ 6 时，data 长度分别为 LevelToDataLength[level]，每个元素占用 LevelToBitSize[level] 个比特位(注意 level = 6 时，实际只有低位的 31 起作用)，
     /// 每个元素取值范围为 [0, LevelToMaxValue[level]]，singleValue = -1
-    public struct PooledCompressedIntArray : IEnumerable<int>
+    public struct CompressedIntArray : IEnumerable<int>
     {
         public static readonly ImmutableArray<int> LevelToBitSize = ImmutableArray.Create(0, 1, 2, 4, 8, 16, 32);
         public static readonly ImmutableArray<int> LevelToMaxValue = ImmutableArray.Create(0, 1, 3, 15, byte.MaxValue, ushort.MaxValue, int.MaxValue - 1);
@@ -42,17 +42,17 @@ namespace StarCube.Game.Levels.Chunks
                 index = -1;
             }
 
-            public Enumerator(PooledCompressedIntArray data)
+            public Enumerator(CompressedIntArray data)
             {
                 this.data = data;
                 index = -1;
             }
 
-            private PooledCompressedIntArray data;
+            private CompressedIntArray data;
             private int index;
         }
 
-        public static readonly PooledCompressedIntArray Empty = new PooledCompressedIntArray
+        public static readonly CompressedIntArray Empty = new CompressedIntArray
         {
             level = 0,
             singleValue = 0,
@@ -355,9 +355,9 @@ namespace StarCube.Game.Levels.Chunks
         /// </summary>
         /// <param name="pool"></param>
         /// <returns></returns>
-        public PooledCompressedIntArray Clone(PalettedChunkDataPool pool)
+        public CompressedIntArray Clone(PalettedChunkDataPool pool)
         {
-            PooledCompressedIntArray clone = new PooledCompressedIntArray
+            CompressedIntArray clone = new CompressedIntArray
             {
                 level = this.level,
                 singleValue = this.singleValue,

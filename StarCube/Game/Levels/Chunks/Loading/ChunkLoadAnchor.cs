@@ -4,7 +4,7 @@ using System.Threading;
 
 using StarCube.Utility.Math;
 
-namespace StarCube.Game.Levels.Loading
+namespace StarCube.Game.Levels.Chunks.Loading
 {
     public readonly struct AnchorData : IEquatable<AnchorData>
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Levels.Loading;
+using StarCube.Game.Levels.Chunks.Loading;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
