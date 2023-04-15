@@ -6,7 +6,7 @@ using StarCube.Core.Components;
 namespace StarCube.Game.Entities
 {
     public class Entity :
-        IComponentHolder<Entity>,
+        IComponentOwner<Entity>,
         IGuid
     {
         Guid IGuid.Guid => guid;

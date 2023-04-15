@@ -4,7 +4,7 @@ using StarCube.Core.Components;
 
 namespace StarCube.Game.Items
 {
-    public sealed class ItemStack : IComponentHolder<ItemStack>
+    public sealed class ItemStack : IComponentOwner<ItemStack>
     {
         public Item Item
         {

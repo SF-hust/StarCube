@@ -12,7 +12,7 @@ namespace StarCube.Game.Blocks
     public class Block :
         RegistryEntry<Block>,
         IStateOwner<Block, BlockState>,
-        IComponentHolder<Block>
+        IComponentOwner<Block>
     {
         /* ~ Block 属性 start ~ */
         public bool IsAir => properties.air;

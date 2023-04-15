@@ -7,7 +7,7 @@ using StarCube.Utility;
 namespace StarCube.Core.Components
 {
     public abstract class ComponentVariant<O> : IStringID
-        where O : class, IComponentHolder<O>
+        where O : class, IComponentOwner<O>
     {
         StringID IStringID.ID => id;
 
@@ -27,7 +27,7 @@ namespace StarCube.Core.Components
     }
 
     public abstract class ComponentVariant<O, C> : ComponentVariant<O>
-        where O : class, IComponentHolder<O>
+        where O : class, IComponentOwner<O>
         where C : Component<O>
     {
         public abstract C CreateDefault();

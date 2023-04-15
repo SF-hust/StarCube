@@ -9,7 +9,7 @@ using StarCube.Core.Registries;
 namespace StarCube.Core.Components
 {
     public abstract class ComponentType<O> : RegistryEntry<ComponentType<O>>
-        where O : class, IComponentHolder<O>
+        where O : class, IComponentOwner<O>
     {
         /// <summary>
         /// 此 ComponentType 的 component 可附加到的类型
@@ -45,7 +45,7 @@ namespace StarCube.Core.Components
     /// <typeparam name="O">Owner 的类型</typeparam>
     /// <typeparam name="C">此类 ComponentType 对应的组件的基类型</typeparam>
     public class ComponentType<O, C> : ComponentType<O>
-        where O : class, IComponentHolder<O>
+        where O : class, IComponentOwner<O>
         where C : Component<O>
     {
         public override Type OwnerType => typeof(O);

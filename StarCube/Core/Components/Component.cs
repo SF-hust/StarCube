@@ -11,7 +11,7 @@ using StarCube.Core.Registries;
 namespace StarCube.Core.Components
 {
     public abstract class Component<O>
-        where O : class, IComponentHolder<O>
+        where O : class, IComponentOwner<O>
     {
         /* ~ Type 与 Variant ~ */
         public ComponentType<O> Type => Variant.type;
@@ -95,7 +95,7 @@ namespace StarCube.Core.Components
     public static class ComponentExtension
     {
         public static bool TryCreateComponent<O>(this Registry<ComponentType<O>> registry, StringID typeID, StringID variantID, JObject args, [NotNullWhen(true)] out Component<O>? component)
-            where O : class, IComponentHolder<O>
+            where O : class, IComponentOwner<O>
         {
             component = null;
 

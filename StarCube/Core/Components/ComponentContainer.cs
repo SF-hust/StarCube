@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace StarCube.Core.Components
 {
     public class ComponentContainer<O>
-        where O : class, IComponentHolder<O>
+        where O : class, IComponentOwner<O>
     {
         public IEnumerable<Component<O>> Components => components;
 
