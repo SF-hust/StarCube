@@ -7,7 +7,7 @@ using StarCube.Game.Items;
 [assembly: BootstrapClass(typeof(BuiltinItems))]
 namespace StarCube.Game.Items
 {
-    public class BuiltinItems
+    public static class BuiltinItems
     {
         public static Item Air = new Item(StringID.Create(Constants.DEFAULT_NAMESPACE, "air"));
 
