@@ -1,13 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 
 namespace StarCube.Utility.Math
 {
     public static class BitUtil
     {
+        /// <summary>
+        /// 计算存储一个 int 整数所需的最小二进制位数，value 必须大于等于 0
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static int BitCount(int value)
         {
+            Debug.Assert(value >= 0);
+
             int count = 0;
             while(value > 0)
             {
@@ -17,8 +23,16 @@ namespace StarCube.Utility.Math
             return count;
         }
 
-        public static void Pack(int[] data, byte[] binary, int bitCount)
+        /// <summary>
+        /// 将 data 中每个整数压缩打包为 binary，data 中每个元素在打包后数据中占 bitCount 个二进制位
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="binary"></param>
+        /// <param name="bitCount"></param>
+        public static void Pack(Span<int> data, Span<byte> binary, int bitCount)
         {
+            Debug.Assert(data.Length * bitCount <= binary.Length * sizeof(byte));
+
             int byteIndex = 0;
             int bitIndex = 0;
             byte b = 0;
@@ -40,8 +54,16 @@ namespace StarCube.Utility.Math
             }
         }
 
-        public static void Unpack(int[] data, byte[] binary, int bitCount)
+        /// <summary>
+        /// 将 binary 中前 data.Length * bitCount 个二进制位，每 bitCount 个二进制位解压缩为一个 int，并存储到 data 中
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="binary"></param>
+        /// <param name="bitCount"></param>
+        public static void Unpack(Span<int> data, Span<byte> binary, int bitCount)
         {
+            Debug.Assert(data.Length * bitCount <= binary.Length * sizeof(byte));
+
             int byteIndex = 0;
             int bitIndex = 0;
             for (int i = 0; i < data.Length; ++i)

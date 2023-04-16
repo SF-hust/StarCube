@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 using LiteDB;
@@ -120,6 +121,18 @@ namespace StarCube.Utility
             }
 
             value = string.Empty;
+            return false;
+        }
+
+        public static bool TryGetDocument(this BsonDocument bson, string key, [NotNullWhen(true)] out BsonDocument? value)
+        {
+            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue is BsonDocument bDoc)
+            {
+                value = bDoc;
+                return true;
+            }
+
+            value = null;
             return false;
         }
 

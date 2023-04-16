@@ -115,12 +115,12 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
             catch (Exception e)
             {
-                LogUtil.Logger.Error(e);
+                LogUtil.Error(e);
                 throw e;
             }
             finally
             {
-                LogUtil.Logger.Info($"count64 = {count64}, count16 = {count16}, count4 = {count4}, count = {count}, total = {count64 * 64 + count16 * 16 + count4 * 4 + count}");
+                LogUtil.Debug($"count64 = {count64}, count16 = {count16}, count4 = {count4}, count = {count}, total = {count64 * 64 + count16 * 16 + count4 * 4 + count}");
             }
         }
 

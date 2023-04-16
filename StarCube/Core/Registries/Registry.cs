@@ -102,7 +102,7 @@ namespace StarCube.Core.Registries
 
         public bool FireRegisterEvent()
         {
-            LogUtil.Logger.Info($"start register event for registry \"{id}\"");
+            LogUtil.Info($"start register event for registry \"{id}\"");
 
             RegisterStartEventArgs eventArg = new RegisterStartEventArgs();
             locked = false;
@@ -135,7 +135,7 @@ namespace StarCube.Core.Registries
             entries.Add(entry);
             stringIDToIntegerID.Add(entry.ID, integerID);
 
-            LogUtil.Logger.Info($"new entry \"{entry.ID}\" added to registry \"{id}\"");
+            LogUtil.Info($"new entry \"{entry.ID}\" added to registry \"{id}\"");
 
             OnEntryAddEvent?.Invoke(this, new RegistryEntryAddEventArgs(entry));
 

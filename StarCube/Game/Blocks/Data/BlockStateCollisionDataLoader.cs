@@ -31,7 +31,7 @@ namespace StarCube.Game.Blocks.Data
             {
                 StringBuilder builder = StringUtil.StringBuilder;
                 builder.Append("missing blockstate collision data : \"").Append(id).Append("\"");
-                LogUtil.Logger.Warning(builder.ToString());
+                LogUtil.Warning(builder.ToString());
             }
 
             context.AddDataResult(ID, idToBlockStateCollisionData);

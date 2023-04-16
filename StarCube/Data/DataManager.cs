@@ -32,7 +32,7 @@ namespace StarCube.Data
         {
             if (initialized)
             {
-                LogUtil.Logger.Error("tries to call DataManager.Init() twice");
+                LogUtil.Error("tries to call DataManager.Init() twice");
                 throw new InvalidOperationException("can't call DataManager.Init() twice");
             }
 
@@ -65,7 +65,7 @@ namespace StarCube.Data
                     throw new ArgumentException($"data loader {dataLoader.id} already exists");
                 }
 
-                LogUtil.Logger.Info($"loader \"{dataLoader.id}\" found");
+                LogUtil.Debug($"loader \"{dataLoader.id}\" found");
             }
 
             // 收集各个 loader 的依赖
@@ -135,13 +135,13 @@ namespace StarCube.Data
         {
             if(bootstrapLoaded)
             {
-                LogUtil.Logger.Error("tries to call DataManager.RunAll() twice");
+                LogUtil.Error("tries to call DataManager.RunAll() twice");
                 throw new InvalidOperationException("can't call DataManager.RunAll() twice");
             }
 
             foreach (var loader in dataLoaderChain)
             {
-                LogUtil.Logger.Info($"loader \"{loader.id}\" running");
+                LogUtil.Info($"loader \"{loader.id}\" running");
                 loader.Run(context);
             }
 
@@ -153,7 +153,7 @@ namespace StarCube.Data
         {
             if(!idToDataLoader.TryGetValue(id, out DataLoader? dataLoader) || !dataLoader.reloadable)
             {
-                LogUtil.Logger.Warning($"data loader \"{id}\" not found or not reloadable");
+                LogUtil.Warning($"data loader \"{id}\" not found or not reloadable");
                 return false;
             }
 
@@ -166,7 +166,7 @@ namespace StarCube.Data
                 {
                     if (!idToDataLoader[followerID].reloadable)
                     {
-                        LogUtil.Logger.Warning($"in reloading \"{id}\" : data loader \"{followerID}\" is not reloadable");
+                        LogUtil.Warning($"in reloading \"{id}\" : data loader \"{followerID}\" is not reloadable");
                         return false;
                     }
                     idToReloadDataLoader.Add(followerID, idToDataLoader[followerID]);
@@ -177,7 +177,7 @@ namespace StarCube.Data
                     (loader) => idToDependencies[loader.id],
                     out reloadChain))
                 {
-                    LogUtil.Logger.Warning($"can't resolve dependencies in reloading \"{id}\"");
+                    LogUtil.Warning($"can't resolve dependencies in reloading \"{id}\"");
                     reloadChain.Clear();
                 }
 
@@ -186,13 +186,13 @@ namespace StarCube.Data
 
             if (reloadChain.Count == 0)
             {
-                LogUtil.Logger.Warning($"fail to reload \"{id}\"");
+                LogUtil.Warning($"fail to reload \"{id}\"");
                 return false;
             }
 
             foreach (DataLoader loader in reloadChain)
             {
-                LogUtil.Logger.Info($"reloading \"{id}\"");
+                LogUtil.Info($"reloading \"{id}\"");
                 loader.Run(context);
             }
 
