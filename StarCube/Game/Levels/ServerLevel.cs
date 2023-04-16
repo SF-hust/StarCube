@@ -101,12 +101,12 @@ namespace StarCube.Game.Levels
             chunkSource.Stop();
         }
 
-        public ServerLevel(Guid guid, ILevelBound bound, ILevelGenerator generator, IChunkUpdateHandler chunkHandler)
+        public ServerLevel(Guid guid, ILevelBound bound, ILevelGenerator generator, LevelStorage storage, IChunkUpdateHandler chunkHandler)
             : base(guid)
         {
             this.bound = bound;
 
-            chunkSource = new ServerChunkSource(this, bound, generator, new LevelDataStorage(), chunkHandler);
+            chunkSource = new ServerChunkSource(this, bound, generator, storage, chunkHandler);
         }
 
         public readonly ILevelBound bound;

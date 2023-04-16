@@ -8,11 +8,8 @@ namespace StarCube.Game
 {
     public class ServerGame
     {
-        public ServerGame(ILevelBound bound, ILevelGenerator generator)
+        public ServerGame()
         {
-            level = new ServerLevel(Guid.NewGuid(), bound, generator, DummyChunkUpdateHandler.Instance);
         }
-
-        public readonly ServerLevel level;
     }
 }

@@ -124,7 +124,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
         }
 
-        public ChunkProvider(ILevelGenerator generator, LevelDataStorage storage, int maxResultCount)
+        public ChunkProvider(ILevelGenerator generator, LevelStorage storage, int maxResultCount)
         {
             this.generator = generator;
             this.storage = storage;
@@ -135,7 +135,7 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         private readonly ILevelGenerator generator;
 
-        private readonly LevelDataStorage storage;
+        private readonly LevelStorage storage;
 
         private readonly ConcurrentQueue<ChunkPos> pendingLoadChunkPos = new ConcurrentQueue<ChunkPos>();
 
@@ -148,6 +148,5 @@ namespace StarCube.Game.Levels.Chunks.Source
         private readonly Task workerTask;
 
         private volatile bool stop = false;
-
     }
 }

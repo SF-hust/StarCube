@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-
+using System.Runtime.InteropServices;
+using System.Threading;
+using LiteDB;
 using StarCube.Utility.Enums;
 
 namespace StarCube.Utility.Math
@@ -88,9 +90,41 @@ namespace StarCube.Utility.Math
 
     public static class ChunkPosExtension
     {
+        private static readonly ThreadLocal<byte[]> ThreadLocalBuffer = new ThreadLocal<byte[]>(() => new byte[12]);
+
         public static RegionPos GetRegionPos(this ChunkPos chunkPos)
         {
             return new RegionPos(chunkPos.x >> 4, chunkPos.y >> 4, chunkPos.z >> 4);
+        }
+
+        public static ObjectId ToLiteDBObjectID(this ChunkPos chunkPos)
+        {
+            byte[] buffer = ThreadLocalBuffer.Value;
+            Span<int> ints = MemoryMarshal.Cast<byte, int>(buffer);
+            ints[0] = chunkPos.x;
+            ints[1] = chunkPos.y;
+            ints[2] = chunkPos.z;
+            if (BitConverter.IsLittleEndian)
+            {
+                buffer.AsSpan(0, 4).Reverse();
+                buffer.AsSpan(4, 4).Reverse();
+                buffer.AsSpan(8, 4).Reverse();
+            }
+            return new ObjectId(buffer);
+        }
+
+        public static ChunkPos ToChunkPos(this ObjectId id)
+        {
+            byte[] buffer = ThreadLocalBuffer.Value;
+            id.ToByteArray(buffer, 0);
+            if (BitConverter.IsLittleEndian)
+            {
+                buffer.AsSpan(0, 4).Reverse();
+                buffer.AsSpan(4, 4).Reverse();
+                buffer.AsSpan(8, 4).Reverse();
+            }
+            ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(buffer);
+            return new ChunkPos(ints[0], ints[1], ints[2]);
         }
     }
 }

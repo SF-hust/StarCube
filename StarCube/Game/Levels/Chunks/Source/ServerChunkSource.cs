@@ -44,7 +44,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             chunkMap.Stop();
         }
 
-        public ServerChunkSource(ServerLevel level, ILevelBound bound, ILevelGenerator generator, LevelDataStorage storage, IChunkUpdateHandler chunkHandler)
+        public ServerChunkSource(ServerLevel level, ILevelBound bound, ILevelGenerator generator, LevelStorage storage, IChunkUpdateHandler chunkHandler)
         {
             this.level = level;
 
@@ -57,7 +57,7 @@ namespace StarCube.Game.Levels.Chunks.Source
         public readonly ServerLevel level;
 
         private readonly ILevelGenerator generator;
-        private readonly LevelDataStorage storage;
+        private readonly LevelStorage storage;
 
         private readonly ChunkMap chunkMap;
     }

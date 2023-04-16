@@ -12,6 +12,12 @@ namespace StarCube.Utility.Math
             return (y << 8) + (z << 4) + x;
         }
 
+        public static BlockPos FromInChunkIndex(int index)
+        {
+            return new BlockPos(index & 0xF, (index >> 8) & 0xF, (index >> 4) & 0xF);
+        }
+
+        public int InChunkIndex => (y << 8) + (z << 4) + x;
 
         public readonly int x;
         public readonly int y;
