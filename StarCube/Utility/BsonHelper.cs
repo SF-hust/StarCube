@@ -124,6 +124,18 @@ namespace StarCube.Utility
             return false;
         }
 
+        public static bool TryGetArray(this BsonDocument bson, string key, [NotNullWhen(true)] out BsonArray? value)
+        {
+            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue is BsonArray bArray)
+            {
+                value = bArray;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
         public static bool TryGetDocument(this BsonDocument bson, string key, [NotNullWhen(true)] out BsonDocument? value)
         {
             if (bson.TryGetValue(key, out BsonValue? bValue) && bValue is BsonDocument bDoc)

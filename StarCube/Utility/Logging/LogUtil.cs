@@ -6,13 +6,12 @@ namespace StarCube.Utility.Logging
     {
         public static ILogger Logger
         {
-            get => logger;
             set => logger = value;
         }
 
         private static ILogger logger = new DummyLogger();
 
-        [Conditional("DEBUG")]
+        [Conditional("TRACE_ON")]
         public static void Trace(object message)
         {
             logger.Trace(message);

@@ -31,6 +31,7 @@ namespace StarCube.Utility.Math
         /// <param name="bitCount"></param>
         public static void Pack(Span<int> data, Span<byte> binary, int bitCount)
         {
+            Debug.Assert(bitCount > 0 && bitCount < 32);
             Debug.Assert(data.Length * bitCount <= binary.Length * sizeof(byte));
 
             int byteIndex = 0;
@@ -62,6 +63,7 @@ namespace StarCube.Utility.Math
         /// <param name="bitCount"></param>
         public static void Unpack(Span<int> data, Span<byte> binary, int bitCount)
         {
+            Debug.Assert(bitCount > 0 && bitCount < 32);
             Debug.Assert(data.Length * bitCount <= binary.Length * sizeof(byte));
 
             int byteIndex = 0;
