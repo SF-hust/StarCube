@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-
 using LiteDB;
 
 using StarCube.Utility;
@@ -12,6 +11,101 @@ namespace StarCube.Data.Storage
 {
     public sealed class GameSaves : IDisposable
     {
+        public const string LiteDatabaseExtension = ".litedb";
+
+        public const string MetaDataBaseName = "meta";
+
+        public const string MetaDataCollectionName = "metadata";
+
+        /// <summary>
+        /// 在指定文件夹下创建一个存档
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static GameSaves CreateInDirectory(string name, string path)
+        {
+            GameSaves saves = new GameSaves(name, path);
+            LiteDatabase meta = saves.GetOrCreateDB(MetaDataBaseName);
+            ILiteCollection<BsonDocument> metadataCollection = meta.GetCollection(MetaDataCollectionName, BsonAutoId.ObjectId);
+            if (metadataCollection.Count() > 0)
+            {
+                metadataCollection.DeleteAll();
+            }
+            BsonDocument metadataDoc = new BsonDocument();
+            metadataDoc["name"] = name;
+            metadataCollection.Upsert(metadataDoc);
+            return saves;
+        }
+
+        public static bool TryGetNameFromDirectory(string path, out string name)
+        {
+            name = string.Empty;
+            string fullDBPath = Path.Combine(path, MetaDataBaseName + LiteDatabaseExtension);
+            if (!File.Exists(fullDBPath))
+            {
+                return false;
+            }
+            ConnectionString connectionString = new ConnectionString()
+            {
+                Filename = fullDBPath,
+                Collation = Collation.Binary,
+            };
+
+            using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
+            if (!metaDatabase.CollectionExists(MetaDataCollectionName))
+            {
+                return false;
+            }
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaDataCollectionName, BsonAutoId.ObjectId);
+            if (metadataCollection.Count() != 1)
+            {
+                return false;
+            }
+            BsonDocument metadataDoc = metadataCollection.FindOne(Query.All());
+            return metadataDoc.TryGetString("name", out name);
+        }
+
+        /// <summary>
+        /// 尝试从指定文件夹下加载一个存档
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="saves"></param>
+        /// <returns></returns>
+        public static bool TryLoadFromDirectory(string path, [NotNullWhen(true)] out GameSaves? saves)
+        {
+            saves = null;
+            string fullDBPath = Path.Combine(path, MetaDataBaseName + LiteDatabaseExtension);
+            if (!File.Exists(fullDBPath))
+            {
+                return false;
+            }
+            ConnectionString connectionString = new ConnectionString()
+            {
+                Filename = fullDBPath,
+                Collation = Collation.Binary,
+            };
+
+            using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
+            if (!metaDatabase.CollectionExists(MetaDataCollectionName))
+            {
+                return false;
+            }
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaDataCollectionName, BsonAutoId.ObjectId);
+            if (metadataCollection.Count() != 1)
+            {
+                return false;
+            }
+            BsonDocument metadataDoc = metadataCollection.FindOne(Query.All());
+            if (!metadataDoc.TryGetString("name", out string name))
+            {
+                return false;
+            }
+
+            saves = new GameSaves(name, path);
+            return true;
+        }
+
         /// <summary>
         /// 获取或创建指定路径的 Database
         /// </summary>
@@ -36,7 +130,7 @@ namespace StarCube.Data.Storage
             {
                 if (!pathToDataBase.Remove(path, out LiteDatabase? db))
                 {
-                    LogUtil.Error($"in game saves (\"{name}\"), tries to close db (\"{path}\") which does not exist");
+                    LogUtil.Error($"in game saves (\"{name}\"), tries to close database (\"{path}\") which does not exist");
                     return;
                 }
 
@@ -124,7 +218,7 @@ namespace StarCube.Data.Storage
                 return fullPath;
             }
 
-            fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.PathSeparator)) + ".db";
+            fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.PathSeparator)) + LiteDatabaseExtension;
             relativeToFullPath.Add(relativePath, fullPath);
             return fullPath;
         }
@@ -151,7 +245,7 @@ namespace StarCube.Data.Storage
             pathToDataBase.Clear();
         }
 
-        public GameSaves(string name, string directoryPath)
+        private GameSaves(string name, string directoryPath)
         {
             this.name = name;
             this.directoryPath = directoryPath;

@@ -12,10 +12,15 @@ namespace StarCube.Game.Levels.Storage
 {
     public sealed class LevelStorageManager : IDisposable
     {
-        public const string LevelMetaDBPath = "levels/meta";
+        public const string LevelMetaDBPath = "level/meta";
 
-        public const string LevelDBPathPrefix = "levels/level_";
+        public const string LevelDBPathPrefix = "level/level_";
 
+        /// <summary>
+        /// 将一个 64 位整数转换为 level 的路径名
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public static string IndexToPath(long index)
         {
             return LevelDBPathPrefix + index.ToString("X").ToLower();
@@ -48,7 +53,7 @@ namespace StarCube.Game.Levels.Storage
                 // 创建 LevelStorage
                 long index = meta["index"].AsInt64;
                 string path = IndexToPath(index);
-                LiteDatabase db = gameSaves.GetOrCreateDB(path);
+                LiteDatabase db = saves.GetOrCreateDB(path);
                 return new LevelStorage(guid, path, db, this, chunkParser);
             }
         }
@@ -67,7 +72,7 @@ namespace StarCube.Game.Levels.Storage
                     return;
                 }
 
-                gameSaves.ReleaseDB(levelStorage.path);
+                saves.ReleaseDB(levelStorage.path);
             }
         }
 
@@ -90,7 +95,7 @@ namespace StarCube.Game.Levels.Storage
                 // 删除 level 的数据库
                 long index = meta["index"].AsInt64;
                 string levelPath = IndexToPath(index);
-                gameSaves.DropDB(levelPath);
+                saves.DropDB(levelPath);
             }
         }
 
@@ -103,7 +108,7 @@ namespace StarCube.Game.Levels.Storage
 
         private LiteDatabase GetLevelMetaDatabase()
         {
-            return gameSaves.GetOrCreateDB(LevelMetaDBPath);
+            return saves.GetOrCreateDB(LevelMetaDBPath);
         }
 
         private ILiteCollection<BsonDocument> GetLevelMetaCollection()
@@ -132,7 +137,7 @@ namespace StarCube.Game.Levels.Storage
         {
             if (levelMetaDatabase.IsValueCreated)
             {
-                gameSaves.ReleaseDB(LevelMetaDBPath);
+                saves.ReleaseDB(LevelMetaDBPath);
             }
 
             foreach (LevelStorage levelStorage in idToLevelStorageCache.Values)
@@ -142,15 +147,15 @@ namespace StarCube.Game.Levels.Storage
             idToLevelStorageCache.Clear();
         }
 
-        public LevelStorageManager(GameSaves gameSaves, IChunkParser chunkParser)
+        public LevelStorageManager(GameSaves saves, IChunkParser chunkParser)
         {
-            this.gameSaves = gameSaves;
+            this.saves = saves;
             this.chunkParser = chunkParser;
             levelMetaDatabase = new Lazy<LiteDatabase>(GetLevelMetaDatabase, true);
             levelMetaCollection = new Lazy<ILiteCollection<BsonDocument>>(GetLevelMetaCollection, true);
         }
 
-        private readonly GameSaves gameSaves;
+        private readonly GameSaves saves;
 
         private readonly IChunkParser chunkParser;
 

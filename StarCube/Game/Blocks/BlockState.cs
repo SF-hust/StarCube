@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 
+using LiteDB;
+
 using StarCube.Utility;
 using StarCube.Utility.Container;
 using StarCube.Core.States;
@@ -35,6 +37,16 @@ namespace StarCube.Game.Blocks
             }
             BlockState.blockStates = blockStates;
         }
+
+        public static BsonValue ToBson(BlockState blockState)
+        {
+            return new BsonDocument
+            {
+                { "id", blockState.owner.ID.idString },
+                { "local", blockState.localID }
+            };
+        }
+
 
         public Block Block { get => owner; }
 

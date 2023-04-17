@@ -6,9 +6,9 @@ using StarCube.Utility;
 namespace StarCube.Game.Levels.Chunks.Storage.Palette
 {
     /// <summary>
-    /// 旧调色盘到当前调色盘的转化器
+    /// 旧调色盘到当前调色盘的映射
     /// </summary>
-    public sealed class GlobalPaletteConverter
+    public sealed class GlobalPaletteMapper
     {
         public int Length => data.Length;
 
@@ -27,7 +27,7 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
             return data[value];
         }
 
-        public GlobalPaletteConverter(ImmutableArray<int> data)
+        public GlobalPaletteMapper(ImmutableArray<int> data)
         {
             this.data = data;
         }

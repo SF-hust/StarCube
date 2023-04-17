@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using LiteDB;
@@ -31,7 +30,7 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
                 throw new ArgumentException("palette collections must have int32 auto id");
             }
 
-            if (idToConverter.Count != 0)
+            if (idToMapper.Count != 0)
             {
                 throw new InvalidOperationException("can't call LoadAll() twice");
             }
@@ -51,14 +50,14 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
                     continue;
                 }
 
-                GlobalPaletteConverter converter = BuildPaletteConverter(entryArray);
+                GlobalPaletteMapper converter = BuildPaletteMapper(entryArray);
                 // 检查这个旧调色盘与当前调色盘是否相同
                 if (EqualCurrent(converter))
                 {
                     currentGlobalPaletteID = id;
                     globalPaletteArray = entryArray;
                 }
-                idToConverter.Add(id, converter);
+                idToMapper.Add(id, converter);
             }
 
             // 旧调色盘中没找到与当前调色盘相同的
@@ -73,12 +72,12 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
                 {
                     builder[i] = i;
                 }
-                idToConverter.Add(id, new GlobalPaletteConverter(builder.MoveToImmutable()));
+                idToMapper.Add(id, new GlobalPaletteMapper(builder.MoveToImmutable()));
                 currentGlobalPaletteID = id;
             }
         }
 
-        private GlobalPaletteConverter BuildPaletteConverter(BsonArray entryArray)
+        private GlobalPaletteMapper BuildPaletteMapper(BsonArray entryArray)
         {
             var builder = ImmutableArray.CreateBuilder<int>(entryArray.Count);
             for (int i = 0; i < entryArray.Count; ++i)
@@ -93,10 +92,10 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
                 }
             }
 
-            return new GlobalPaletteConverter(builder.MoveToImmutable());
+            return new GlobalPaletteMapper(builder.MoveToImmutable());
         }
 
-        private bool EqualCurrent(GlobalPaletteConverter converter)
+        private bool EqualCurrent(GlobalPaletteMapper converter)
         {
             if (converter.data.Length != globalIDMap.Count)
             {
@@ -114,9 +113,9 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
             return true;
         }
 
-        public bool TryGetConverter(int id, [NotNullWhen(true)] out GlobalPaletteConverter? palette)
+        public bool TryGetMapper(int id, [NotNullWhen(true)] out GlobalPaletteMapper? palette)
         {
-            return idToConverter.TryGetValue(id, out palette);
+            return idToMapper.TryGetValue(id, out palette);
         }
 
         private BsonArray GenerateCurrentPaletteArray()
@@ -157,6 +156,6 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
 
         private BsonArray globalPaletteArray;
 
-        private readonly Dictionary<int, GlobalPaletteConverter> idToConverter = new Dictionary<int, GlobalPaletteConverter>();
+        private readonly Dictionary<int, GlobalPaletteMapper> idToMapper = new Dictionary<int, GlobalPaletteMapper>();
     }
 }

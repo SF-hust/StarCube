@@ -62,9 +62,9 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 return false;
             }
 
-            GlobalPaletteConverter? globalPaletteConverter = null;
+            GlobalPaletteMapper? globalPaletteConverter = null;
             if (paletteID != blockStatePaletteManager.CurrentGlobalPaletteID &&
-                !blockStatePaletteManager.TryGetConverter(paletteID, out globalPaletteConverter))
+                !blockStatePaletteManager.TryGetMapper(paletteID, out globalPaletteConverter))
             {
                 return false;
             }
