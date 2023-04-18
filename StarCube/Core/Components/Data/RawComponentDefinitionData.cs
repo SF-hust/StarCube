@@ -21,29 +21,22 @@ namespace StarCube.Core.Components.Data
                 return false;
             }
 
-            if (!json.TryGetStringID("variant", out StringID variantID))
-            {
-                return false;
-            }
-
             if (!json.TryGetJObject("args", out JObject? argObject))
             {
                 argObject = new JObject();
             }
 
-            entry = new ComponentDefinitionEntry(typeID, variantID, argObject);
+            entry = new ComponentDefinitionEntry(typeID, argObject);
             return true;
         }
 
-        public ComponentDefinitionEntry(StringID typeID, StringID variantID, JObject args)
+        public ComponentDefinitionEntry(StringID typeID, JObject args)
         {
             this.typeID = typeID;
-            this.variantID = variantID;
             this.args = args;
         }
 
         public readonly StringID typeID;
-        public readonly StringID variantID;
         public readonly JObject args;
     }
 

@@ -2,7 +2,7 @@
 
 namespace StarCube.Bootstrap.Attributes
 {
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
     public sealed class BootstrapClassAttribute : Attribute
     {
         public BootstrapClassAttribute(Type type)
