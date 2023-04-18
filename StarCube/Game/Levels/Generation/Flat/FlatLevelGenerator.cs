@@ -10,11 +10,11 @@ namespace StarCube.Game.Levels.Generation.Flat
     {
         public Chunk GenerateChunk(ChunkPos pos)
         {
-            int[] buffer = Chunk.ThreadLocalChunkDataBuffer.Value;
+            Span<int> buffer = stackalloc int[Chunk.ChunkSize];
             for (int y = 0; y < 16; ++y)
             {
                 int id = layerList.GetBlockStateIDForHeight(y + pos.y * 16);
-                buffer.AsSpan(y * 256, 256).Fill(id);
+                buffer.Slice(y * 256, 256).Fill(id);
             }
             Chunk chunk = chunkFactory.Create(pos, buffer);
             return chunk;

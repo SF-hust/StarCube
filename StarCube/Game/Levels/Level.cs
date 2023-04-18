@@ -25,6 +25,10 @@ namespace StarCube.Game.Levels
         public abstract bool TryGetAndSetBlockState(BlockPos pos, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState);
         public abstract bool TryGetAndSetBlockState(int x, int y, int z, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState);
 
+        public abstract bool HasChunk(ChunkPos pos);
+
+        public abstract bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk);
+
         public abstract void Tick();
 
         Guid IGuid.Guid => guid;

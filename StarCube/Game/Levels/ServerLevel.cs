@@ -8,6 +8,7 @@ using StarCube.Game.Levels.Storage;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Chunks.Source;
 using StarCube.Game.Levels.Chunks.Loading;
+using StarCube.Game.Worlds;
 
 namespace StarCube.Game.Levels
 {
@@ -73,10 +74,14 @@ namespace StarCube.Game.Levels
             return false;
         }
 
-
-        public bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
+        public override bool HasChunk(ChunkPos pos)
         {
-            return chunkSource.TryGetChunk(pos, false, out chunk);
+            return chunkSource.HasChunk(pos);
+        }
+
+        public override bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
+        {
+            return chunkSource.TryGetChunk(pos, out chunk);
         }
 
 
@@ -101,15 +106,15 @@ namespace StarCube.Game.Levels
             chunkSource.Stop();
         }
 
-        public ServerLevel(Guid guid, ILevelBound bound, ILevelGenerator generator, LevelStorage storage, IChunkUpdateHandler chunkHandler)
+        public ServerLevel(Guid guid, ILevelBound bound, ILevelGenerator generator, LevelStorage storage)
             : base(guid)
         {
             this.bound = bound;
-
-            chunkSource = new ServerChunkSource(this, bound, generator, storage, chunkHandler);
+            chunkSource = new ServerChunkSource(this, bound, generator, storage);
         }
 
         public readonly ILevelBound bound;
+
         private readonly ServerChunkSource chunkSource;
     }
 }

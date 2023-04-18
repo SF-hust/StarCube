@@ -63,7 +63,7 @@ namespace StarCube.Game.Entities.Components
 
         public Level Level
         {
-            get => level ?? throw new NullReferenceException();
+            get => level ?? throw new NullReferenceException(nameof(Level));
             set => level ??= value;
         }
 

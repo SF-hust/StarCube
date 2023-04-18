@@ -13,6 +13,11 @@ namespace StarCube.Game.BlockEntities
 
         public ComponentContainer<BlockEntity> Components => componentHolder;
 
+        public void OnActive(bool active)
+        {
+
+        }
+
         public BlockEntity(BlockEntityType type, Guid guid)
         {
             this.type = type;

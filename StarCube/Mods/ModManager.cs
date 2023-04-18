@@ -1,27 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Reflection;
 
 namespace StarCube.Mods
 {
     public class ModManager
     {
-        private static ModManager? instance = null;
+        private static readonly Lazy<ModManager> instance = new Lazy<ModManager>(LoadMods, true);
 
-        public static ModManager Instance => instance ?? throw new NullReferenceException();
+        public static ModManager Instance => instance.Value;
 
-        public static void LoadMods(string modDirectoryPath)
+        private static string modDirectoryPath = string.Empty;
+
+        public static string ModDirectoryPath
         {
-            ModLoader modLoader = new ModLoader(modDirectoryPath);
-            ImmutableArray<ModInstance> modList = modLoader.LoadMods();
-            instance = new ModManager(modList);
+            get => modDirectoryPath.Length == 0 ? modDirectoryPath : throw new InvalidOperationException("mod directory path dose not set");
+            set
+            {
+                if (modDirectoryPath.Length != 0)
+                {
+                    throw new InvalidOperationException("mod directory path has been set");
+                }
+                if (!Directory.Exists(value))
+                {
+                    throw new ArgumentException("path not exist", nameof(value));
+                }
+                modDirectoryPath = value;
+            }
         }
 
-        private static bool TryLoadInactiveModList(string modDirectoryPath, out List<string> inactiveModids)
+        private static ModManager LoadMods()
         {
-            inactiveModids = new List<string>();
-            return false;
+            ModLoader modLoader = new ModLoader(ModDirectoryPath);
+            ImmutableArray<ModInstance> modList = modLoader.LoadMods();
+            return new ModManager(modList);
         }
 
         public IEnumerable<Assembly> GameAssemblies => throw new NotImplementedException();

@@ -1,14 +1,15 @@
 ﻿using System;
-
-using LiteDB;
+using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 
 using StarCube.Utility.Math;
 using StarCube.Utility.Container;
 using StarCube.Game.Blocks;
+using StarCube.Game.BlockEntities;
 
 namespace StarCube.Game.Levels.Chunks
 {
-    public class PalettedChunk : Chunk
+    public sealed class PalettedChunk : Chunk
     {
         public override bool Writable => true;
 
@@ -50,7 +51,7 @@ namespace StarCube.Game.Levels.Chunks
             return old;
         }
 
-        public override void CopyBlockStatesTo(BlockState[] blockStates)
+        public override void CopyBlockStatesTo(Span<BlockState> blockStates)
         {
             this.blockStates.CopyTo(blockStates);
         }
@@ -60,26 +61,54 @@ namespace StarCube.Game.Levels.Chunks
             blockStates.CopyRawTo(buffer);
         }
 
-        public override void StoreTo(BsonDocument bson)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Clear()
         {
             blockStates.Clear();
         }
 
-        public override Chunk Clone()
-        {
-            PalettedChunkData<BlockState> blockStates = this.blockStates.Clone();
-            PalettedChunk clone = new PalettedChunk(pos, blockStates);
-            return clone;
-        }
-
         public PalettedChunkDataView GetReadOnlyBlockStateDataView()
         {
             return blockStates.AsReadOnlyView();
+        }
+
+        public override bool TryGetBlockEntity(BlockPos pos, [NotNullWhen(true)] out BlockEntity? blockEntity)
+        {
+            int index = pos.InChunkIndex;
+            return inChunkIndexToBlockEntity.TryGetValue(index, out blockEntity);
+        }
+
+        public override bool TryAddBlockEntity(BlockPos pos, BlockEntity blockEntity)
+        {
+            int index = pos.InChunkIndex;
+            if (inChunkIndexToBlockEntity.TryAdd(index, blockEntity))
+            {
+                blockEntity.OnActive(true);
+                return true;
+            }
+
+            return false;
+        }
+
+        public override bool TryRemoveBlockEntity(BlockPos pos, [NotNullWhen(true)] out BlockEntity? blockEntity)
+        {
+            int index = pos.InChunkIndex;
+            if (inChunkIndexToBlockEntity.TryGetValue(index, out blockEntity))
+            {
+                blockEntity.OnActive(false);
+                inChunkIndexToBlockEntity.Remove(index);
+                return true;
+            }
+
+            return false;
+        }
+
+
+        public override void OnActive(Level level, bool active)
+        {
+            foreach (BlockEntity blockEntity in inChunkIndexToBlockEntity.Values)
+            {
+                blockEntity.OnActive(active);
+            }
         }
 
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool)
@@ -111,12 +140,8 @@ namespace StarCube.Game.Levels.Chunks
             this.blockStates.CopyFrom(blockStates);
         }
 
-        private PalettedChunk(ChunkPos pos, PalettedChunkData<BlockState> blockStates)
-            : base(pos)
-        {
-            this.blockStates = blockStates;
-        }
-
         private readonly PalettedChunkData<BlockState> blockStates;
+
+        private readonly Dictionary<int, BlockEntity> inChunkIndexToBlockEntity = new Dictionary<int, BlockEntity>();
     }
 }

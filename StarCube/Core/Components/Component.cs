@@ -8,7 +8,7 @@ namespace StarCube.Core.Components
         /* ~ Owner ~ */
         public bool Attached => owner != null;
 
-        public O Owner => owner ?? throw new NullReferenceException();
+        public O Owner => owner ?? throw new NullReferenceException(nameof(Owner));
 
         public void SetOwner(O newOwner)
         {
@@ -32,19 +32,46 @@ namespace StarCube.Core.Components
 
 
         /* ~ 生命周期 ~ */
-        public virtual void OnConstruct()
-        {
-        }
 
+        /// <summary>
+        /// 当 SetOwner 调用后调用此方法
+        /// </summary>
         public virtual void OnAddToOwner()
         {
         }
 
+        /// <summary>
+        /// 在 ResetOwner 调用前调用此方法
+        /// </summary>
         public virtual void OnRemoveFromOwner()
         {
         }
 
-        public virtual void OnDestory()
+        /// <summary>
+        /// 当组件附加的实例变得活跃时调用此方法
+        /// </summary>
+        public virtual void OnActive()
+        {
+        }
+
+        /// <summary>
+        /// 当组件附加的实例变得不活跃时调用此方法
+        /// </summary>
+        public virtual void OnInactive()
+        {
+        }
+
+        /// <summary>
+        /// 当组件被存储时调用此方法
+        /// </summary>
+        public virtual void OnStore()
+        {
+        }
+
+        /// <summary>
+        /// 当组件从存储中还原时调用此方法
+        /// </summary>
+        public virtual void OnRestore()
         {
         }
 

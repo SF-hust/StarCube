@@ -20,9 +20,9 @@ namespace StarCube.Core.States
         /// </summary>
         public bool Single => propertyList == null;
 
-        public ImmutableDictionary<StateProperty, ImmutableArray<S>> Neighbours => neighbours ?? throw new NullReferenceException();
+        public ImmutableDictionary<StateProperty, ImmutableArray<S>> Neighbours => neighbours ?? throw new NullReferenceException(nameof(Neighbours));
 
-        public ImmutableDictionary<StateProperty, S> Followers => followers ?? throw new NullReferenceException();
+        public ImmutableDictionary<StateProperty, S> Followers => followers ?? throw new NullReferenceException(nameof(Followers));
 
 
         /// <summary>

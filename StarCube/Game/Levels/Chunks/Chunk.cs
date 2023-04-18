@@ -1,20 +1,17 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
-
-using LiteDB;
 
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
-using System.Threading;
+using StarCube.Game.BlockEntities;
 
 namespace StarCube.Game.Levels.Chunks
 {
     public abstract class Chunk
     {
         public const int ChunkSize = 16 * 16 * 16;
-
-        public static ThreadLocal<int[]> ThreadLocalChunkDataBuffer = new ThreadLocal<int[]>(() => new int[ChunkSize]);
 
         public int X => pos.x;
         public int Y => pos.y;
@@ -25,6 +22,7 @@ namespace StarCube.Game.Levels.Chunks
 
         public abstract bool Empty { get; }
 
+        /* ~ BlockState start ~ */
         public abstract BlockState GetBlockState(int x, int y, int z);
         public virtual BlockState GetBlockState(BlockPos pos)
         {
@@ -49,20 +47,29 @@ namespace StarCube.Game.Levels.Chunks
             return GetAndSetBlockState(pos.x, pos.y, pos.z, blockState);
         }
 
-        public abstract void CopyBlockStatesTo(BlockState[] array);
+        public abstract void CopyBlockStatesTo(Span<BlockState> array);
 
         public abstract void CopyBlockStatesTo(Span<int> array);
+        /* ~ BlockState end ~ */
 
-        public virtual void CopyBlockStatesTo(int[] array)
-        {
-            CopyBlockStatesTo(array.AsSpan());
-        }
 
-        public abstract void StoreTo(BsonDocument bson);
+        /* ~ BlockEntity start ~ */
+        public abstract bool TryGetBlockEntity(BlockPos pos, [NotNullWhen(true)] out BlockEntity? blockEntity);
 
+        public abstract bool TryAddBlockEntity(BlockPos pos, BlockEntity blockEntity);
+
+        public abstract bool TryRemoveBlockEntity(BlockPos pos, [NotNullWhen(true)] out BlockEntity? blockEntity);
+        /* ~ BlockEntity end ~ */
+
+
+        /* ~ 生命周期 start ~ */
+        public abstract void OnActive(Level level, bool active);
+        /* ~ 生命周期 end ~ */
+
+        /// <summary>
+        /// 清理 Chunk 的内容
+        /// </summary>
         public abstract void Clear();
-
-        public abstract Chunk Clone();
 
         public override string ToString()
         {

@@ -13,19 +13,24 @@ namespace StarCube.Game.Blocks
 {
     public class BlockState : State<Block, BlockState>, IIntegerID
     {
-        public static IIDMap<BlockState> GlobalBlockStateIDMap => blockStates ?? throw new NullReferenceException();
+        private static readonly Lazy<IIDMap<BlockState>> blockStates = new Lazy<IIDMap<BlockState>>(BuildGlobalBlockStateIDMap, true);
 
-        private static IIDMap<BlockState>? blockStates = null;
+        public static IIDMap<BlockState> GlobalBlockStateIDMap => blockStates.Value;
+
 
         public static BlockState Create(Block block, StatePropertyList properties, int localID)
         {
             return new BlockState(block, properties, localID);
         }
 
-        public static void BuildGlobalBlockStateIDMap()
+        private static IIDMap<BlockState> BuildGlobalBlockStateIDMap()
         {
             int i = 0;
             IntegerIDMap<BlockState> blockStates = new IntegerIDMap<BlockState>();
+            if (BuiltinRegistries.Block.Count == 0)
+            {
+                throw new InvalidOperationException("Block has not been registered");
+            }
             foreach (Block block in BuiltinRegistries.Block)
             {
                 foreach (BlockState state in block.StateDefinition.states)
@@ -35,7 +40,7 @@ namespace StarCube.Game.Blocks
                     i++;
                 }
             }
-            BlockState.blockStates = blockStates;
+            return blockStates;
         }
 
         public static BsonValue ToBson(BlockState blockState)

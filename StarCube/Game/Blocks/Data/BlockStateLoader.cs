@@ -13,7 +13,7 @@ namespace StarCube.Game.Blocks.Data
 
         public override void Run(DataLoadingContext context)
         {
-            BlockState.BuildGlobalBlockStateIDMap();
+            _ = BlockState.GlobalBlockStateIDMap;
         }
 
         public BlockStateLoader()

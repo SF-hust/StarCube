@@ -231,7 +231,7 @@ namespace StarCube.Game.Levels.Chunks
         /// </summary>
         public void Compress()
         {
-            int[] buffer = Chunk.ThreadLocalChunkDataBuffer.Value;
+            Span<int> buffer = stackalloc int[Chunk.ChunkSize];
             CopyRawTo(buffer);
             CopyRawFrom(buffer);
         }

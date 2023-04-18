@@ -9,7 +9,7 @@ namespace StarCube.Core.Tag
     {
         public static readonly IEnumerable<Tag<T>> EMPTY_TAGS = Enumerable.Empty<Tag<T>>();
 
-        public static TagManager<T> Instance => instance ?? throw new NullReferenceException();
+        public static TagManager<T> Instance => instance ?? throw new NullReferenceException(nameof(Instance));
 
         private static TagManager<T>? instance;
 
