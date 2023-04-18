@@ -26,7 +26,7 @@ namespace StarCube.Game.Blocks
         {
             int i = 0;
             IntegerIDMap<BlockState> blockStates = new IntegerIDMap<BlockState>();
-            foreach (Block block in BuiltinRegistries.BLOCK)
+            foreach (Block block in BuiltinRegistries.Block)
             {
                 foreach (BlockState state in block.StateDefinition.states)
                 {

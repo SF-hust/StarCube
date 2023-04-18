@@ -15,7 +15,7 @@ namespace StarCube.Game.BlockEntities
         }
 
         public BlockEntityType(StringID id)
-            : base(BuiltinRegistries.BLOCK_ENTITY_TYPE, id)
+            : base(BuiltinRegistries.BlockEntityType, id)
         {
 
         }

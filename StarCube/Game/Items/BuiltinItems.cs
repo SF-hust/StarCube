@@ -4,7 +4,7 @@ using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Registries;
 using StarCube.Game.Items;
 
-[assembly: BootstrapClass(typeof(BuiltinItems))]
+[assembly: RegisterBootstrapClass(typeof(BuiltinItems))]
 namespace StarCube.Game.Items
 {
     public static class BuiltinItems
@@ -13,9 +13,9 @@ namespace StarCube.Game.Items
 
         static BuiltinItems()
         {
-            BuiltinRegistries.ITEM.OnRegisterStartEvent +=
+            BuiltinRegistries.Item.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) =>
-                BuiltinRegistries.ITEM.Register(Air);
+                BuiltinRegistries.Item.Register(Air);
         }
     }
 }

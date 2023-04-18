@@ -1,21 +1,42 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
+using Newtonsoft.Json.Linq;
+
+using LiteDB;
+
+using StarCube.Utility;
 using StarCube.Utility.Math;
-using StarCube.Core.Components;
 using StarCube.Game.Blocks;
 using StarCube.Game.Blocks.Components;
-using StarCube.Game.Levels;
 using StarCube.Game.Blocks.StateProperties;
+using StarCube.Game.Levels;
 
 namespace StarCube.Coremod.Game.Blocks.Components
 {
     public sealed class FenceBlockUpdateComponent : BlockUpdateComponent
     {
-        public override ComponentVariant<Block> Variant => throw new NotImplementedException();
-
-        public override Component<Block> Clone()
+        public sealed class Type : BlockComponentType<FenceBlockUpdateComponent>
         {
-            return new FenceBlockUpdateComponent();
+            protected override void StoreTo(FenceBlockUpdateComponent component, BsonDocument bson)
+            {
+            }
+
+            protected override bool TryCreateFactoryFrom(JObject json, [NotNullWhen(true)] out Func<FenceBlockUpdateComponent>? factory)
+            {
+                factory = () => new FenceBlockUpdateComponent();
+                return true;
+            }
+
+            protected override bool TryRestoreFrom(BsonDocument bson, [NotNullWhen(true)] out FenceBlockUpdateComponent? component)
+            {
+                component = new FenceBlockUpdateComponent();
+                return true;
+            }
+
+            public Type() : base(StringID.Create(Constants.DEFAULT_NAMESPACE, "fence_update"))
+            {
+            }
         }
 
         public override bool OnUpdate(Level level, BlockPos blockPos, BlockState blockState)
@@ -66,6 +87,10 @@ namespace StarCube.Coremod.Game.Blocks.Components
 
             level.TrySetBlockState(blockPos, newState);
             return true;
+        }
+
+        public FenceBlockUpdateComponent() : base(BlockComponentTypes.FenceUpdate)
+        {
         }
     }
 }

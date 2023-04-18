@@ -20,7 +20,7 @@ namespace StarCube.Game.Blocks.Data
 
         public override void Run(DataLoadingContext context)
         {
-            IEnumerable<StringID> blockIDs = from block in BuiltinRegistries.BLOCK select block.ID;
+            IEnumerable<StringID> blockIDs = from block in BuiltinRegistries.Block select block.ID;
 
             List<StringID> missingDataIDs = context.dataProvider.LoadDataDictionary(
                 BlockStateCollisionData.DataRegistry,

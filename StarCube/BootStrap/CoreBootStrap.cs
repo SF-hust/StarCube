@@ -14,7 +14,7 @@ namespace StarCube.Bootstrap
 
         public static void BootstrapAssembly(Assembly assembly)
         {
-            foreach (BootstrapClassAttribute attr in assembly.GetCustomAttributes<BootstrapClassAttribute>())
+            foreach (RegisterBootstrapClassAttribute attr in assembly.GetCustomAttributes<RegisterBootstrapClassAttribute>())
             {
                 RuntimeHelpers.RunClassConstructor(attr.type.TypeHandle);
             }

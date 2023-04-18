@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 using LiteDB;
 
@@ -7,80 +9,76 @@ using Newtonsoft.Json.Linq;
 using StarCube.Utility;
 using StarCube.Core.Components;
 using StarCube.Core.Components.Attributes;
-using StarCube.Core.Registries;
 
 namespace StarCube.Game.Entities.Components
 {
+    [DisallowMultipleComponent]
     public sealed class TransformComponent : Component<Entity>
     {
-        public static readonly StringID ComponentID = StringID.Create(Constants.DEFAULT_NAMESPACE, "transform");
-
-        public static readonly ComponentType<Entity, TransformComponent> COMPONENT_TYPE =
-            new ComponentType<Entity, TransformComponent>(BuiltinRegistries.ENTITY_COMPONENT_TYPE, ComponentID);
-
-        public static readonly ComponentVariant<Entity, TransformComponent> COMPONENT_VARIANT = new TransformVariant();
-
-        private sealed class TransformVariant : ComponentVariant<Entity, TransformComponent>
+        public sealed class Type : EntityComponentType<TransformComponent>
         {
-            public override TransformComponent CreateDefault()
+            protected override bool TryCreateFactoryFrom(JObject json, [NotNullWhen(true)] out Func<TransformComponent>? factory)
             {
-                return new TransformComponent(Vector3.Zero, Quaternion.Identity);
-            }
-
-            public override bool TryCreate(JObject args, out TransformComponent component)
-            {
-                component = new TransformComponent(Vector3.Zero, Quaternion.Identity);
+                factory = () => new TransformComponent(Vector3.Zero, Quaternion.Identity);
                 return true;
             }
 
-            public override bool RestoreFrom(BsonDocument bson, out TransformComponent component)
+            protected override void StoreTo(TransformComponent component, BsonDocument bson)
             {
-                bool result = true;
+                bson.Add("pos", component.position);
+                bson.Add("rot", component.rotation);
+            }
+
+            protected override bool TryRestoreFrom(BsonDocument bson, [NotNullWhen(true)] out TransformComponent? component)
+            {
+                component = null;
 
                 if (!bson.TryGetVector3("pos", out Vector3 position))
                 {
-                    position = Vector3.Zero;
-                    result = false;
+                    return false;
                 }
-
-                if (!bson.TryGetQuaternion("rot", out Quaternion rotation))
+                if (!bson.TryGetQuaternion("pos", out Quaternion rotation))
                 {
-                    rotation = Quaternion.Identity;
-                    result = false;
+                    return false;
                 }
-
                 component = new TransformComponent(position, rotation);
-                return result;
+                return true;
             }
 
-            public TransformVariant()
-                : base(COMPONENT_TYPE, ComponentID)
+            public Type() : base(StringID.Create(Constants.DEFAULT_NAMESPACE, "transform"))
             {
             }
         }
 
-        public override ComponentVariant<Entity> Variant => COMPONENT_VARIANT;
-
-        public override void StoreTo(BsonDocument bson)
+        public Vector3 Position
         {
-            bson.Add("pos", position);
-            bson.Add("rot", rotation);
+            get => position;
+            set
+            {
+                position = value;
+                Dirty = true;
+            }
         }
 
-        public override Component<Entity> Clone()
+        public Quaternion Rotation
         {
-            return new TransformComponent(position, rotation);
+            get => rotation;
+            set
+            {
+                rotation = value;
+                Dirty = true;
+            }
         }
 
         public TransformComponent(Vector3 position, Quaternion rotation)
+            : base(BuiltinEntityComponentTypes.Transform)
         {
             this.position = position;
             this.rotation = rotation;
         }
 
+        private Vector3 position;
 
-        public Vector3 position;
-
-        public Quaternion rotation;
+        private Quaternion rotation;
     }
 }

@@ -17,7 +17,7 @@
 
         public const string BLOCK_ENTITY_STRING = "blockentity";
 
-        public const string BLOCK_ENTITY_TYPE_STRING = "blockentity_type";
+        public const string BLOCKENTITY_TYPE_STRING = "blockentity_type";
 
         public const string ENTITY_STRING = "entity";
 

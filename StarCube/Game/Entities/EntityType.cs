@@ -13,7 +13,7 @@ namespace StarCube.Game.Entities
         }
 
         public EntityType(StringID id)
-            : base(BuiltinRegistries.ENTITY_TYPE, id)
+            : base(BuiltinRegistries.EntityType, id)
         {
         }
     }

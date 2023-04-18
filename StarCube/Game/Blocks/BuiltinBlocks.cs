@@ -3,7 +3,7 @@ using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Registries;
 using StarCube.Game.Blocks;
 
-[assembly: BootstrapClass(typeof(BuiltinBlocks))]
+[assembly: RegisterBootstrapClass(typeof(BuiltinBlocks))]
 namespace StarCube.Game.Blocks
 {
     public static class BuiltinBlocks
@@ -12,9 +12,9 @@ namespace StarCube.Game.Blocks
 
         static BuiltinBlocks()
         {
-            BuiltinRegistries.BLOCK.OnRegisterStartEvent +=
+            BuiltinRegistries.Block.OnRegisterStartEvent +=
                 (object sender, RegisterStartEventArgs args) => 
-                BuiltinRegistries.BLOCK.Register(Air);
+                BuiltinRegistries.Block.Register(Air);
         }
     }
 }

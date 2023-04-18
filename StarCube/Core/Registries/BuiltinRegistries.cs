@@ -1,13 +1,13 @@
 ﻿using StarCube.Utility;
 using StarCube.Bootstrap.Attributes;
 using StarCube.Core.Components;
+using StarCube.Core.Registries;
 using StarCube.Game.Blocks;
 using StarCube.Game.Items;
 using StarCube.Game.BlockEntities;
 using StarCube.Game.Entities;
-using StarCube.Core.Registries;
 
-[assembly: BootstrapClass(typeof(BuiltinRegistries))]
+[assembly: RegisterBootstrapClass(typeof(BuiltinRegistries))]
 namespace StarCube.Core.Registries
 {
     /// <summary>
@@ -22,18 +22,30 @@ namespace StarCube.Core.Registries
     {
         public static readonly RootRegistry Root = new RootRegistry();
 
-        public static readonly Registry<Block> BLOCK = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING);
+        public static readonly Registry<Block> Block = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING);
 
-        public static readonly Registry<Item> ITEM = Registry<Item>.Create(Constants.DEFAULT_NAMESPACE, Constants.ITEM_STRING);
+        public static readonly Registry<Item> Item = Registry<Item>.Create(Constants.DEFAULT_NAMESPACE, Constants.ITEM_STRING);
 
-        public static readonly Registry<BlockEntityType> BLOCK_ENTITY_TYPE = Registry<BlockEntityType>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_ENTITY_TYPE_STRING);
+        public static readonly Registry<BlockEntityType> BlockEntityType = Registry<BlockEntityType>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCKENTITY_TYPE_STRING);
 
-        public static readonly Registry<EntityType> ENTITY_TYPE = Registry<EntityType>.Create(Constants.DEFAULT_NAMESPACE, Constants.ENTITY_TYPE_STRING);
+        public static readonly Registry<EntityType> EntityType = Registry<EntityType>.Create(Constants.DEFAULT_NAMESPACE, Constants.ENTITY_TYPE_STRING);
+
+        public static readonly Registry<ComponentType<Block>> BlockComponentType = Registry<ComponentType<Block>>.Create(Constants.DEFAULT_NAMESPACE, "block_component_type");
+
+        public static readonly Registry<ComponentType<BlockEntity>> BlockEntityComponentType = Registry<ComponentType<BlockEntity>>.Create(Constants.DEFAULT_NAMESPACE, "blockentity_component_type");
+
+        public static readonly Registry<ComponentType<Entity>> EntityComponentType = Registry<ComponentType<Entity>>.Create(Constants.DEFAULT_NAMESPACE, "entity_component_type");
+
 
         static BuiltinRegistries()
         {
-            Root.Register(BLOCK);
-            Root.Register(ITEM);
+            Root.Register(Block);
+            Root.Register(Item);
+            Root.Register(BlockEntityType);
+            Root.Register(EntityType);
+            Root.Register(BlockComponentType);
+            Root.Register(BlockEntityComponentType);
+            Root.Register(EntityComponentType);
         }
     }
 }

@@ -3,9 +3,9 @@
 namespace StarCube.Bootstrap.Attributes
 {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-    public sealed class BootstrapClassAttribute : Attribute
+    public sealed class RegisterBootstrapClassAttribute : Attribute
     {
-        public BootstrapClassAttribute(Type type)
+        public RegisterBootstrapClassAttribute(Type type)
         {
             this.type = type;
         }

@@ -1,21 +1,17 @@
-﻿using StarCube.Utility;
-using StarCube.Utility.Math;
-using StarCube.Core.Registries;
+﻿using StarCube.Utility.Math;
 using StarCube.Core.Components;
-using StarCube.Core.Components.Attributes;
+using StarCube.Game.Items.Stacks;
+using StarCube.Game.Entities;
 using StarCube.Game.Levels;
 
 namespace StarCube.Game.Blocks.Components
 {
     public abstract class BlockUseComponent : Component<Block>
     {
-        public static readonly StringID ComponentTypeID = StringID.Create(Constants.DEFAULT_NAMESPACE, "random_tick");
+        public abstract void OnUse(Level level, BlockPos pos, Entity? user, ItemStack? itemStack);
 
-        public static readonly ComponentType<Block, RandomTickComponent> COMPONENT_TYPE = 
-            new ComponentType<Block, RandomTickComponent>(BuiltinRegistries.BLOCK_COMPONENT_TYPE, ComponentTypeID);
-
-        public abstract override ComponentVariant<Block> Variant { get; }
-
-        public abstract void OnUse(Level level, BlockPos pos, Entities.Entity user);
+        public BlockUseComponent(ComponentType<Block> type) : base(type)
+        {
+        }
     }
 }

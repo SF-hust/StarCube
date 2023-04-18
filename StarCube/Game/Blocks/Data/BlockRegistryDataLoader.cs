@@ -19,7 +19,7 @@ namespace StarCube.Game.Blocks.Data
         {
             List<BlockRegistryData> registryDataList = context.dataProvider.EnumerateData(BlockRegistryData.DataRegistry, BlockRegistryData.DataReader);
 
-            DeferredRegister<Block> deferredRegister = new DeferredRegister<Block>(BuiltinRegistries.BLOCK);
+            DeferredRegister<Block> deferredRegister = new DeferredRegister<Block>(BuiltinRegistries.Block);
             foreach (BlockRegistryData data in registryDataList)
             {
                 foreach (BlockRegistryDataEntry entry in data.entries)

@@ -2,7 +2,7 @@
 
 using StarCube.Core.Components;
 
-namespace StarCube.Game.Items
+namespace StarCube.Game.Items.Stacks
 {
     public sealed class ItemStack : IComponentOwner<ItemStack>
     {
@@ -50,7 +50,7 @@ namespace StarCube.Game.Items
         {
             this.item = item;
             this.count = count;
-            if(copy)
+            if (copy)
             {
                 additionalData = new BsonDocument(additionalData);
             }

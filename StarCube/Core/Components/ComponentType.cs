@@ -1,97 +1,68 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+
+using Newtonsoft.Json.Linq;
+
+using LiteDB;
 
 using StarCube.Utility;
 using StarCube.Core.Registries;
 
 namespace StarCube.Core.Components
 {
+    public static class ComponentType
+    {
+        public const string IDName = "cid";
+    }
+
     public abstract class ComponentType<O> : RegistryEntry<ComponentType<O>>
         where O : class, IComponentOwner<O>
     {
-        /// <summary>
-        /// 此 ComponentType 的 component 可附加到的类型
-        /// </summary>
-        public abstract Type OwnerType { get; }
+        public abstract bool TryCreateComponentFactoryFrom(JObject json, [NotNullWhen(true)] out Func<Component<O>>? factory);
 
-        /// <summary>
-        /// 各 Variants 对应组件的基类类型
-        /// </summary>
-        public abstract Type ComponentBaseType { get; }
+        public abstract void StoreComponentTo(Component<O> component, BsonDocument bson);
 
-        /// <summary>
-        /// 尝试通过 id 获取 variant
-        /// </summary>
-        /// <param name="variantID"></param>
-        /// <param name="variant"></param>
-        /// <returns></returns>
-        public abstract bool TryGetVariant(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant);
+        public abstract bool TryRestoreComponentFrom(BsonDocument bson, [NotNullWhen(true)] out Component<O>? component);
 
-
-        public ComponentType(Registry<ComponentType<O>> registry, StringID id, bool allowMultiple)
-            : base(registry, id)
+        public ComponentType(Registry<ComponentType<O>> registry, StringID id) : base(registry, id)
         {
-            this.allowMultiple = allowMultiple;
         }
-
-        public readonly bool allowMultiple;
     }
 
-    /// <summary>
-    /// Component 的类型
-    /// </summary>
-    /// <typeparam name="O">Owner 的类型</typeparam>
-    /// <typeparam name="C">此类 ComponentType 对应的组件的基类型</typeparam>
-    public class ComponentType<O, C> : ComponentType<O>
+    public abstract class ComponentType<O, C> : ComponentType<O>
         where O : class, IComponentOwner<O>
         where C : Component<O>
     {
-        public override Type OwnerType => typeof(O);
-        public override Type ComponentBaseType => typeof(C);
-
-
-        /// <summary>
-        /// 所有注册到此 ComponentType 的 variant
-        /// </summary>
-        public IEnumerable<ComponentVariant<O, C>> Variants => idToVariants.Values;
-
-        /// <summary>
-        /// 注册一个 variant
-        /// </summary>
-        /// <param name="variant"></param>
-        /// <exception cref="Exception"></exception>
-        public void RegisterVariant(ComponentVariant<O, C> variant)
+        public sealed override bool TryCreateComponentFactoryFrom(JObject json, [NotNullWhen(true)] out Func<Component<O>>? factory)
         {
-            if (!idToVariants.TryAdd(variant.id, variant))
-            {
-                throw new Exception();
-            }
+            bool result = TryCreateFactoryFrom(json, out Func<C>? fac);
+            factory = fac;
+            return result;
         }
 
-        public bool TryGetVariant(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O, C>? variant)
+        public sealed override void StoreComponentTo(Component<O> component, BsonDocument bson)
         {
-            return idToVariants.TryGetValue(variantID, out variant);
+            Debug.Assert(component is C);
+            bson.Add(ComponentType.IDName, ID.idString);
+            StoreTo((C)component, bson);
         }
 
-        public override bool TryGetVariant(StringID variantID, [NotNullWhen(true)] out ComponentVariant<O>? variant)
+        public sealed override bool TryRestoreComponentFrom(BsonDocument bson, [NotNullWhen(true)] out Component<O>? component)
         {
-            if(TryGetVariant(variantID, out ComponentVariant<O, C>? vari))
-            {
-                variant = vari;
-                return true;
-            }
-
-            variant = null;
-            return false;
+            bool result = TryRestoreFrom(bson, out C? comp);
+            component = comp;
+            return result;
         }
 
-        public ComponentType(Registry<ComponentType<O>> registry, StringID id, bool allowMultiple = false) : base(registry, id, allowMultiple)
-        {
-            idToVariants = new ConcurrentDictionary<StringID, ComponentVariant<O, C>>();
-        }
+        protected abstract bool TryCreateFactoryFrom(JObject json, [NotNullWhen(true)] out Func<C>? factory);
 
-        private readonly ConcurrentDictionary<StringID, ComponentVariant<O, C>> idToVariants;
+        protected abstract void StoreTo(C component, BsonDocument bson);
+
+        protected abstract bool TryRestoreFrom(BsonDocument bson, [NotNullWhen(true)] out C? component);
+
+        public ComponentType(Registry<ComponentType<O>> registry, StringID id) : base(registry, id)
+        {
+        }
     }
 }

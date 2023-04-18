@@ -32,7 +32,7 @@ namespace StarCube.Game.Blocks
         /* ~ IComponentHolder<Block> 接口实现 end ~ */
 
         public Block(StringID id, in BlockProperties properties)
-            : base(BuiltinRegistries.BLOCK, id)
+            : base(BuiltinRegistries.Block, id)
         {
             this.properties = properties;
             components = new ComponentContainer<Block>(this);
@@ -40,7 +40,7 @@ namespace StarCube.Game.Blocks
         }
 
         public Block(StringID id, in BlockProperties properties, List<StatePropertyEntry> entries)
-            : base(BuiltinRegistries.BLOCK, id)
+            : base(BuiltinRegistries.Block, id)
         {
             this.properties = properties;
             stateDefinition = StateDefinition<Block, BlockState>.BuildFromPropertyEntryList(this, BlockState.Create, entries);

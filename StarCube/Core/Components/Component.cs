@@ -1,25 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-using Newtonsoft.Json.Linq;
-
-using LiteDB;
-
-using StarCube.Utility;
-using StarCube.Core.Registries;
 
 namespace StarCube.Core.Components
 {
     public abstract class Component<O>
         where O : class, IComponentOwner<O>
     {
-        /* ~ Type 与 Variant ~ */
-        public ComponentType<O> Type => Variant.type;
-
-        public abstract ComponentVariant<O> Variant { get; }
-
-
-
         /* ~ Owner ~ */
         public bool Attached => owner != null;
 
@@ -32,6 +17,7 @@ namespace StarCube.Core.Components
                 return;
             }
             owner = newOwner;
+            OnAddToOwner();
         }
 
         public void ResetOwner()
@@ -40,9 +26,9 @@ namespace StarCube.Core.Components
             {
                 return;
             }
+            OnRemoveFromOwner();
             owner = null;
         }
-
 
 
         /* ~ 生命周期 ~ */
@@ -63,53 +49,23 @@ namespace StarCube.Core.Components
         }
 
 
-
         /* ~ 数据保存 ~ */
-        public bool Dirty => dirty;
-
-        public void MarkDirty()
+        public bool Dirty
         {
-            dirty = true;
+            get => dirty;
+            set => dirty = value;
         }
 
-        public virtual void StoreTo(BsonDocument bson)
+
+        public Component(ComponentType<O> type)
         {
-            dirty = false;
+            this.type = type;
         }
 
-        public abstract Component<O> Clone();
-
-
-
-        public Component()
-        {
-            owner = null;
-            dirty = false;
-        }
+        public readonly ComponentType<O> type;
 
         private O? owner;
 
         private bool dirty;
-    }
-
-    public static class ComponentExtension
-    {
-        public static bool TryCreateComponent<O>(this Registry<ComponentType<O>> registry, StringID typeID, StringID variantID, JObject args, [NotNullWhen(true)] out Component<O>? component)
-            where O : class, IComponentOwner<O>
-        {
-            component = null;
-
-            if(!registry.TryGetRegistryEntry(typeID, out ComponentType<O>? type))
-            {
-                return false;
-            }
-
-            if(!type.TryGetVariant(variantID, out ComponentVariant<O>? variant))
-            {
-                return false;
-            }
-
-            return variant.TryCreate(args, out component);
-        }
     }
 }

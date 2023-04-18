@@ -8,7 +8,7 @@ namespace StarCube.Game.Items
     public class Item : RegistryEntry<Item>
     {
         public Item(StringID id)
-            : base(BuiltinRegistries.ITEM, id)
+            : base(BuiltinRegistries.Item, id)
         {
         }
     }
