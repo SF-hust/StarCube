@@ -22,14 +22,6 @@ namespace StarCube.Core.Registries
     {
         public static readonly RootRegistry Root = new RootRegistry();
 
-        public static readonly Registry<ComponentType<Block>> BLOCK_COMPONENT_TYPE = Registry<ComponentType<Block>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/block");
-
-        public static readonly Registry<ComponentType<ItemStack>> ITEMSTACK_COMPONENT_TYPE = Registry<ComponentType<ItemStack>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/item_stack");
-
-        public static readonly Registry<ComponentType<BlockEntity>> BLOCK_ENTITY_COMPONENT_TYPE = Registry<ComponentType<BlockEntity>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/block_entity");
-
-        public static readonly Registry<ComponentType<Entity>> ENTITY_COMPONENT_TYPE = Registry<ComponentType<Entity>>.Create(Constants.DEFAULT_NAMESPACE, "component_type/entity");
-
         public static readonly Registry<Block> BLOCK = Registry<Block>.Create(Constants.DEFAULT_NAMESPACE, Constants.BLOCK_STRING);
 
         public static readonly Registry<Item> ITEM = Registry<Item>.Create(Constants.DEFAULT_NAMESPACE, Constants.ITEM_STRING);

@@ -15,12 +15,15 @@ namespace StarCube.Game.Entities
 
         public Entity(EntityType type, Guid guid)
         {
-            this.type = type;
             this.guid = guid;
+            this.type = type;
+            components = new ComponentContainer<Entity>(this);
         }
+
+        public readonly Guid guid;
 
         public readonly EntityType type;
 
-        public readonly Guid guid;
+        public readonly ComponentContainer<Entity> components;
     }
 }

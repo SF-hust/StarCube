@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
 
 namespace StarCube.Mods
 {
@@ -22,6 +23,8 @@ namespace StarCube.Mods
             inactiveModids = new List<string>();
             return false;
         }
+
+        public IEnumerable<Assembly> GameAssemblies => throw new NotImplementedException();
 
         private ModManager(ImmutableArray<ModInstance> modList)
         {

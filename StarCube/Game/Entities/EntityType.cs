@@ -1,7 +1,7 @@
 ﻿using System;
 
-using StarCube.Core.Registries;
 using StarCube.Utility;
+using StarCube.Core.Registries;
 
 namespace StarCube.Game.Entities
 {
