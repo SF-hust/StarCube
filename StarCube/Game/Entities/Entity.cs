@@ -2,21 +2,28 @@
 
 using StarCube.Utility;
 using StarCube.Core.Components;
+using StarCube.Game.Ticking;
 
 namespace StarCube.Game.Entities
 {
     public class Entity :
         IComponentOwner<Entity>,
-        IGuid
+        IGuid,
+        ITickable
     {
         Guid IGuid.Guid => guid;
 
         public ComponentContainer<Entity> Components => throw new NotImplementedException();
 
-        public Entity(EntityType type, Guid guid)
+        public void Tick()
+        {
+        }
+
+        public Entity(EntityType type, Guid guid, bool standalone)
         {
             this.guid = guid;
             this.type = type;
+            this.standalone = standalone;
             components = new ComponentContainer<Entity>(this);
         }
 
@@ -24,6 +31,9 @@ namespace StarCube.Game.Entities
 
         public readonly EntityType type;
 
+        public readonly bool standalone;
+
         public readonly ComponentContainer<Entity> components;
+
     }
 }

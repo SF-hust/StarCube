@@ -18,10 +18,9 @@ namespace StarCube.Game.Levels.Chunks.Source
         /// 尝试获取一个 chunk
         /// </summary>
         /// <param name="pos">chunk 的坐标</param>
-        /// <param name="load">是否要同步加载 chunk</param>
         /// <param name="levelChunk">返回的 chunk</param>
         /// <returns>true 如果指定位置的 chunk 已经在内存中；否则 false</returns>
-        public abstract bool TryGetChunk(ChunkPos pos, bool load, [NotNullWhen(true)] out Chunk? chunk);
+        public abstract bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk);
 
         /// <summary>
         /// 每刻更新

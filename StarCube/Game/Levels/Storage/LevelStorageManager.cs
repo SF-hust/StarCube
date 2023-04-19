@@ -36,13 +36,13 @@ namespace StarCube.Game.Levels.Storage
         {
             lock(this)
             {
-                // 先从缓存中获取
-                if (idToLevelStorageCache.TryGetValue(guid, out LevelStorage? levelStorage))
+                // 检查是否已经被获取
+                if (idToLevelStorageCache.ContainsKey(guid))
                 {
-                    return levelStorage;
+                    throw new ArgumentException("already acquired", nameof(guid));
                 }
 
-                // 再尝试读取 meta 中的信息
+                // 尝试读取 level 的 meta 信息
                 if (!TryGetLevelMeta(guid, out BsonDocument? meta))
                 {
                     meta = new BsonDocument();
@@ -59,7 +59,7 @@ namespace StarCube.Game.Levels.Storage
         }
 
         /// <summary>
-        /// 释放指定 guid 的 LevelStorage
+        /// 释放 LevelStorage
         /// </summary>
         /// <param name="levelStorage"></param>
         public void Release(LevelStorage levelStorage)
@@ -115,37 +115,70 @@ namespace StarCube.Game.Levels.Storage
         {
             ILiteCollection<BsonDocument> collection = levelMetaDatabase.Value.GetCollection("level", BsonAutoId.Guid);
             collection.EnsureIndex("_id");
-            if (!collection.Exists(Query.EQ("_id", Guid.Empty)))
-            {
-                BsonDocument indexBson = new BsonDocument();
-                indexBson.Add("current", new BsonValue(1u));
-                collection.Insert(Guid.Empty, indexBson);
-            }
             return collection;
         }
 
         private long GenerateNextIndex()
         {
-            BsonDocument indexBson = levelMetaCollection.Value.FindById(Guid.Empty);
-            long current = indexBson["current"].AsInt64;
-            indexBson["current"] = current + 1;
-            levelMetaCollection.Value.Upsert(indexBson);
+            long current = currentIndex;
+            currentIndex++;
             return current;
+        }
+
+        private long GetCurrentIndex()
+        {
+            BsonDocument? indexBson = levelMetaCollection.Value.FindById(Guid.Empty);
+            if (indexBson == null)
+            {
+                indexBson = new BsonDocument();
+                indexBson.Add("current", new BsonValue(1L));
+                return 1L;
+            }
+            return indexBson["current"].AsInt64;
+        }
+
+        private void SaveCurrentIndex()
+        {
+            BsonDocument indexBson = levelMetaCollection.Value.FindById(Guid.Empty);
+            indexBson["current"] = currentIndex;
+            levelMetaCollection.Value.Update(indexBson);
         }
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+            disposed = true;
+        }
+
+        ~LevelStorageManager()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
             if (levelMetaDatabase.IsValueCreated)
             {
                 saves.ReleaseDB(LevelMetaDBPath);
             }
-
             foreach (LevelStorage levelStorage in idToLevelStorageCache.Values)
             {
                 levelStorage.Dispose();
             }
-            idToLevelStorageCache.Clear();
+            SaveCurrentIndex();
+
+            if (disposing)
+            {
+                idToLevelStorageCache.Clear();
+            }
         }
+
 
         public LevelStorageManager(GameSaves saves, IChunkParser chunkParser)
         {
@@ -153,16 +186,21 @@ namespace StarCube.Game.Levels.Storage
             this.chunkParser = chunkParser;
             levelMetaDatabase = new Lazy<LiteDatabase>(GetLevelMetaDatabase, true);
             levelMetaCollection = new Lazy<ILiteCollection<BsonDocument>>(GetLevelMetaCollection, true);
+            currentIndex = GetCurrentIndex();
         }
 
         private readonly GameSaves saves;
 
         private readonly IChunkParser chunkParser;
 
+        private long currentIndex;
+
         private readonly Lazy<LiteDatabase> levelMetaDatabase;
 
         private readonly Lazy<ILiteCollection<BsonDocument>> levelMetaCollection;
 
         private readonly Dictionary<Guid, LevelStorage> idToLevelStorageCache = new Dictionary<Guid, LevelStorage>();
+
+        private bool disposed = false;
     }
 }

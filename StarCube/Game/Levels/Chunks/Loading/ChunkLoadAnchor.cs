@@ -14,7 +14,7 @@ namespace StarCube.Game.Levels.Chunks.Loading
         /// <param name="r"></param>
         /// <param name="positions"></param>
         /// <param name="bound"></param>
-        public void GetLoadChunkPos(int r, List<ChunkPos> positions, ILevelBound bound)
+        public void GetLoadChunkPos(int r, List<ChunkPos> positions, ILevelBounding bound)
         {
             if (r == 0)
             {

@@ -1,16 +1,16 @@
 ﻿using StarCube.Utility.Math;
 using StarCube.Game.Levels.Chunks;
 
-namespace StarCube.Game.Levels.Generation.Dummy
+namespace StarCube.Game.Levels.Generation.Air
 {
-    public class AirLevelGenerator : ILevelGenerator
+    public class AirLevelChunkGenerator : ILevelChunkGenerator
     {
         public Chunk GenerateChunk(ChunkPos pos)
         {
             return chunkFactory.CreateEmpty(pos);
         }
 
-        public AirLevelGenerator(IChunkFactory chunkFactory)
+        public AirLevelChunkGenerator(IChunkFactory chunkFactory)
         {
             this.chunkFactory = chunkFactory;
         }

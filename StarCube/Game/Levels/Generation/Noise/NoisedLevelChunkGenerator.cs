@@ -10,7 +10,7 @@ using StarCube.Game.Levels.Chunks;
 
 namespace StarCube.Game.Levels.Generation.Noise
 {
-    public sealed class NoiseLevelGenerator : ILevelGenerator
+    public sealed class NoisedLevelChunkGenerator : ILevelChunkGenerator
     {
         private void GenerateChunkData(ChunkPos pos, Span<int> buffer)
         {
@@ -50,7 +50,7 @@ namespace StarCube.Game.Levels.Generation.Noise
             return chunk;
         }
 
-        public NoiseLevelGenerator(IChunkFactory chunkFactory)
+        public NoisedLevelChunkGenerator(IChunkFactory chunkFactory)
         {
             this.chunkFactory = chunkFactory;
             baseBlock = BuiltinRegistries.Block.GetAsRegistryObject(StringID.Parse("starcube:dirt")).Value.DefaultState().IntegerID;

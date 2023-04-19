@@ -6,7 +6,7 @@ using StarCube.Game.Blocks;
 
 namespace StarCube.Game.Levels.Generation.Flat
 {
-    public class FlatLevelGenerator : ILevelGenerator
+    public class FlatLevelChunkGenerator : ILevelChunkGenerator
     {
         public Chunk GenerateChunk(ChunkPos pos)
         {
@@ -20,7 +20,7 @@ namespace StarCube.Game.Levels.Generation.Flat
             return chunk;
         }
 
-        public FlatLevelGenerator(IChunkFactory chunkFactory, FlatLayerList layerList)
+        public FlatLevelChunkGenerator(IChunkFactory chunkFactory, FlatLayerList layerList)
         {
             this.chunkFactory = chunkFactory;
             this.layerList = layerList;

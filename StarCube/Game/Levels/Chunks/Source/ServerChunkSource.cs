@@ -14,12 +14,12 @@ namespace StarCube.Game.Levels.Chunks.Source
             return chunkMap.IsLoaded(pos);
         }
 
-        public override bool TryGetChunk(ChunkPos pos, bool load, [NotNullWhen(true)] out Chunk? chunk)
+        public override bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             return chunkMap.TryGet(pos, out chunk);
         }
 
-        public void AddAnchor(ChunkLoadAnchor anchor)
+        public bool TryAddAnchor(ChunkLoadAnchor anchor)
         {
             chunkMap.AddAnchor(anchor);
         }
@@ -44,20 +44,14 @@ namespace StarCube.Game.Levels.Chunks.Source
             chunkMap.Stop();
         }
 
-        public ServerChunkSource(ServerLevel level, ILevelBound bound, ILevelGenerator generator, LevelStorage storage, IChunkUpdateHandler chunkHandler)
+        public ServerChunkSource(ChunkedServerLevel level, ILevelChunkGenerator generator, LevelStorage storage)
         {
             this.level = level;
 
-            this.generator = generator;
-            this.storage = storage;
-
-            chunkMap = new ChunkMap(new ChunkProvider(generator, storage, 4096), this, bound, chunkHandler);
+            chunkMap = new ChunkMap(new ChunkProvider(generator, storage, 4096), level.bounding);
         }
 
-        public readonly ServerLevel level;
-
-        private readonly ILevelGenerator generator;
-        private readonly LevelStorage storage;
+        public readonly ChunkedServerLevel level;
 
         private readonly ChunkMap chunkMap;
     }

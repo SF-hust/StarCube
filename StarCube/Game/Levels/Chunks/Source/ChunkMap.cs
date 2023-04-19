@@ -12,7 +12,7 @@ namespace StarCube.Game.Levels.Chunks.Source
         /// <summary>
         /// 获取 chunk
         /// </summary>
-        public Chunk Chunk => chunk ?? throw new NullReferenceException();
+        public Chunk Chunk => chunk ?? throw new NullReferenceException(nameof(Chunk));
 
         /// <summary>
         /// Chunk 是否被加载进内存中
@@ -285,7 +285,6 @@ namespace StarCube.Game.Levels.Chunks.Source
 
                 // 更新 ChunkMapEntry
                 posToChunkMapEntry[chunk.pos] = entry.OnLoadChunk(chunk);
-                chunkHandler.OnChunkLoad(chunk, entry.Active);
             }
 
             //// 更新已完成的 chunk 任务
@@ -343,7 +342,6 @@ namespace StarCube.Game.Levels.Chunks.Source
                 {
                     ChunkPos removedPos = removedEntry.Chunk.pos;
                     removedEntry.Chunk.Clear();
-                    chunkHandler.OnChunkUnload(removedPos);
                 }
             }
 
@@ -367,12 +365,10 @@ namespace StarCube.Game.Levels.Chunks.Source
             chunkProvider.Stop();
         }
 
-        public ChunkMap(ChunkProvider chunkProvider, ServerChunkSource chunkSource, ILevelBound bound, IChunkUpdateHandler chunkHandler)
+        public ChunkMap(ChunkProvider chunkProvider, ILevelBounding bound)
         {
             this.chunkProvider = chunkProvider;
             chunkProvider.Start();
-            this.chunkSource = chunkSource;
-            this.chunkHandler = chunkHandler;
 
             this.bound = bound;
 
@@ -381,10 +377,8 @@ namespace StarCube.Game.Levels.Chunks.Source
 
 
         private readonly ChunkProvider chunkProvider;
-        private readonly ServerChunkSource chunkSource;
-        private readonly IChunkUpdateHandler chunkHandler;
 
-        private readonly ILevelBound bound;
+        private readonly ILevelBounding bound;
 
         private readonly Dictionary<ChunkPos, ChunkMapEntry> posToChunkMapEntry = new Dictionary<ChunkPos, ChunkMapEntry>();
 

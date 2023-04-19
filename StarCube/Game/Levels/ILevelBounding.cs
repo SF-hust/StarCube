@@ -2,14 +2,14 @@
 
 namespace StarCube.Game.Levels
 {
-    public interface ILevelBound
+    public interface ILevelBounding
     {
         public bool InRange(int x, int y, int z);
 
         public bool InRange(ChunkPos pos);
     }
 
-    public class RectLevelBound : ILevelBound
+    public class RectLevelBounding : ILevelBounding
     {
         public bool InRange(int x, int y, int z)
         {
@@ -23,7 +23,7 @@ namespace StarCube.Game.Levels
             return InRange(pos.x, pos.y, pos.z);
         }
 
-        public RectLevelBound(int yMin, int height, int radiusHorizontal)
+        public RectLevelBounding(int yMin, int height, int radiusHorizontal)
         {
             this.yMin = yMin;
             yMax = yMin + height;

@@ -3,7 +3,7 @@ using StarCube.Game.Levels.Chunks;
 
 namespace StarCube.Game.Levels.Generation
 {
-    public interface ILevelGenerator
+    public interface ILevelChunkGenerator
     {
         public Chunk GenerateChunk(ChunkPos pos);
     }
