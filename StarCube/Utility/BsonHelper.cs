@@ -4,6 +4,8 @@ using System.Numerics;
 
 using LiteDB;
 
+using StarCube.Utility.Math;
+
 namespace StarCube.Utility
 {
     public static class BsonHelper
@@ -171,6 +173,58 @@ namespace StarCube.Utility
             return false;
         }
 
+        public static bool TryGetBlockPos(this BsonDocument bson, string key, out BlockPos value)
+        {
+            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsBinary)
+            {
+                byte[] binary = bValue.AsBinary;
+                if (binary.Length == 12)
+                {
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        binary.AsSpan(0, 4).Reverse();
+                        binary.AsSpan(4, 4).Reverse();
+                        binary.AsSpan(8, 4).Reverse();
+                    }
+                    int x = BitConverter.ToInt32(binary.AsSpan(0, 4));
+                    int y = BitConverter.ToInt32(binary.AsSpan(4, 4));
+                    int z = BitConverter.ToInt32(binary.AsSpan(8, 4));
+
+                    value = new BlockPos(x, y, z);
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
+        }
+
+        public static bool TryGetChunkPos(this BsonDocument bson, string key, out ChunkPos value)
+        {
+            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsBinary)
+            {
+                byte[] binary = bValue.AsBinary;
+                if (binary.Length == 12)
+                {
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        binary.AsSpan(0, 4).Reverse();
+                        binary.AsSpan(4, 4).Reverse();
+                        binary.AsSpan(8, 4).Reverse();
+                    }
+                    int x = BitConverter.ToInt32(binary.AsSpan(0, 4));
+                    int y = BitConverter.ToInt32(binary.AsSpan(4, 4));
+                    int z = BitConverter.ToInt32(binary.AsSpan(8, 4));
+
+                    value = new ChunkPos(x, y, z);
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
+        }
+
         public static bool TryGetVector2(this BsonDocument bson, string key, out Vector2 value)
         {
             if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsBinary)
@@ -321,6 +375,38 @@ namespace StarCube.Utility
         public static void Add(this BsonDocument bson, string key, StringID value)
         {
             bson.Add(key, new BsonValue(value.idString));
+        }
+
+        public static void Add(this BsonDocument bson, string key, BlockPos value)
+        {
+            byte[] binary = new byte[12];
+            BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.x);
+            BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.y);
+            BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.z);
+            if (BitConverter.IsLittleEndian)
+            {
+                binary.AsSpan(0, 4).Reverse();
+                binary.AsSpan(4, 4).Reverse();
+                binary.AsSpan(8, 4).Reverse();
+            }
+
+            bson.Add(key, new BsonValue(binary));
+        }
+
+        public static void Add(this BsonDocument bson, string key, ChunkPos value)
+        {
+            byte[] binary = new byte[12];
+            BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.x);
+            BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.y);
+            BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.z);
+            if (BitConverter.IsLittleEndian)
+            {
+                binary.AsSpan(0, 4).Reverse();
+                binary.AsSpan(4, 4).Reverse();
+                binary.AsSpan(8, 4).Reverse();
+            }
+
+            bson.Add(key, new BsonValue(binary));
         }
 
         public static void Add(this BsonDocument bson, string key, Vector2 value)

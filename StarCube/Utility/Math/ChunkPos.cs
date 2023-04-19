@@ -97,7 +97,7 @@ namespace StarCube.Utility.Math
             return new RegionPos(chunkPos.x >> 4, chunkPos.y >> 4, chunkPos.z >> 4);
         }
 
-        public static ObjectId ToLiteDBObjectID(this ChunkPos chunkPos)
+        public static ObjectId ToObjectID(this ChunkPos chunkPos)
         {
             byte[] buffer = ThreadLocalBuffer.Value;
             Span<int> ints = MemoryMarshal.Cast<byte, int>(buffer);
