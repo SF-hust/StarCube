@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
-using StarCube.Game.Ticking;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
-    public abstract class ChunkSource : ITickable
+    public abstract class ChunkSource
     {
         /// <summary>
         /// 返回某个 chunk 是否已经被加载到内存中，可以立即获取

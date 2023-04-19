@@ -5,14 +5,17 @@ using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
 using StarCube.Game.Levels.Chunks;
-using StarCube.Game.Ticking;
+using StarCube.Game.Worlds;
 
 namespace StarCube.Game.Levels
 {
     public abstract class Level :
-        ITickable,
         IGuid
     {
+        public abstract bool Active { get; set; }
+
+        public abstract World World { get; set; }
+
         public abstract bool HasBlock(int x, int y, int z);
         public abstract bool HasBlock(BlockPos pos);
 
@@ -31,13 +34,17 @@ namespace StarCube.Game.Levels
 
         public abstract void Tick();
 
+
         Guid IGuid.Guid => guid;
 
-        public Level(Guid guid)
+        public Level(Guid guid, ILevelBounding bounding)
         {
             this.guid = guid;
+            this.bounding = bounding;
         }
 
         public readonly Guid guid;
+
+        public readonly ILevelBounding bounding;
     }
 }

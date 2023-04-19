@@ -2,14 +2,12 @@
 
 using StarCube.Utility;
 using StarCube.Core.Components;
-using StarCube.Game.Ticking;
 
 namespace StarCube.Game.Entities
 {
     public class Entity :
         IComponentOwner<Entity>,
-        IGuid,
-        ITickable
+        IGuid
     {
         Guid IGuid.Guid => guid;
 
