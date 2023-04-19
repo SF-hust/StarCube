@@ -9,13 +9,16 @@ using StarCube.Utility.Logging;
 
 namespace StarCube.Data.Storage
 {
+    /// <summary>
+    /// 表示一个游戏存档，其中的公开成员方法均对自身加锁
+    /// </summary>
     public sealed class GameSaves : IDisposable
     {
         public const string LiteDatabaseExtension = ".litedb";
 
-        public const string MetaDataBaseName = "meta";
+        public const string MetaDatabaseName = "meta";
 
-        public const string MetaDataCollectionName = "metadata";
+        public const string MetaCollectionName = "meta";
 
         /// <summary>
         /// 在指定文件夹下创建一个存档
@@ -26,8 +29,8 @@ namespace StarCube.Data.Storage
         public static GameSaves CreateInDirectory(string name, string path)
         {
             GameSaves saves = new GameSaves(name, path);
-            LiteDatabase meta = saves.GetOrCreateDB(MetaDataBaseName);
-            ILiteCollection<BsonDocument> metadataCollection = meta.GetCollection(MetaDataCollectionName, BsonAutoId.ObjectId);
+            LiteDatabase meta = saves.GetOrCreateDatabase(MetaDatabaseName);
+            ILiteCollection<BsonDocument> metadataCollection = meta.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() > 0)
             {
                 metadataCollection.DeleteAll();
@@ -41,7 +44,7 @@ namespace StarCube.Data.Storage
         public static bool TryGetNameFromDirectory(string path, out string name)
         {
             name = string.Empty;
-            string fullDBPath = Path.Combine(path, MetaDataBaseName + LiteDatabaseExtension);
+            string fullDBPath = Path.Combine(path, MetaDatabaseName + LiteDatabaseExtension);
             if (!File.Exists(fullDBPath))
             {
                 return false;
@@ -53,11 +56,11 @@ namespace StarCube.Data.Storage
             };
 
             using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
-            if (!metaDatabase.CollectionExists(MetaDataCollectionName))
+            if (!metaDatabase.CollectionExists(MetaCollectionName))
             {
                 return false;
             }
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaDataCollectionName, BsonAutoId.ObjectId);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() != 1)
             {
                 return false;
@@ -75,7 +78,7 @@ namespace StarCube.Data.Storage
         public static bool TryLoadFromDirectory(string path, [NotNullWhen(true)] out GameSaves? saves)
         {
             saves = null;
-            string fullDBPath = Path.Combine(path, MetaDataBaseName + LiteDatabaseExtension);
+            string fullDBPath = Path.Combine(path, MetaDatabaseName + LiteDatabaseExtension);
             if (!File.Exists(fullDBPath))
             {
                 return false;
@@ -87,11 +90,11 @@ namespace StarCube.Data.Storage
             };
 
             using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
-            if (!metaDatabase.CollectionExists(MetaDataCollectionName))
+            if (!metaDatabase.CollectionExists(MetaCollectionName))
             {
                 return false;
             }
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaDataCollectionName, BsonAutoId.ObjectId);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() != 1)
             {
                 return false;
@@ -111,7 +114,7 @@ namespace StarCube.Data.Storage
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public LiteDatabase GetOrCreateDB(string path)
+        public LiteDatabase GetOrCreateDatabase(string path)
         {
             lock(this)
             {
@@ -124,7 +127,7 @@ namespace StarCube.Data.Storage
         /// 关闭指定路径的 Database 实例
         /// </summary>
         /// <param name="path"></param>
-        public void ReleaseDB(string path)
+        public void ReleaseDatabase(string path)
         {
             lock(this)
             {
@@ -142,7 +145,7 @@ namespace StarCube.Data.Storage
         /// 销毁指定路径的 Database
         /// </summary>
         /// <param name="path"></param>
-        public void DropDB(string path)
+        public void DropDatabase(string path)
         {
             lock(this)
             {
@@ -162,7 +165,7 @@ namespace StarCube.Data.Storage
             }
         }
 
-        public bool TryGetDB(string path, [NotNullWhen(true)] out LiteDatabase? database)
+        public bool TryGetDatabase(string path, [NotNullWhen(true)] out LiteDatabase? database)
         {
             lock(this)
             {
@@ -183,7 +186,7 @@ namespace StarCube.Data.Storage
             }
         }
 
-        public bool TryCreateDB(string path, [NotNullWhen(true)] out LiteDatabase? database)
+        public bool TryCreateDatabase(string path, [NotNullWhen(true)] out LiteDatabase? database)
         {
             lock(this)
             {
@@ -237,12 +240,32 @@ namespace StarCube.Data.Storage
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~GameSaves()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
             foreach (LiteDatabase db in pathToDataBase.Values)
             {
                 db.Dispose();
             }
-            relativeToFullPath.Clear();
-            pathToDataBase.Clear();
+
+            if (disposing)
+            {
+                relativeToFullPath.Clear();
+                pathToDataBase.Clear();
+            }
         }
 
         private GameSaves(string name, string directoryPath)
@@ -258,5 +281,7 @@ namespace StarCube.Data.Storage
         private readonly Dictionary<string, string> relativeToFullPath = new Dictionary<string, string>();
 
         private readonly Dictionary<string, LiteDatabase> pathToDataBase = new Dictionary<string, LiteDatabase>();
+
+        private volatile bool disposed = false;
     }
 }
