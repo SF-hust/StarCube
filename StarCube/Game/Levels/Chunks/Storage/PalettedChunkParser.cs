@@ -62,8 +62,8 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 return false;
             }
 
-            GlobalPaletteMapper? globalPaletteConverter = null;
-            if (paletteID != blockStatePaletteManager.CurrentGlobalPaletteID &&
+            PaletteMapper? globalPaletteConverter = null;
+            if (paletteID != blockStatePaletteManager.currentPaletteID &&
                 !blockStatePaletteManager.TryGetMapper(paletteID, out globalPaletteConverter))
             {
                 return false;
@@ -150,7 +150,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
             BsonDocument bson = new BsonDocument();
 
             // 设置全局 palette id
-            bson.Add("palette", blockStatePaletteManager.CurrentGlobalPaletteID);
+            bson.Add("palette", blockStatePaletteManager.currentPaletteID);
 
             // 获取 block state 数据拷贝
             Span<int> buffer = stackalloc int[Chunk.ChunkSize];
@@ -223,7 +223,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
             return bson;
         }
 
-        public PalettedChunkParser(IChunkFactory chunkFactory, GlobalPaletteManager<BlockState> blockStatePaletteManager)
+        public PalettedChunkParser(IChunkFactory chunkFactory, PaletteManager<BlockState> blockStatePaletteManager)
         {
             this.chunkFactory = chunkFactory;
             this.blockStatePaletteManager = blockStatePaletteManager;
@@ -231,6 +231,6 @@ namespace StarCube.Game.Levels.Chunks.Storage
 
         private readonly IChunkFactory chunkFactory;
 
-        private readonly GlobalPaletteManager<BlockState> blockStatePaletteManager;
+        private readonly PaletteManager<BlockState> blockStatePaletteManager;
     }
 }

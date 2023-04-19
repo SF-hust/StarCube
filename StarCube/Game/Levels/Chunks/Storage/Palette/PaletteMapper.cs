@@ -8,7 +8,7 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
     /// <summary>
     /// 旧调色盘到当前调色盘的映射
     /// </summary>
-    public sealed class GlobalPaletteMapper
+    public sealed class PaletteMapper
     {
         public int Length => data.Length;
 
@@ -27,7 +27,7 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
             return data[value];
         }
 
-        public GlobalPaletteMapper(ImmutableArray<int> data)
+        public PaletteMapper(ImmutableArray<int> data)
         {
             this.data = data;
         }
