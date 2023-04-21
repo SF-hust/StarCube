@@ -10,6 +10,7 @@ using StarCube.Utility.Math;
 using StarCube.Data.Storage;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Chunks.Loading;
+using StarCube.Utility.Logging;
 
 namespace StarCube.Game.Levels.Storage
 {
@@ -38,7 +39,7 @@ namespace StarCube.Game.Levels.Storage
             return manager.chunkParser.TryParse(bson, pos, out chunk);
         }
 
-        public void WriteChunk(Chunk chunk)
+        public void SaveChunk(Chunk chunk)
         {
             BsonDocument bson = manager.chunkParser.ToBson(chunk);
             chunkCollection.Upsert(chunk.pos.ToObjectID(), bson);
@@ -84,7 +85,8 @@ namespace StarCube.Game.Levels.Storage
         {
             if (disposed)
             {
-                return;
+                LogUtil.Error("LevelStorage disposed");
+                throw new ObjectDisposedException(nameof(LevelStorage));
             }
             manager.Release(this);
             disposed = true;

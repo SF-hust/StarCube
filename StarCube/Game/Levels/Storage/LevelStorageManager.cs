@@ -22,7 +22,7 @@ namespace StarCube.Game.Levels.Storage
 
         public const string LevelDatabasePathPrefix = "level/level_";
 
-        public const string BlockStatePaletteCollectionName = "palette/blockstate";
+        public const string BlockStatePaletteCollectionName = "palette_blockstate";
 
         /// <summary>
         /// 将一个 64 位整数转换为 level 的路径名
@@ -128,6 +128,7 @@ namespace StarCube.Game.Levels.Storage
             {
                 indexBson = new BsonDocument();
                 indexBson.Add("current", new BsonValue(1L));
+                levelMetaCollection.Insert(Guid.Empty, indexBson);
             }
             return indexBson["current"].AsInt64;
         }
@@ -155,15 +156,16 @@ namespace StarCube.Game.Levels.Storage
         {
             if (disposed)
             {
-                return;
+                LogUtil.Error("LevelStorageManager disposed");
+                throw new ObjectDisposedException(nameof(LevelStorageManager));
             }
 
+            SaveNextLevelIndex();
             saves.ReleaseDatabase(LevelMetaDatabasePath);
             foreach (LevelStorage storage in idToLevelStorageCache.Values)
             {
                 storage.Dispose();
             }
-            SaveNextLevelIndex();
 
             if (disposing)
             {
@@ -180,7 +182,8 @@ namespace StarCube.Game.Levels.Storage
             nextLevelIndex = LoadNextLevelIndex();
             ILiteCollection<BsonDocument> blockStatePaletteCollection = levelMetaDatabase.GetCollectionAndEnsureIndex(BlockStatePaletteCollectionName, BsonAutoId.Int32);
             PaletteManager<BlockState> blockStatePaletteManager = PaletteManager<BlockState>.Load("blockstate", BlockState.GlobalBlockStateIDMap, blockStatePaletteCollection, BlockState.ToBson, saves.name);
-            chunkParser = new PalettedChunkParser(new PalettedChunkFactory(BlockState.GlobalBlockStateIDMap), blockStatePaletteManager);
+            chunkFactory = new PalettedChunkFactory(BlockState.GlobalBlockStateIDMap);
+            chunkParser = new PalettedChunkParser(chunkFactory, blockStatePaletteManager);
         }
 
         private readonly GameSaves saves;
@@ -191,7 +194,9 @@ namespace StarCube.Game.Levels.Storage
 
         private long nextLevelIndex;
 
-        internal readonly IChunkParser chunkParser;
+        public readonly IChunkParser chunkParser;
+
+        public readonly IChunkFactory chunkFactory;
 
         private readonly Dictionary<Guid, LevelStorage> idToLevelStorageCache = new Dictionary<Guid, LevelStorage>();
 

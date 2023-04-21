@@ -11,7 +11,7 @@ namespace StarCube.Game.Worlds.Storage
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            manager.Release(this);
         }
 
         internal WorldStorage(string path, LiteDatabase database, Guid guid, WorldStorageManager manager)

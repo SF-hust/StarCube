@@ -15,6 +15,6 @@ namespace StarCube.Data.Storage
 
         public readonly string path;
 
-        protected readonly LiteDatabase database;
+        public readonly LiteDatabase database;
     }
 }

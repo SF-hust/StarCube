@@ -29,8 +29,8 @@ namespace StarCube.Data.Storage
         public static GameSaves CreateInDirectory(string name, string path)
         {
             GameSaves saves = new GameSaves(name, path);
-            LiteDatabase meta = saves.GetOrCreateDatabase(MetaDatabaseName);
-            ILiteCollection<BsonDocument> metadataCollection = meta.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
+            LiteDatabase metaDatabase = saves.GetOrCreateDatabase(MetaDatabaseName);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() > 0)
             {
                 metadataCollection.DeleteAll();
@@ -118,6 +118,10 @@ namespace StarCube.Data.Storage
         {
             lock(this)
             {
+                if (pathToDataBase.TryGetValue(path, out var database))
+                {
+                    return database;
+                }
                 string fullPath = GetFullPath(path);
                 return OpenOrCreate(path, fullPath);
             }
@@ -221,13 +225,17 @@ namespace StarCube.Data.Storage
                 return fullPath;
             }
 
-            fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.PathSeparator)) + LiteDatabaseExtension;
+            fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar)) + LiteDatabaseExtension;
             relativeToFullPath.Add(relativePath, fullPath);
             return fullPath;
         }
 
         private LiteDatabase OpenOrCreate(string relativePath, string fullPath)
         {
+            if (!File.Exists(fullPath))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+            }
             ConnectionString connectionString = new ConnectionString()
             {
                 Filename = fullPath,
@@ -242,6 +250,7 @@ namespace StarCube.Data.Storage
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+            disposed = true;
         }
 
         ~GameSaves()
@@ -253,7 +262,7 @@ namespace StarCube.Data.Storage
         {
             if (disposed)
             {
-                return;
+                throw new ObjectDisposedException(nameof(GameSaves));
             }
 
             foreach (LiteDatabase db in pathToDataBase.Values)

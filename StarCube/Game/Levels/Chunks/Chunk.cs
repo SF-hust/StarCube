@@ -17,6 +17,11 @@ namespace StarCube.Game.Levels.Chunks
         public int Y => pos.y;
         public int Z => pos.z;
 
+        public bool Modify
+        {
+            get => modify;
+            set => modify = value;
+        }
 
         public abstract bool Writable { get; }
 
@@ -84,5 +89,7 @@ namespace StarCube.Game.Levels.Chunks
         }
 
         public readonly ChunkPos pos;
+
+        private bool modify = false;
     }
 }

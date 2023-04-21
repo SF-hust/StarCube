@@ -23,6 +23,11 @@ namespace StarCube.Game.Worlds.Storage
             return WorldDatabasePathPrefix + index.ToString("X").ToLower();
         }
 
+        public bool Contains(Guid guid)
+        {
+            return worldMetaCollection.Exists(Query.EQ("_id", guid));
+        }
+
         public WorldStorage GetOrCreate(Guid guid)
         {
             lock (this)
@@ -102,6 +107,7 @@ namespace StarCube.Game.Worlds.Storage
             {
                 indexBson = new BsonDocument();
                 indexBson.Add("current", new BsonValue(1L));
+                worldMetaCollection.Insert(Guid.Empty, indexBson);
             }
             return indexBson["current"].AsInt64;
         }
@@ -129,15 +135,16 @@ namespace StarCube.Game.Worlds.Storage
         {
             if (disposed)
             {
-                return;
+                LogUtil.Error("WorldStorageManager disposed");
+                throw new ObjectDisposedException(nameof(WorldStorageManager));
             }
 
+            SaveNextWorldIndex();
             saves.ReleaseDatabase(WorldMetaDatabasePath);
             foreach (WorldStorage storage in idToWorldStorageCache.Values)
             {
                 storage.Dispose();
             }
-            SaveNextWorldIndex();
 
             if (disposing)
             {

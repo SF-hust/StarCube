@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-
+using System.Linq;
 using LiteDB;
 
 using StarCube.Utility;
@@ -60,6 +60,7 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
                 BsonValue idValue = collection.Insert(current);
                 currentGlobalPaletteID = idValue.AsInt32;
                 var builder = ImmutableArray.CreateBuilder<int>(globalIDMap.Count);
+                builder.AddRange(Enumerable.Repeat(0, globalIDMap.Count));
                 for (int i = 0; i < builder.Count; i++)
                 {
                     builder[i] = i;
@@ -84,6 +85,7 @@ namespace StarCube.Game.Levels.Chunks.Storage.Palette
         private static PaletteMapper BuildPaletteMapper(BsonArray currentPaletteArray, BsonArray paletteArray)
         {
             var builder = ImmutableArray.CreateBuilder<int>(paletteArray.Count);
+            builder.AddRange(Enumerable.Repeat(0, paletteArray.Count));
             for (int i = 0; i < paletteArray.Count; ++i)
             {
                 for (int j = 0; j < currentPaletteArray.Count; ++j)

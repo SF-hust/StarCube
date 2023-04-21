@@ -25,6 +25,7 @@ namespace StarCube.Game.Levels.Chunks
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
             blockStates.Set(index, blockState);
+            Modify = true;
         }
 
         public override void FillBlockState(int x0, int y0, int z0, int x1, int y1, int z1, BlockState blockState)
@@ -41,6 +42,7 @@ namespace StarCube.Game.Levels.Chunks
                     }
                 }
             }
+            Modify = true;
         }
 
         public override BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState)
@@ -48,6 +50,7 @@ namespace StarCube.Game.Levels.Chunks
             int index = BlockPos.InChunkPosToIndex(x, y, z);
             BlockState old = blockStates.Get(index);
             blockStates.Set(index, blockState);
+            Modify = true;
             return old;
         }
 
@@ -64,6 +67,7 @@ namespace StarCube.Game.Levels.Chunks
         public override void Clear()
         {
             blockStates.Clear();
+            Modify = true;
         }
 
         public PalettedChunkDataView GetReadOnlyBlockStateDataView()
@@ -83,6 +87,7 @@ namespace StarCube.Game.Levels.Chunks
             if (inChunkIndexToBlockEntity.TryAdd(index, blockEntity))
             {
                 blockEntity.OnActive(true);
+                Modify = true;
                 return true;
             }
 

@@ -15,7 +15,7 @@ namespace StarCube.Game.Levels.Chunks.Source
     /// <summary>
     /// 
     /// </summary>
-    public class ChunkProvider
+    public sealed class ChunkProvider
     {
         public void Start()
         {
@@ -47,7 +47,9 @@ namespace StarCube.Game.Levels.Chunks.Source
                 return chunk;
             }
 
-            return generator.GenerateChunk(pos);
+            chunk = generator.GenerateChunk(pos);
+            chunk.Modify = true;
+            return chunk;
         }
 
         public void Stop()
@@ -73,6 +75,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             int count = 0;
             try
             {
+                Thread.CurrentThread.Priority = ThreadPriority.Lowest;
                 Action action = Work;
                 Action[] actions64 = new Action[64];
                 Action[] actions16 = new Action[16];
