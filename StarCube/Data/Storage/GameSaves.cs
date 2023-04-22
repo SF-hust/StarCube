@@ -41,6 +41,12 @@ namespace StarCube.Data.Storage
             return saves;
         }
 
+        /// <summary>
+        /// 尝试从指定目录下读取存档的名字
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static bool TryGetNameFromDirectory(string path, out string name)
         {
             name = string.Empty;
@@ -116,7 +122,8 @@ namespace StarCube.Data.Storage
         /// <returns></returns>
         public LiteDatabase GetOrCreateDatabase(string path)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
                 if (pathToDataBase.TryGetValue(path, out var database))
                 {
@@ -133,7 +140,8 @@ namespace StarCube.Data.Storage
         /// <param name="path"></param>
         public void ReleaseDatabase(string path)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
                 if (!pathToDataBase.Remove(path, out LiteDatabase? db))
                 {
@@ -151,7 +159,8 @@ namespace StarCube.Data.Storage
         /// <param name="path"></param>
         public void DropDatabase(string path)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
                 // 释放 db 的实例
                 if(pathToDataBase.Remove(path, out LiteDatabase? db))
@@ -171,7 +180,8 @@ namespace StarCube.Data.Storage
 
         public bool TryGetDatabase(string path, [NotNullWhen(true)] out LiteDatabase? database)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
                 if(pathToDataBase.TryGetValue(path, out database))
                 {
@@ -192,7 +202,8 @@ namespace StarCube.Data.Storage
 
         public bool TryCreateDatabase(string path, [NotNullWhen(true)] out LiteDatabase? database)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
                 database = null;
 
@@ -215,14 +226,14 @@ namespace StarCube.Data.Storage
 
         private string GetFullPath(string relativePath)
         {
-            if (!StringID.IsValidName(relativePath))
-            {
-                throw new ArgumentException("relativePath");
-            }
-
             if (relativeToFullPath.TryGetValue(relativePath, out string fullPath))
             {
                 return fullPath;
+            }
+
+            if (!StringID.IsValidName(relativePath))
+            {
+                throw new ArgumentException("is not valid path", nameof(relativePath));
             }
 
             fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar)) + LiteDatabaseExtension;
@@ -248,21 +259,9 @@ namespace StarCube.Data.Storage
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-            disposed = true;
-        }
-
-        ~GameSaves()
-        {
-            Dispose(false);
-        }
-
-        private void Dispose(bool disposing)
-        {
             if (disposed)
             {
-                throw new ObjectDisposedException(nameof(GameSaves));
+                throw new ObjectDisposedException(nameof(GameSaves), "double dispose");
             }
 
             foreach (LiteDatabase db in pathToDataBase.Values)
@@ -270,10 +269,17 @@ namespace StarCube.Data.Storage
                 db.Dispose();
             }
 
-            if (disposing)
+            relativeToFullPath.Clear();
+            pathToDataBase.Clear();
+
+            disposed = true;
+        }
+
+        private void CheckDisposed()
+        {
+            if (disposed)
             {
-                relativeToFullPath.Clear();
-                pathToDataBase.Clear();
+                throw new ObjectDisposedException(nameof(GameSaves), "disposed");
             }
         }
 
