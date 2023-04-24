@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using StarCube.Game.Worlds.Storage;
+using System.Linq;
 
 namespace StarCube.Game.Worlds
 {
@@ -300,6 +302,20 @@ namespace StarCube.Game.Worlds
                 runner.Wait();
             }
         }
+
+        public bool TryGet(Guid guid, [NotNullWhen(true)] out ServerWorld? world)
+        {
+            if(guidToServerWorldRunner.TryGetValue(guid, out var runner))
+            {
+                world = runner.world;
+                return true;
+            }
+
+            world = null;
+            return false;
+        }
+
+        public IEnumerable<ServerWorld> ServerWorlds => guidToServerWorldRunner.Values.Select((runner) => runner.world);
 
         /// <summary>
         /// 请求生成一个 ServerWorld

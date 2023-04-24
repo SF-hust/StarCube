@@ -27,12 +27,6 @@ namespace StarCube.Data.Storage
         public static GameSaves CreateInDirectory(string name, string path)
         {
             GameSaves saves = new GameSaves(name, path);
-            StorageDatabase metaDatabase = saves.OpenOrCreateDatabase(ServerGameStorage.GameMetaDatabasePath);
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.Value.GetCollection(ServerGameStorage.GameMetaCollectionName, BsonAutoId.Int32);
-            metadataCollection.DeleteAll();
-            BsonDocument metadataDoc = new BsonDocument();
-            metadataDoc["name"] = name;
-            metadataCollection.Upsert(metadataDoc);
             return saves;
         }
 

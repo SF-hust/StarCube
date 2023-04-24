@@ -12,7 +12,7 @@ namespace StarCube.Game.Worlds
 {
     public sealed class ServerWorld : World, IDisposable
     {
-        public override bool ClientSize => false;
+        public override bool ClientSide => false;
 
         /// <summary>
         /// world 运行的总 tick 计数

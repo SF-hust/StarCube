@@ -11,7 +11,7 @@ namespace StarCube.Game.Worlds
     public abstract class World
         : IGuid
     {
-        public abstract bool ClientSize { get; }
+        public abstract bool ClientSide { get; }
 
         public abstract IEnumerable<Entity> Entities { get; }
 

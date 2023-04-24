@@ -14,6 +14,8 @@ namespace StarCube.Game
 
         public const string GameMetaCollectionName = "meta";
 
+        public const string NameField = "name";
+
         public const string TotalTickCountField = "tick";
 
         /// <summary>
@@ -30,7 +32,7 @@ namespace StarCube.Game
                 return 0L;
             }
 
-            var meta = gameMetaCollection.Value.FindOne(Query.EQ("_id", 0)) ?? throw new GameSavesCorruptException("missing server game meta data");
+            var meta = gameMetaCollection.Value.FindById(0) ?? throw new GameSavesCorruptException("missing server game meta data");
             return meta[TotalTickCountField].AsInt64;
         }
 
@@ -42,12 +44,16 @@ namespace StarCube.Game
         {
             CheckDisposed();
 
-            var meta = gameMetaCollection.Value.FindOne(Query.All());
-            if (meta == null)
+            if (!gameMetaDatabase.Created)
             {
-                meta = new BsonDocument();
-                meta["_id"] = new BsonValue(0);
+                BsonDocument bson = new BsonDocument();
+                bson[NameField] = saves.name;
+                bson[TotalTickCountField] = totalTickCount;
+                gameMetaCollection.Value.Insert(0, bson);
+                return;
             }
+
+            var meta = gameMetaCollection.Value.FindById(0) ?? throw new GameSavesCorruptException("missing server game meta data");
             meta[TotalTickCountField] = totalTickCount;
             gameMetaCollection.Value.Upsert(meta);
         }
