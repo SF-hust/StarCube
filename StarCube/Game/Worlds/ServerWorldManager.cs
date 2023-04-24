@@ -293,6 +293,25 @@ namespace StarCube.Game.Worlds
                 guidToInitializingWorld.Clear();
             }
 
+            // 清理所有被卸载的 world
+            foreach (var runner in guidToUnloadedWorldRunner.Values)
+            {
+                runner.BeginTerminate();
+            }
+            foreach (var runner in guidToUnloadedWorldRunner.Values)
+            {
+                runner.WaitForTerminate();
+            }
+            guidToUnloadedWorldRunner.Clear();
+
+            // 销毁所有待销毁的 world
+            foreach (Guid guid in droppedWorldGuid)
+            {
+                storage.Drop(guid);
+            }
+            droppedWorldGuid.Clear();
+
+            // 保存所有活跃的 world
             foreach (var runner in guidToServerWorldRunner.Values)
             {
                 runner.BeginExcute(ServerWorldActions.Save);
@@ -301,6 +320,9 @@ namespace StarCube.Game.Worlds
             {
                 runner.Wait();
             }
+
+            // 保存 world 元数据
+            storage.Save();
         }
 
         public bool TryGet(Guid guid, [NotNullWhen(true)] out ServerWorld? world)
