@@ -47,7 +47,10 @@ namespace StarCube.Game.Worlds
 
         public void Tick()
         {
-            LogUtil.Debug($"server world ticking (guid = {guid}, tick = {totalTickCount})...");
+            if (tickCount % 100 == 0)
+            {
+                LogUtil.Debug($"server world ticking (guid = {guid}, tick = {totalTickCount})...");
+            }
 
             // 更新 tickCount
             Interlocked.Increment(ref tickCount);

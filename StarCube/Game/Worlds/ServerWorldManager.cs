@@ -367,6 +367,43 @@ namespace StarCube.Game.Worlds
 
         public void Dispose()
         {
+            // 清理初始化中的 world
+            foreach (var tuple in guidToInitializingWorld.Values)
+            {
+                tuple.Item1.Wait();
+            }
+            foreach (var tuple in guidToInitializingWorld.Values)
+            {
+                tuple.Item1.BeginTerminate();
+            }
+            foreach (var tuple in guidToInitializingWorld.Values)
+            {
+                tuple.Item1.WaitForTerminate();
+            }
+            guidToInitializingWorld.Clear();
+
+            // 清理已卸载的 world
+            foreach (var runner in guidToUnloadedWorldRunner.Values)
+            {
+                runner.BeginTerminate();
+            }
+            foreach (var runner in guidToUnloadedWorldRunner.Values)
+            {
+                runner.WaitForTerminate();
+            }
+            guidToUnloadedWorldRunner.Clear();
+
+            // 清理活跃的 world
+            foreach (var runner in guidToServerWorldRunner.Values)
+            {
+                runner.BeginTerminate();
+            }
+            foreach (var runner in guidToServerWorldRunner.Values)
+            {
+                runner.WaitForTerminate();
+            }
+            guidToServerWorldRunner.Clear();
+
             storage.Dispose();
         }
 

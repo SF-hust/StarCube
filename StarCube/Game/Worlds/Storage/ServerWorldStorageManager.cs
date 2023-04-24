@@ -229,7 +229,7 @@ namespace StarCube.Game.Worlds.Storage
             saves.ReleaseDatabase(worldMetaDatabase);
 
             // 关闭所有打开的 ServerWorldStorage
-            foreach (ServerWorldStorage storage in guidToOpenedWorldStorageCache.Values)
+            foreach (ServerWorldStorage storage in guidToOpenedWorldStorageCache.Values.ToList())
             {
                 storage.Release();
             }
