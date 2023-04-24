@@ -226,7 +226,7 @@ namespace StarCube.Game.Worlds.Storage
             }
 
             // 关闭 world 元数据的数据库
-            saves.ReleaseDatabase(worldMetaDatabase);
+            worldMetaDatabase.Release();
 
             // 关闭所有打开的 ServerWorldStorage
             foreach (ServerWorldStorage storage in guidToOpenedWorldStorageCache.Values.ToList())

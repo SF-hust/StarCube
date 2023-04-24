@@ -65,7 +65,7 @@ namespace StarCube.Game
                 throw new ObjectDisposedException(nameof(ServerGameStorage));
             }
 
-            saves.ReleaseDatabase(gameMetaDatabase);
+            gameMetaDatabase.Release();
 
             disposed = true;
         }

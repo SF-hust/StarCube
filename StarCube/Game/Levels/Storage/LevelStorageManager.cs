@@ -80,7 +80,7 @@ namespace StarCube.Game.Levels.Storage
                     return;
                 }
 
-                saves.ReleaseDatabase(storage.database);
+                storage.database.Release();
             }
         }
 
@@ -161,7 +161,7 @@ namespace StarCube.Game.Levels.Storage
             }
 
             SaveNextLevelIndex();
-            saves.ReleaseDatabase(levelMetaDatabase);
+            levelMetaDatabase.Release();
             foreach (LevelStorage storage in idToLevelStorageCache.Values)
             {
                 storage.Dispose();

@@ -261,17 +261,21 @@ namespace StarCube.Data.Storage
                 Collation = Collation.Binary,
             };
 
+            StorageDatabase database;
             if (File.Exists(fullPath))
             {
                 LiteDatabase db = new LiteDatabase(connectionString);
-                return new StorageDatabase(relativePath, this, db);
+                database = new StorageDatabase(relativePath, this, db);
+            }
+            else
+            {
+                database = new StorageDatabase(relativePath, this, () =>
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+                    return new LiteDatabase(connectionString);
+                });
             }
 
-            StorageDatabase database = new StorageDatabase(relativePath, this, () =>
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
-                return new LiteDatabase(connectionString);
-            });
             pathToOpenedDataBaseCache.Add(relativePath, database);
             return database;
         }
