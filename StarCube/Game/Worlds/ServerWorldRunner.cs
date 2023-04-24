@@ -75,6 +75,8 @@ namespace StarCube.Game.Worlds
                 {
                     // 等待 ServerGame 的事件
                     actionStartEvent.Wait();
+                    // 重置事件，等待下一次 action
+                    actionDoneEvent.Reset();
                     // 事件开始时可能是要终止 world，此时要退出循环
                     if (terminate)
                     {
@@ -86,8 +88,6 @@ namespace StarCube.Game.Worlds
                     action?.Invoke(world);
                     // 告知 ServerGame 已经执行完成 action
                     actionDoneEvent.Set();
-                    // 重置事件，等待下一次 action
-                    actionDoneEvent.Reset();
                 }
             }
             catch (Exception e)
