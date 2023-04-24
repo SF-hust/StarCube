@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+
 using LiteDB;
 
 using StarCube.Utility;
 using StarCube.Utility.Logging;
+using StarCube.Game;
 
 namespace StarCube.Data.Storage
 {
@@ -16,25 +18,18 @@ namespace StarCube.Data.Storage
     {
         public const string LiteDatabaseExtension = ".litedb";
 
-        public const string MetaDatabaseName = "meta";
-
-        public const string MetaCollectionName = "meta";
-
         /// <summary>
         /// 在指定文件夹下创建一个存档
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="name"> 存档的显示名称 </param>
+        /// <param name="path"> 绝对文件夹路径，必须存在，且里面不可以有任何文件 </param>
+        /// <returns> 创建完成的存档 </returns>
         public static GameSaves CreateInDirectory(string name, string path)
         {
             GameSaves saves = new GameSaves(name, path);
-            LiteDatabase metaDatabase = saves.GetOrCreateDatabase(MetaDatabaseName);
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
-            if (metadataCollection.Count() > 0)
-            {
-                metadataCollection.DeleteAll();
-            }
+            StorageDatabase metaDatabase = saves.OpenOrCreateDatabase(ServerGameStorage.GameMetaDatabasePath);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.Value.GetCollection(ServerGameStorage.GameMetaCollectionName, BsonAutoId.Int32);
+            metadataCollection.DeleteAll();
             BsonDocument metadataDoc = new BsonDocument();
             metadataDoc["name"] = name;
             metadataCollection.Upsert(metadataDoc);
@@ -44,13 +39,13 @@ namespace StarCube.Data.Storage
         /// <summary>
         /// 尝试从指定目录下读取存档的名字
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path"> 目录路径，可以不存在 </param>
         /// <param name="name"></param>
         /// <returns></returns>
         public static bool TryGetNameFromDirectory(string path, out string name)
         {
             name = string.Empty;
-            string fullDBPath = Path.Combine(path, MetaDatabaseName + LiteDatabaseExtension);
+            string fullDBPath = Path.Combine(path, ServerGameStorage.GameMetaDatabasePath + LiteDatabaseExtension);
             if (!File.Exists(fullDBPath))
             {
                 return false;
@@ -62,11 +57,11 @@ namespace StarCube.Data.Storage
             };
 
             using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
-            if (!metaDatabase.CollectionExists(MetaCollectionName))
+            if (!metaDatabase.CollectionExists(ServerGameStorage.GameMetaCollectionName))
             {
                 return false;
             }
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(ServerGameStorage.GameMetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() != 1)
             {
                 return false;
@@ -78,13 +73,13 @@ namespace StarCube.Data.Storage
         /// <summary>
         /// 尝试从指定文件夹下加载一个存档
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path"> 存档文件夹的完整路径，不必存在 </param>
         /// <param name="saves"></param>
         /// <returns></returns>
         public static bool TryLoadFromDirectory(string path, [NotNullWhen(true)] out GameSaves? saves)
         {
             saves = null;
-            string fullDBPath = Path.Combine(path, MetaDatabaseName + LiteDatabaseExtension);
+            string fullDBPath = Path.Combine(path, ServerGameStorage.GameMetaDatabasePath + LiteDatabaseExtension);
             if (!File.Exists(fullDBPath))
             {
                 return false;
@@ -96,11 +91,11 @@ namespace StarCube.Data.Storage
             };
 
             using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
-            if (!metaDatabase.CollectionExists(MetaCollectionName))
+            if (!metaDatabase.CollectionExists(ServerGameStorage.GameMetaCollectionName))
             {
                 return false;
             }
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(MetaCollectionName, BsonAutoId.ObjectId);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(ServerGameStorage.GameMetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() != 1)
             {
                 return false;
@@ -116,16 +111,16 @@ namespace StarCube.Data.Storage
         }
 
         /// <summary>
-        /// 获取或创建指定路径的 Database
+        /// 打开或创建指定路径的 database，如果创建了新的 database，那么调用 StorageDatabase.Value 时才会真正在磁盘上创建数据库文件
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public LiteDatabase GetOrCreateDatabase(string path)
+        public StorageDatabase OpenOrCreateDatabase(string path)
         {
             CheckDisposed();
             lock (this)
             {
-                if (pathToDataBase.TryGetValue(path, out var database))
+                if (pathToOpenedDataBaseCache.TryGetValue(path, out var database))
                 {
                     return database;
                 }
@@ -135,55 +130,69 @@ namespace StarCube.Data.Storage
         }
 
         /// <summary>
-        /// 关闭指定路径的 Database 实例
+        /// 关闭 database 实例
         /// </summary>
         /// <param name="path"></param>
-        public void ReleaseDatabase(string path)
+        internal void ReleaseDatabase(StorageDatabase database)
         {
             CheckDisposed();
+            bool removed;
             lock (this)
             {
-                if (!pathToDataBase.Remove(path, out LiteDatabase? db))
-                {
-                    LogUtil.Error($"in game saves (\"{name}\"), tries to close database (\"{path}\") which does not exist");
-                    return;
-                }
+                removed = pathToOpenedDataBaseCache.Remove(database.path);
+            }
 
-                db.Dispose();
+            if (!removed)
+            {
+                LogUtil.Error($"in game saves (\"{name}\"), tries to close database (\"{database.path}\") which does not exist");
+                return;
+            }
+
+            if (database.Created)
+            {
+                database.Value.Dispose();
             }
         }
 
         /// <summary>
-        /// 销毁指定路径的 Database
+        /// 销毁指定路径的 database，此时 database 必须未加载
         /// </summary>
         /// <param name="path"></param>
-        public void DropDatabase(string path)
+        public bool DropDatabase(string path)
         {
             CheckDisposed();
             lock (this)
             {
-                // 释放 db 的实例
-                if(pathToDataBase.Remove(path, out LiteDatabase? db))
+                // 检查数据库是否已被打开
+                if (pathToOpenedDataBaseCache.ContainsKey(path))
                 {
-                    db.Dispose();
+                    throw new ArgumentException("try to drop an opened database");
                 }
 
-                string fullPath = GetFullPath(path);
-                relativeToFullPath.Remove(path);
-                // 删除 db 文件
-                if (File.Exists(fullPath))
+                // 找到并删除 database 文件以及路径映射的缓存
+                string fullPath = GetFullPath(path, false);
+                relativeToFullPathCache.Remove(path);
+                if (!File.Exists(fullPath))
                 {
-                    File.Delete(fullPath);
+                    return false;
                 }
+                File.Delete(fullPath);
+                return true;
             }
         }
 
-        public bool TryGetDatabase(string path, [NotNullWhen(true)] out LiteDatabase? database)
+        /// <summary>
+        /// 尝试获取一个已存在或已加载的 Database
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="database"></param>
+        /// <returns></returns>
+        public bool TryGetDatabase(string path, [NotNullWhen(true)] out StorageDatabase? database)
         {
             CheckDisposed();
             lock (this)
             {
-                if(pathToDataBase.TryGetValue(path, out database))
+                if(pathToOpenedDataBaseCache.TryGetValue(path, out database))
                 {
                     return true;
                 }
@@ -200,14 +209,20 @@ namespace StarCube.Data.Storage
             }
         }
 
-        public bool TryCreateDatabase(string path, [NotNullWhen(true)] out LiteDatabase? database)
+        /// <summary>
+        /// 尝试新建一个 Database
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="database"></param>
+        /// <returns></returns>
+        public bool TryCreateDatabase(string path, [NotNullWhen(true)] out StorageDatabase? database)
         {
             CheckDisposed();
             lock (this)
             {
                 database = null;
 
-                if(pathToDataBase.ContainsKey(path))
+                if(pathToOpenedDataBaseCache.ContainsKey(path))
                 {
                     return false;
                 }
@@ -219,14 +234,14 @@ namespace StarCube.Data.Storage
                 }
 
                 database = OpenOrCreate(path, fullPath);
-                pathToDataBase.Add(path, database);
+                pathToOpenedDataBaseCache.Add(path, database);
                 return true;
             }
         }
 
-        private string GetFullPath(string relativePath)
+        private string GetFullPath(string relativePath, bool cacheResult = true)
         {
-            if (relativeToFullPath.TryGetValue(relativePath, out string fullPath))
+            if (relativeToFullPathCache.TryGetValue(relativePath, out string fullPath))
             {
                 return fullPath;
             }
@@ -237,23 +252,33 @@ namespace StarCube.Data.Storage
             }
 
             fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar)) + LiteDatabaseExtension;
-            relativeToFullPath.Add(relativePath, fullPath);
+            if (cacheResult)
+            {
+                relativeToFullPathCache.Add(relativePath, fullPath);
+            }
             return fullPath;
         }
 
-        private LiteDatabase OpenOrCreate(string relativePath, string fullPath)
+        private StorageDatabase OpenOrCreate(string relativePath, string fullPath)
         {
-            if (!File.Exists(fullPath))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
-            }
             ConnectionString connectionString = new ConnectionString()
             {
                 Filename = fullPath,
                 Collation = Collation.Binary,
             };
-            LiteDatabase database = new LiteDatabase(connectionString);
-            pathToDataBase.Add(relativePath, database);
+
+            if (File.Exists(fullPath))
+            {
+                LiteDatabase db = new LiteDatabase(connectionString);
+                return new StorageDatabase(relativePath, this, db);
+            }
+
+            StorageDatabase database = new StorageDatabase(relativePath, this, () =>
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+                return new LiteDatabase(connectionString);
+            });
+            pathToOpenedDataBaseCache.Add(relativePath, database);
             return database;
         }
 
@@ -264,13 +289,17 @@ namespace StarCube.Data.Storage
                 throw new ObjectDisposedException(nameof(GameSaves), "double dispose");
             }
 
-            foreach (LiteDatabase db in pathToDataBase.Values)
+            // 释放所有已打开的 database
+            foreach (StorageDatabase database in pathToOpenedDataBaseCache.Values)
             {
-                db.Dispose();
+                if (database.Created)
+                {
+                    database.Value.Dispose();
+                }
             }
 
-            relativeToFullPath.Clear();
-            pathToDataBase.Clear();
+            relativeToFullPathCache.Clear();
+            pathToOpenedDataBaseCache.Clear();
 
             disposed = true;
         }
@@ -289,13 +318,25 @@ namespace StarCube.Data.Storage
             this.directoryPath = directoryPath;
         }
 
+        /// <summary>
+        /// 存档的显示名称
+        /// </summary>
         public readonly string name;
 
+        /// <summary>
+        /// 存档的文件夹名字
+        /// </summary>
         public readonly string directoryPath;
 
-        private readonly Dictionary<string, string> relativeToFullPath = new Dictionary<string, string>();
+        /// <summary>
+        /// 存档中数据库相对路径到绝对路径的映射缓存
+        /// </summary>
+        private readonly Dictionary<string, string> relativeToFullPathCache = new Dictionary<string, string>();
 
-        private readonly Dictionary<string, LiteDatabase> pathToDataBase = new Dictionary<string, LiteDatabase>();
+        /// <summary>
+        /// 存档中已打开的数据库
+        /// </summary>
+        private readonly Dictionary<string, StorageDatabase> pathToOpenedDataBaseCache = new Dictionary<string, StorageDatabase>();
 
         private volatile bool disposed = false;
     }

@@ -61,8 +61,8 @@ namespace StarCube.Game.Levels.Storage
                 // 创建 LevelStorage
                 long index = meta["index"].AsInt64;
                 string path = IndexToPath(index);
-                LiteDatabase db = saves.GetOrCreateDatabase(path);
-                return new LevelStorage(path, db, guid, this);
+                StorageDatabase database = saves.OpenOrCreateDatabase(path);
+                return new LevelStorage(guid, this, database);
             }
         }
 
@@ -80,7 +80,7 @@ namespace StarCube.Game.Levels.Storage
                     return;
                 }
 
-                saves.ReleaseDatabase(storage.path);
+                saves.ReleaseDatabase(storage.database);
             }
         }
 
@@ -161,7 +161,7 @@ namespace StarCube.Game.Levels.Storage
             }
 
             SaveNextLevelIndex();
-            saves.ReleaseDatabase(LevelMetaDatabasePath);
+            saves.ReleaseDatabase(levelMetaDatabase);
             foreach (LevelStorage storage in idToLevelStorageCache.Values)
             {
                 storage.Dispose();
@@ -177,10 +177,10 @@ namespace StarCube.Game.Levels.Storage
         public LevelStorageManager(GameSaves saves)
         {
             this.saves = saves;
-            levelMetaDatabase = saves.GetOrCreateDatabase(LevelMetaDatabasePath);
-            levelMetaCollection = levelMetaDatabase.GetCollectionAndEnsureIndex(LevelMetaCollectionName, BsonAutoId.Guid);
+            levelMetaDatabase = saves.OpenOrCreateDatabase(LevelMetaDatabasePath);
+            levelMetaCollection = levelMetaDatabase.Value.GetCollectionAndEnsureIndex(LevelMetaCollectionName, BsonAutoId.Guid);
             nextLevelIndex = LoadNextLevelIndex();
-            ILiteCollection<BsonDocument> blockStatePaletteCollection = levelMetaDatabase.GetCollectionAndEnsureIndex(BlockStatePaletteCollectionName, BsonAutoId.Int32);
+            ILiteCollection<BsonDocument> blockStatePaletteCollection = levelMetaDatabase.Value.GetCollectionAndEnsureIndex(BlockStatePaletteCollectionName, BsonAutoId.Int32);
             PaletteManager<BlockState> blockStatePaletteManager = PaletteManager<BlockState>.Load("blockstate", BlockState.GlobalBlockStateIDMap, blockStatePaletteCollection, BlockState.ToBson, saves.name);
             chunkFactory = new PalettedChunkFactory(BlockState.GlobalBlockStateIDMap);
             chunkParser = new PalettedChunkParser(chunkFactory, blockStatePaletteManager);
@@ -188,7 +188,7 @@ namespace StarCube.Game.Levels.Storage
 
         private readonly GameSaves saves;
 
-        private readonly LiteDatabase levelMetaDatabase;
+        private readonly StorageDatabase levelMetaDatabase;
 
         private readonly ILiteCollection<BsonDocument> levelMetaCollection;
 

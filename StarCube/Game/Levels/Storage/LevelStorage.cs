@@ -17,7 +17,7 @@ namespace StarCube.Game.Levels.Storage
     /// <summary>
     /// 表示一个 Level 的数据存储
     /// </summary>
-    public sealed class LevelStorage : GameStorage
+    public sealed class LevelStorage
     {
         public const string ChunkCollectionName = "chunk";
 
@@ -25,15 +25,23 @@ namespace StarCube.Game.Levels.Storage
 
         public bool Contains(ChunkPos pos)
         {
-            return chunkCollection.Exists(Query.EQ("_id", pos.ToObjectID()));
+            if (!database.Created)
+            {
+                return false;
+            }
+            return chunkCollection.Value.Exists(Query.EQ("_id", pos.ToObjectID()));
         }
 
         public bool TryLoadChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
-            BsonDocument? bson = chunkCollection.FindById(pos.ToObjectID());
+            chunk = null;
+            if (!database.Created)
+            {
+                return false;
+            }
+            BsonDocument? bson = chunkCollection.Value.FindById(pos.ToObjectID());
             if (bson == null)
             {
-                chunk = null;
                 return false;
             }
             return manager.chunkParser.TryParse(bson, pos, out chunk);
@@ -42,13 +50,21 @@ namespace StarCube.Game.Levels.Storage
         public void SaveChunk(Chunk chunk)
         {
             BsonDocument bson = manager.chunkParser.ToBson(chunk);
-            chunkCollection.Upsert(chunk.pos.ToObjectID(), bson);
+            chunkCollection.Value.Upsert(chunk.pos.ToObjectID(), bson);
         }
 
         public void LoadStaticLevelAnchors(out long nextID, out Dictionary<long, AnchorData> idToStaticAnchor)
         {
+            idToStaticAnchor = new Dictionary<long, AnchorData>();
+            if (!database.Created)
+            {
+                nextID = 1L;
+                idToStaticAnchor = new Dictionary<long, AnchorData>();
+                return;
+            }
+
             // 读取下一个静态加载锚的 id
-            BsonDocument? currentIDDoc = staticAnchorCollection.FindById(0L);
+            BsonDocument? currentIDDoc = staticAnchorCollection.Value.FindById(0L);
             if (currentIDDoc == null)
             {
                 currentIDDoc = new BsonDocument();
@@ -57,8 +73,7 @@ namespace StarCube.Game.Levels.Storage
             nextID = currentIDDoc["next"].AsInt64;
 
             // 读取所有静态加载锚数据
-            idToStaticAnchor = new Dictionary<long, AnchorData>();
-            foreach (BsonDocument anchorDoc in staticAnchorCollection.Find(Query.GT("_id", 0L)))
+            foreach (BsonDocument anchorDoc in staticAnchorCollection.Value.Find(Query.GT("_id", 0L)))
             {
                 if (anchorDoc.TryGetChunkPos("pos", out ChunkPos pos) && anchorDoc.TryGetInt32("radius", out int radius))
                 {
@@ -69,10 +84,10 @@ namespace StarCube.Game.Levels.Storage
 
         public void WriteStaticLevelAnchors(long currentID, Dictionary<long, AnchorData> idToAnchorData)
         {
-            staticAnchorCollection.DeleteAll();
+            staticAnchorCollection.Value.DeleteAll();
             BsonDocument currentIDDoc = new BsonDocument();
             currentIDDoc["next"] = currentID;
-            staticAnchorCollection.Insert(0L, currentIDDoc);
+            staticAnchorCollection.Value.Insert(0L, currentIDDoc);
             foreach (var pair in idToAnchorData)
             {
                 BsonDocument anchorDoc = new BsonDocument();
@@ -92,22 +107,24 @@ namespace StarCube.Game.Levels.Storage
             disposed = true;
         }
 
-        internal LevelStorage(string path, LiteDatabase database, Guid guid, LevelStorageManager manager)
-            : base(path, database)
+        internal LevelStorage(Guid guid, LevelStorageManager manager, StorageDatabase database)
         {
             this.guid = guid;
             this.manager = manager;
-            chunkCollection = database.GetCollectionAndEnsureIndex(ChunkCollectionName, BsonAutoId.ObjectId);
-            staticAnchorCollection = database.GetCollectionAndEnsureIndex(StaticAnchorCollectionName, BsonAutoId.Int64);
+            this.database = database;
+            chunkCollection = new Lazy<ILiteCollection<BsonDocument>>(() => database.Value.GetCollectionAndEnsureIndex(ChunkCollectionName, BsonAutoId.ObjectId));
+            staticAnchorCollection = new Lazy<ILiteCollection<BsonDocument>>(() => database.Value.GetCollectionAndEnsureIndex(StaticAnchorCollectionName, BsonAutoId.Int64));
         }
 
         public readonly Guid guid;
 
         private readonly LevelStorageManager manager;
 
-        private readonly ILiteCollection<BsonDocument> chunkCollection;
+        public readonly StorageDatabase database;
 
-        private readonly ILiteCollection<BsonDocument> staticAnchorCollection;
+        private readonly Lazy<ILiteCollection<BsonDocument>> chunkCollection;
+
+        private readonly Lazy<ILiteCollection<BsonDocument>> staticAnchorCollection;
 
         private volatile bool disposed = false;
     }

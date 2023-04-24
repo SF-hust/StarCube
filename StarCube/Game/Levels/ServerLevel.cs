@@ -1,120 +1,114 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-using StarCube.Utility.Math;
-using StarCube.Game.Blocks;
+using System.Collections.Concurrent;
+using System.Threading;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
-using StarCube.Game.Levels.Chunks;
-using StarCube.Game.Levels.Chunks.Source;
-using StarCube.Game.Levels.Chunks.Loading;
 using StarCube.Game.Worlds;
 
 namespace StarCube.Game.Levels
 {
-    public class ServerLevel : Level
+    public abstract class ServerLevel : Level
     {
-        public override bool HasBlock(int x, int y, int z)
+        public sealed override bool Active
         {
-            return HasBlock(new BlockPos(x, y, z));
-        }
-
-        public override bool HasBlock(BlockPos pos)
-        {
-            return chunkSource.HasChunk(pos.GetChunkPos());
-        }
-
-        public override bool TryGetBlockState(int x, int y, int z, [NotNullWhen(true)] out BlockState? blockState)
-        {
-            return TryGetBlockState(new BlockPos(x, y, z), out blockState);
-        }
-
-        public override bool TryGetBlockState(BlockPos pos, [NotNullWhen(true)] out BlockState? blockState)
-        {
-            if (TryGetChunk(pos.GetChunkPos(), out Chunk? chunk))
+            get => active;
+            set
             {
-                blockState = chunk.GetBlockState(pos.GetInChunkPos());
-                return true;
+                if (world == null)
+                {
+                    throw new InvalidOperationException(nameof(Active));
+                }
+
+                active = value;
+            }
+        }
+
+        public sealed override World World
+        {
+            get => ServerWorld;
+            set
+            {
+                if (!(value is ServerWorld serverWorld))
+                {
+                    throw new ArgumentException("world is not server world", nameof(value));
+                }
+
+                ServerWorld = serverWorld;
+            }
+        }
+
+        public ServerWorld ServerWorld
+        {
+            get => world ?? throw new NullReferenceException(nameof(World));
+            set
+            {
+                if (Thread.CurrentThread != game.ServerGameThread)
+                {
+                    throw new InvalidOperationException("can't set or reset server level's world from other than ServerGameThread");
+                }
+
+                if (active)
+                {
+                    throw new InvalidOperationException("can't set or reset server level's world when active");
+                }
+
+                world = value;
+            }
+        }
+
+        public void EnqueueLevelUpdate(Action<ServerLevel> action)
+        {
+            actionQueue.Enqueue(action);
+        }
+
+        protected void TickLevelUpdate()
+        {
+            while (actionQueue.TryDequeue(out var action))
+            {
+                action(this);
+            }
+        }
+
+        public void Save()
+        {
+            if (saving)
+            {
+                throw new InvalidOperationException("is saving");
             }
 
-            blockState = null;
-            return false;
+            saving = true;
+            DoSave();
+            saving = false;
         }
 
-        public override bool TrySetBlockState(int x, int y, int z, BlockState blockState)
+        protected abstract void DoSave();
+
+        public virtual void Release()
         {
-            return TrySetBlockState(new BlockPos(x, y, z), blockState);
+            storage.Dispose();
         }
 
-        public override bool TrySetBlockState(BlockPos pos, BlockState blockState)
+        public ServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, ILevelChunkGenerator generator, LevelStorage storage)
+            : base(guid, bounding)
         {
-            if (TryGetChunk(pos.GetChunkPos(), out Chunk? chunk))
-            {
-                chunk.SetBlockState(pos.GetInChunkPos(), blockState);
-                return true;
-            }
-
-            return false;
+            game = world.game;
+            this.world = world;
+            this.generator = generator;
+            this.storage = storage;
         }
 
-        public override bool TryGetAndSetBlockState(int x, int y, int z, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState)
-        {
-            return TryGetAndSetBlockState(new BlockPos(x, y, z), blockState, out oldBlockState);
-        }
+        public readonly ServerGame game;
 
-        public override bool TryGetAndSetBlockState(BlockPos pos, BlockState blockState, [NotNullWhen(true)] out BlockState? oldBlockState)
-        {
-            if (TryGetChunk(pos.GetChunkPos(), out Chunk? chunk))
-            {
-                oldBlockState = chunk.GetAndSetBlockState(pos.GetInChunkPos(), blockState);
-                return true;
-            }
+        protected ServerWorld? world;
 
-            oldBlockState = null;
-            return false;
-        }
+        protected readonly ILevelChunkGenerator generator;
 
-        public override bool HasChunk(ChunkPos pos)
-        {
-            return chunkSource.HasChunk(pos);
-        }
+        protected readonly LevelStorage storage;
 
-        public override bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
-        {
-            return chunkSource.TryGetChunk(pos, out chunk);
-        }
+        private readonly ConcurrentQueue<Action<ServerLevel>> actionQueue = new ConcurrentQueue<Action<ServerLevel>>();
 
+        protected volatile bool active = false;
 
-        public void AddAnchor(ChunkLoadAnchor anchor)
-        {
-            chunkSource.AddAnchor(anchor);
-        }
-
-        public void RemoveAnchor(ChunkLoadAnchor anchor)
-        {
-            chunkSource.RemoveAnchor(anchor);
-        }
-
-
-        public override void Tick()
-        {
-            chunkSource.Tick();
-        }
-
-        public void Stop()
-        {
-            chunkSource.Stop();
-        }
-
-        public ServerLevel(Guid guid, ILevelBound bound, ILevelGenerator generator, LevelStorage storage)
-            : base(guid)
-        {
-            this.bound = bound;
-            chunkSource = new ServerChunkSource(this, bound, generator, storage);
-        }
-
-        public readonly ILevelBound bound;
-
-        private readonly ServerChunkSource chunkSource;
+        protected volatile bool saving = false;
     }
 }

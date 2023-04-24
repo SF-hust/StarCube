@@ -11,6 +11,8 @@ namespace StarCube.Game.Worlds
     public abstract class World
         : IGuid
     {
+        public abstract bool ClientSize { get; }
+
         public abstract IEnumerable<Entity> Entities { get; }
 
         public abstract bool TryGetEntity(Guid guid, [NotNullWhen(true)] out Entity? entity);
@@ -22,14 +24,11 @@ namespace StarCube.Game.Worlds
 
         Guid IGuid.Guid => guid;
 
-        public World(Guid guid, bool clientSide)
+        public World(Guid guid)
         {
             this.guid = guid;
-            this.clientSide = clientSide;
         }
 
         public readonly Guid guid;
-
-        public readonly bool clientSide;
     }
 }

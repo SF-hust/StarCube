@@ -9,7 +9,7 @@ namespace StarCube.Game.Entities
     {
         public Entity CreateNewEntity()
         {
-            return new Entity(this, Guid.NewGuid());
+            return new Entity(this, Guid.NewGuid(), true);
         }
 
         public EntityType(StringID id)

@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 
 using LiteDB;
+
 using StarCube.Data.Storage;
-using StarCube.Utility.Logging;
+using StarCube.Data.Storage.Exceptions;
+using StarCube.Utility;
 
 namespace StarCube.Game
 {
@@ -13,49 +14,76 @@ namespace StarCube.Game
 
         public const string GameMetaCollectionName = "meta";
 
-        public const string TotalTickCount = "tick";
+        public const string TotalTickCountField = "tick";
 
+        /// <summary>
+        /// 读取 ServerGame 的总 tick 时间
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="GameSavesCorruptException"></exception>
         public long LoadTotalTickCount()
         {
-            Debug.Assert(!disposed);
+            CheckDisposed();
 
-            var collection = gameMetaDatabase.GetCollection(GameMetaCollectionName);
-            var meta = collection.FindOne(Query.All()) ?? throw new Exception();
-            return meta[TotalTickCount].AsInt64;
+            if (!gameMetaDatabase.Created)
+            {
+                return 0L;
+            }
+
+            var meta = gameMetaCollection.Value.FindOne(Query.EQ("_id", 0)) ?? throw new GameSavesCorruptException("missing server game meta data");
+            return meta[TotalTickCountField].AsInt64;
         }
 
+        /// <summary>
+        /// 保存 ServerGame 的总 tick 时间
+        /// </summary>
+        /// <param name="totalTickCount"></param>
         public void SaveTotalTickCount(long totalTickCount)
         {
-            Debug.Assert(!disposed);
+            CheckDisposed();
 
-            var collection = gameMetaDatabase.GetCollection(GameMetaCollectionName);
-            var meta = collection.FindOne(Query.All()) ?? throw new Exception();
-            meta[TotalTickCount] = totalTickCount;
-            collection.Update(meta);
+            var meta = gameMetaCollection.Value.FindOne(Query.All());
+            if (meta == null)
+            {
+                meta = new BsonDocument();
+                meta["_id"] = new BsonValue(0);
+            }
+            meta[TotalTickCountField] = totalTickCount;
+            gameMetaCollection.Value.Upsert(meta);
         }
 
         public void Dispose()
         {
             if (disposed)
             {
-                LogUtil.Error("ServerGameStorage disposed");
                 throw new ObjectDisposedException(nameof(ServerGameStorage));
             }
 
-            saves.ReleaseDatabase(GameMetaDatabasePath);
+            saves.ReleaseDatabase(gameMetaDatabase);
 
             disposed = true;
+        }
+
+        private void CheckDisposed()
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(ServerGameStorage), "disposed");
+            }
         }
 
         public ServerGameStorage(GameSaves saves)
         {
             this.saves = saves;
-            gameMetaDatabase = saves.GetOrCreateDatabase(GameMetaDatabasePath);
+            gameMetaDatabase = saves.OpenOrCreateDatabase(GameMetaDatabasePath);
+            gameMetaCollection = new Lazy<ILiteCollection<BsonDocument>>(() => gameMetaDatabase.Value.GetCollectionAndEnsureIndex(GameMetaCollectionName, BsonAutoId.Int32));
         }
 
         private readonly GameSaves saves;
 
-        private readonly LiteDatabase gameMetaDatabase;
+        private readonly StorageDatabase gameMetaDatabase;
+
+        private readonly Lazy<ILiteCollection<BsonDocument>> gameMetaCollection;
 
         private volatile bool disposed = false;
     }
