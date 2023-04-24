@@ -213,7 +213,7 @@ namespace StarCube.Game.Worlds.Storage
             CheckDisposed();
 
             // 保存并清除已修改的 world 元数据
-            worldMetaCollection.Value.Insert(guidToModifiedWorldMetaCache.Values);
+            worldMetaCollection.Value.Upsert(guidToModifiedWorldMetaCache.Values);
             guidToModifiedWorldMetaCache.Clear();
         }
 

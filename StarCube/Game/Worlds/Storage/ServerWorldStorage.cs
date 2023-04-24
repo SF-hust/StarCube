@@ -27,19 +27,13 @@ namespace StarCube.Game.Worlds.Storage
         {
             CheckReleased();
 
-            // database 尚未创建，说明是个新创建的 world，返回 0L
             if (!database.Created)
             {
                 return 0L;
             }
 
-            // 从存档中读取
-            var meta = worldMetaCollection.Value.FindById(0);
-            if (meta != null && meta.TryGetInt64(TotalTickCountField, out long totalTickCount))
-            {
-                return totalTickCount;
-            }
-            throw new GameSavesCorruptException("world total tick");
+            var meta = worldMetaCollection.Value.FindById(0) ?? throw new GameSavesCorruptException("world total tick");
+            return meta[TotalTickCountField].AsInt64;
         }
 
         /// <summary>
@@ -50,14 +44,9 @@ namespace StarCube.Game.Worlds.Storage
         {
             CheckReleased();
 
-            var meta = worldMetaCollection.Value.FindById(0);
-            if (meta == null)
-            {
-                meta = new BsonDocument();
-                meta["_id"] = new BsonValue(0);
-            }
-            meta[TotalTickCountField] = new BsonValue(totalTickCount);
-            worldMetaCollection.Value.Update(meta);
+            var meta = worldMetaCollection.Value.FindById(0) ?? new BsonDocument();
+            meta[TotalTickCountField] = totalTickCount;
+            worldMetaCollection.Value.Upsert(0, meta);
         }
 
 
