@@ -26,8 +26,8 @@ namespace StarCube.Game.Worlds
         public void BeginExcute(Action<ServerWorld> action)
         {
             this.action = action;
-            actionStartEvent.Set();
             actionDoneEvent.Reset();
+            actionStartEvent.Set();
         }
 
         /// <summary>
