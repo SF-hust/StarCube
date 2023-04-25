@@ -347,7 +347,7 @@ namespace StarCube.Game.Worlds
         /// </summary>
         /// <param name="initializer"></param>
         /// <returns></returns>
-        public Task<ServerWorld> Spawn(Action<ServerWorld>? initializer = null)
+        public Task<ServerWorld> CreateAsync(Action<ServerWorld>? initializer = null)
         {
             WorldSpawnTask spawnTask = new WorldSpawnTask(Guid.NewGuid(), initializer);
             pendingInvokeWorldTasks.Enqueue(spawnTask);
@@ -359,7 +359,7 @@ namespace StarCube.Game.Worlds
         /// </summary>
         /// <param name="guid"></param>
         /// <returns> 成功加载且已被放进 manager 中的 ServerWorld，或加载失败时为 null </returns>
-        public Task<ServerWorld?> Load(Guid guid)
+        public Task<ServerWorld?> LoadAsync(Guid guid)
         {
             WorldLoadTask loadTask = new WorldLoadTask(guid);
             pendingInvokeWorldTasks.Enqueue(loadTask);
@@ -371,7 +371,7 @@ namespace StarCube.Game.Worlds
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public Task<bool> Unload(Guid guid)
+        public Task<bool> UnloadAsync(Guid guid)
         {
             WorldUnloadTask unloadTask = new WorldUnloadTask(guid);
             pendingInvokeWorldTasks.Enqueue(unloadTask);
@@ -383,7 +383,7 @@ namespace StarCube.Game.Worlds
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public Task<bool> Drop(Guid guid)
+        public Task<bool> DropAsync(Guid guid)
         {
             WorldDropTask dropTask = new WorldDropTask(guid);
             pendingInvokeWorldTasks.Enqueue(dropTask);

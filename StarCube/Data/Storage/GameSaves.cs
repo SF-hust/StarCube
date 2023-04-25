@@ -240,9 +240,9 @@ namespace StarCube.Data.Storage
                 return fullPath;
             }
 
-            if (!StringID.IsValidName(relativePath))
+            if (!GameSavesManager.IsValidpath(relativePath))
             {
-                throw new ArgumentException("is not valid path", nameof(relativePath));
+                throw new ArgumentException("contains invalid path char", nameof(relativePath));
             }
 
             fullPath = Path.Combine(directoryPath, relativePath.Replace(StringID.PATH_SEPARATOR_CHAR, Path.DirectorySeparatorChar)) + LiteDatabaseExtension;

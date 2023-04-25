@@ -19,7 +19,7 @@ namespace StarCube.Game.Worlds.Storage
 
         public const string WorldActiveField = "active";
 
-        public const string WorldDatabasePathPrefix = "world/w_";
+        public const string WorldDatabasePathPrefix = "world/";
 
         /// <summary>
         /// 根据 world 的 guid 生成对应 world 存储的数据库的路径
@@ -28,10 +28,7 @@ namespace StarCube.Game.Worlds.Storage
         /// <returns></returns>
         public static string GuidToPath(Guid guid)
         {
-            Span<char> buffer = stackalloc char[WorldDatabasePathPrefix.Length + 32];
-            WorldDatabasePathPrefix.AsSpan().CopyTo(buffer[..WorldDatabasePathPrefix.Length]);
-            guid.TryFormat(buffer[WorldDatabasePathPrefix.Length..], out _, "n");
-            return buffer.ToString();
+            return WorldDatabasePathPrefix + guid.ToString("n");
         }
 
         /// <summary>

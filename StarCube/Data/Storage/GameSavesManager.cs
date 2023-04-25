@@ -12,6 +12,11 @@ namespace StarCube.Data.Storage
     {
         private static readonly char[] invalidFileNameChar = Path.GetInvalidFileNameChars();
 
+        public static bool IsValidpath(string path)
+        {
+            return !path.AsSpan().Contains(invalidFileNameChar, StringComparison.Ordinal);
+        }
+
         public static string ToValidDirectoryName(string name)
         {
             StringBuilder stringBuilder = StringUtil.StringBuilder;
