@@ -173,11 +173,9 @@ namespace StarCube.Game.Worlds
                     if (droppedWorldGuid.Contains(loadTask.guid))
                     {
                         loadTask.Done(null);
-                        continue;
                     }
-
                     // 如果 world 已被标记卸载，但尚未执行卸载，将其重新设为活跃
-                    if (guidToUnloadedWorldRunner.Remove(loadTask.guid, out var runner))
+                    else if (guidToUnloadedWorldRunner.Remove(loadTask.guid, out var runner))
                     {
                         // 重置 world 的 tick count
                         runner.BeginExcute(ServerWorldActions.Reset);
@@ -185,25 +183,24 @@ namespace StarCube.Game.Worlds
 
                         guidToServerWorldRunner.Add(loadTask.guid, runner);
                         loadTask.Done(runner.world);
-                        continue;
                     }
-
                     // 如果 world 已经被加载或正在初始化中，或者不存在对应的存档，返回 null
-                    if (guidToServerWorldRunner.ContainsKey(loadTask.guid) ||
+                    else if (guidToServerWorldRunner.ContainsKey(loadTask.guid) ||
                         guidToInitializingWorld.ContainsKey(loadTask.guid) ||
                         !storage.Contains(loadTask.guid))
                     {
                         loadTask.Done(null);
                         continue;
                     }
-
                     // 创建 world 并从存档中加载
-                    ServerWorldStorage worldStorage = storage.OpenOrCreate(loadTask.guid);
-                    ServerWorld world = new ServerWorld(loadTask.guid, game, worldStorage);
-                    runner = new ServerWorldRunner(world);
-                    runner.BeginExcute(ServerWorldActions.Init);
-                    guidToInitializingWorld.Add(loadTask.guid, (runner, loadTask));
-                    loadTask.Done(world);
+                    else
+                    {
+                        ServerWorldStorage worldStorage = storage.OpenOrCreate(loadTask.guid);
+                        ServerWorld world = new ServerWorld(loadTask.guid, game, worldStorage);
+                        runner = new ServerWorldRunner(world);
+                        runner.BeginExcute(ServerWorldActions.Init);
+                        guidToInitializingWorld.Add(loadTask.guid, (runner, loadTask));
+                    }
                 }
                 else if (worldTask is WorldUnloadTask unloadTask)
                 {
@@ -216,6 +213,7 @@ namespace StarCube.Game.Worlds
 
                     guidToUnloadedWorldRunner.Add(unloadTask.guid, runner);
                     unloadTask.Done(true);
+                    LogUtil.Debug($"server world unload (guid = {unloadTask.guid})");
                 }
                 else if (worldTask is WorldDropTask dropTask)
                 {
@@ -231,6 +229,7 @@ namespace StarCube.Game.Worlds
 
                     droppedWorldGuid.Add(dropTask.guid);
                     dropTask.Done(true);
+                    LogUtil.Debug($"server world dropped (guid = {dropTask.guid})");
                 }
             }
 
@@ -251,13 +250,13 @@ namespace StarCube.Game.Worlds
                 var runner = tuple.Item1;
                 if (tuple.Item2 is WorldSpawnTask spawnTask)
                 {
-                    LogUtil.Debug($"new server world spawn (guid = {guid})");
                     spawnTask.Done(runner.world);
+                    LogUtil.Debug($"new server world spawn (guid = {guid})");
                 }
                 else if (tuple.Item2 is WorldLoadTask loadTask)
                 {
-                    LogUtil.Debug($"server world loaded (guid = {guid})");
                     loadTask.Done(runner.world);
+                    LogUtil.Debug($"server world loaded (guid = {guid})");
                 }
                 else
                 {
