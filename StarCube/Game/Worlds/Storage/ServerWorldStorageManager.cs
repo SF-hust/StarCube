@@ -103,13 +103,11 @@ namespace StarCube.Game.Worlds.Storage
                     meta[WorldActiveField] = true;
                 }
                 // world 的元数据存在数据库中，更新其元数据
-                else if (worldMetaDatabase.Created)
+                else if (worldMetaDatabase.Created && worldMetaCollection.Value.FindById(guid) != null)
                 {
                     meta = worldMetaCollection.Value.FindById(guid);
-                    if (meta != null)
-                    {
-                        guidToModifiedWorldMetaCache.Add(guid, meta);
-                    }
+                    meta[WorldActiveField] = true;
+                    guidToModifiedWorldMetaCache.Add(guid, meta);
                 }
                 // world 的元数据不存在，创建一份新的
                 else
@@ -150,14 +148,11 @@ namespace StarCube.Game.Worlds.Storage
                 {
                     meta[WorldActiveField] = false;
                 }
-                else if (worldMetaDatabase.Created)
+                else if (worldMetaDatabase.Created && worldMetaCollection.Value.FindById(guid) != null)
                 {
                     meta = worldMetaCollection.Value.FindById(guid);
-                    if (meta != null)
-                    {
-                        meta[WorldActiveField] = false;
-                        guidToModifiedWorldMetaCache.Add(guid, meta);
-                    }
+                    meta[WorldActiveField] = false;
+                    guidToModifiedWorldMetaCache.Add(guid, meta);
                 }
                 // 没找到对应的元数据
                 else

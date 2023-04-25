@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 
 using StarCube.Game.Worlds.Storage;
+using StarCube.Utility.Logging;
 
 namespace StarCube.Game.Worlds
 {
@@ -123,6 +124,7 @@ namespace StarCube.Game.Worlds
                 List<Guid> activeWorldGuidList = storage.LoadActiveWorldList();
                 foreach (Guid guid in activeWorldGuidList)
                 {
+                    LogUtil.Debug($"active world loaded in init (guid = {guid})");
                     ServerWorldStorage worldStorage = storage.OpenOrCreate(guid);
                     ServerWorld world = new ServerWorld(guid, game, worldStorage);
                     ServerWorldRunner runner = new ServerWorldRunner(world);
@@ -238,6 +240,7 @@ namespace StarCube.Game.Worlds
                 var runner = tuple.Item1;
                 if (runner.DoneAction)
                 {
+                    runner.Wait();
                     doneInitWorldList.Add(runner.world.guid);
                 }
             }
@@ -248,10 +251,12 @@ namespace StarCube.Game.Worlds
                 var runner = tuple.Item1;
                 if (tuple.Item2 is WorldSpawnTask spawnTask)
                 {
+                    LogUtil.Debug($"new server world spawn (guid = {guid})");
                     spawnTask.Done(runner.world);
                 }
                 else if (tuple.Item2 is WorldLoadTask loadTask)
                 {
+                    LogUtil.Debug($"server world loaded (guid = {guid})");
                     loadTask.Done(runner.world);
                 }
                 else
