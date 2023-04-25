@@ -88,6 +88,8 @@ namespace StarCube.Game.Worlds
                     // 告知 ServerGame 已经执行完成 action
                     actionDoneEvent.Set();
                 }
+
+                Terminate();
             }
             catch (Exception e)
             {
@@ -96,7 +98,6 @@ namespace StarCube.Game.Worlds
             }
             finally
             {
-                Terminate();
             }
         }
 

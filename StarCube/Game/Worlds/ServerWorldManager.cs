@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using System.Linq;
 
 using StarCube.Game.Worlds.Storage;
-using System.Linq;
 
 namespace StarCube.Game.Worlds
 {
@@ -148,7 +148,6 @@ namespace StarCube.Game.Worlds
             {
                 runner.BeginExcute(ServerWorldActions.Tick);
             }
-
             // 等待活跃的 world 停止 tick
             foreach (var runner in guidToServerWorldRunner.Values)
             {

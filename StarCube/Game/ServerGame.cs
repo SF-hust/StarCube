@@ -72,14 +72,7 @@ namespace StarCube.Game
         /// <summary>
         /// ServerGame 是否正处于暂停状态
         /// </summary>
-        public bool Paused
-        {
-            get => paused;
-            set
-            {
-                paused = value;
-            }
-        }
+        public bool Paused => paused;
 
         /// <summary>
         /// ServerGame 是否正在 tick
@@ -205,9 +198,9 @@ namespace StarCube.Game
                     // 检查是否暂停游戏
                     if (shouldPause)
                     {
-                        LogUtil.Info("server game paused...");
+                        LogUtil.Info($"server game paused (tick = {totalTickCount})...");
                         PauseLoop();
-                        LogUtil.Info("server game resumed");
+                        LogUtil.Info($"server game resumed (tick = {totalTickCount})");
                         continue;
                     }
 
@@ -327,6 +320,11 @@ namespace StarCube.Game
                 {
                     task.RunSynchronously();
                     task.Wait();
+                }
+                if (shouldExit)
+                {
+                    LogUtil.Info($"server game resume for exit");
+                    break;
                 }
                 Thread.Sleep(50);
             }
