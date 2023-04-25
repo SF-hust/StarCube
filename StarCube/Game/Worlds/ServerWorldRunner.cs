@@ -27,6 +27,7 @@ namespace StarCube.Game.Worlds
         {
             this.action = action;
             actionStartEvent.Set();
+            actionDoneEvent.Reset();
         }
 
         /// <summary>
@@ -75,15 +76,13 @@ namespace StarCube.Game.Worlds
                 {
                     // 等待 ServerGame 的事件
                     actionStartEvent.Wait();
-                    // 重置事件，等待下一次 action
-                    actionDoneEvent.Reset();
+                    // 自己把开始事件 reset 掉
+                    actionStartEvent.Reset();
                     // 事件开始时可能是要终止 world，此时要退出循环
                     if (terminate)
                     {
                         break;
                     }
-                    // 自己把开始事件 reset 掉
-                    actionStartEvent.Reset();
                     // 实际执行事件
                     action?.Invoke(world);
                     // 告知 ServerGame 已经执行完成 action
