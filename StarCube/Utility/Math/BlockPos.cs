@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using LiteDB;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace StarCube.Utility.Math
 {
@@ -81,6 +84,8 @@ namespace StarCube.Utility.Math
 
     public static class BlockPosExtention
     {
+        private static readonly ThreadLocal<byte[]> ThreadLocalBuffer = new ThreadLocal<byte[]>(() => new byte[12]);
+
         public static ChunkPos GetChunkPos(this BlockPos blockPos)
         {
             return new ChunkPos(blockPos.x >> 4, blockPos.y >> 4, blockPos.z >> 4);
@@ -94,6 +99,24 @@ namespace StarCube.Utility.Math
         public static RegionPos GetRegionPos(this BlockPos blockPos)
         {
             return new RegionPos(blockPos.x >> 8, blockPos.y >> 8, blockPos.z >> 8);
+        }
+
+        public static ObjectId ToObjectID(this BlockPos blockPos)
+        {
+            byte[] buffer = ThreadLocalBuffer.Value;
+            Span<int> ints = MemoryMarshal.Cast<byte, int>(buffer);
+            ints[0] = blockPos.x;
+            ints[1] = blockPos.y;
+            ints[2] = blockPos.z;
+            return new ObjectId(buffer);
+        }
+
+        public static BlockPos ToBlockPos(this ObjectId id)
+        {
+            byte[] buffer = ThreadLocalBuffer.Value;
+            id.ToByteArray(buffer, 0);
+            ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(buffer);
+            return new BlockPos(ints[0], ints[1], ints[2]);
         }
     }
 }

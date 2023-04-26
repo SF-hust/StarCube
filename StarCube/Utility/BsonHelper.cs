@@ -162,6 +162,18 @@ namespace StarCube.Utility
             return false;
         }
 
+        public static bool TryGetObjectID(this BsonDocument bson, string key, [NotNullWhen(true)] out ObjectId? value)
+        {
+            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsObjectId)
+            {
+                value = bValue.AsObjectId;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
         public static bool TryGetStringID(this BsonDocument bson, string key, out StringID value)
         {
             if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsString && StringID.TryParse(bValue.AsString, out value))
@@ -175,53 +187,25 @@ namespace StarCube.Utility
 
         public static bool TryGetBlockPos(this BsonDocument bson, string key, out BlockPos value)
         {
-            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsBinary)
+            if (bson.TryGetObjectID(key, out ObjectId? objectID))
             {
-                byte[] binary = bValue.AsBinary;
-                if (binary.Length == 12)
-                {
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        binary.AsSpan(0, 4).Reverse();
-                        binary.AsSpan(4, 4).Reverse();
-                        binary.AsSpan(8, 4).Reverse();
-                    }
-                    int x = BitConverter.ToInt32(binary.AsSpan(0, 4));
-                    int y = BitConverter.ToInt32(binary.AsSpan(4, 4));
-                    int z = BitConverter.ToInt32(binary.AsSpan(8, 4));
-
-                    value = new BlockPos(x, y, z);
-                    return true;
-                }
+                value = objectID.ToBlockPos();
+                return true;
             }
 
-            value = default;
+            value = BlockPos.Zero;
             return false;
         }
 
         public static bool TryGetChunkPos(this BsonDocument bson, string key, out ChunkPos value)
         {
-            if (bson.TryGetValue(key, out BsonValue? bValue) && bValue.IsBinary)
+            if (bson.TryGetObjectID(key, out ObjectId? objectID))
             {
-                byte[] binary = bValue.AsBinary;
-                if (binary.Length == 12)
-                {
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        binary.AsSpan(0, 4).Reverse();
-                        binary.AsSpan(4, 4).Reverse();
-                        binary.AsSpan(8, 4).Reverse();
-                    }
-                    int x = BitConverter.ToInt32(binary.AsSpan(0, 4));
-                    int y = BitConverter.ToInt32(binary.AsSpan(4, 4));
-                    int z = BitConverter.ToInt32(binary.AsSpan(8, 4));
-
-                    value = new ChunkPos(x, y, z);
-                    return true;
-                }
+                value = objectID.ToChunkPos();
+                return true;
             }
 
-            value = default;
+            value = ChunkPos.Zero;
             return false;
         }
 
@@ -379,34 +363,12 @@ namespace StarCube.Utility
 
         public static void Add(this BsonDocument bson, string key, BlockPos value)
         {
-            byte[] binary = new byte[12];
-            BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.x);
-            BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.y);
-            BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.z);
-            if (BitConverter.IsLittleEndian)
-            {
-                binary.AsSpan(0, 4).Reverse();
-                binary.AsSpan(4, 4).Reverse();
-                binary.AsSpan(8, 4).Reverse();
-            }
-
-            bson.Add(key, new BsonValue(binary));
+            bson.Add(key, value.ToObjectID());
         }
 
         public static void Add(this BsonDocument bson, string key, ChunkPos value)
         {
-            byte[] binary = new byte[12];
-            BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.x);
-            BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.y);
-            BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.z);
-            if (BitConverter.IsLittleEndian)
-            {
-                binary.AsSpan(0, 4).Reverse();
-                binary.AsSpan(4, 4).Reverse();
-                binary.AsSpan(8, 4).Reverse();
-            }
-
-            bson.Add(key, new BsonValue(binary));
+            bson.Add(key, value.ToObjectID());
         }
 
         public static void Add(this BsonDocument bson, string key, Vector2 value)
