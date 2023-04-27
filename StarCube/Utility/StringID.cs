@@ -14,9 +14,14 @@ namespace StarCube.Utility
     public sealed class StringID : IComparable<StringID>, IEquatable<StringID>
     {
         /// <summary>
-        /// 构成一个合法 ResourceLocation 的字符串所需的最小长度
+        /// 构成一个合法 StringID 的字符串的最小长度
         /// </summary>
         public const int MIN_STRING_LENGTH = 3;
+
+        /// <summary>
+        /// 构成一个合法 StringID 的字符串的最大长度
+        /// </summary>
+        public const int MAX_STRING_LENGTH = 256;
 
 
         public const char SEPARATOR_CHAR = ':';
@@ -44,13 +49,17 @@ namespace StarCube.Utility
         /// <exception cref="ArgumentException"></exception>
         public static StringID Create(string modid, string name)
         {
+            if (modid.Length + name.Length + 1 > MAX_STRING_LENGTH)
+            {
+                throw new ArgumentException($"Fail to create StringID : length (= {modid.Length + name.Length + 1}) is larger than max (= {MAX_STRING_LENGTH})");
+            }
             if (!IsValidModid(modid))
             {
-                throw new ArgumentException($"Fail to create ResourceLocation : modid \"{modid}\" is invalid");
+                throw new ArgumentException($"Fail to create StringID : modid \"{modid}\" is invalid");
             }
             if (!IsValidName(name))
             {
-                throw new ArgumentException($"Fail to create ResourceLocation : name \"{name}\" is invalid");
+                throw new ArgumentException($"Fail to create StringID : name \"{name}\" is invalid");
             }
 
             string idString = CreateIDString(modid, name);
@@ -67,13 +76,17 @@ namespace StarCube.Utility
         /// <exception cref="ArgumentException"></exception>
         public static StringID Create(ReadOnlySpan<char> modid, ReadOnlySpan<char> name)
         {
+            if (modid.Length + name.Length + 1 > MAX_STRING_LENGTH)
+            {
+                throw new ArgumentException($"Fail to create StringID : length (= {modid.Length + name.Length + 1}) is larger than max (= {MAX_STRING_LENGTH})");
+            }
             if (!IsValidModid(modid))
             {
-                throw new ArgumentException($"Fail to create ResourceLocation : modid \"{modid.ToString()}\" is invalid");
+                throw new ArgumentException($"Fail to create StringID : modid \"{modid.ToString()}\" is invalid");
             }
             if (!IsValidName(name))
             {
-                throw new ArgumentException($"Fail to create ResourceLocation : name \"{name.ToString()}\" is invalid");
+                throw new ArgumentException($"Fail to create StringID : name \"{name.ToString()}\" is invalid");
             }
 
             string idString = CreateIDString(modid, name);
@@ -89,9 +102,15 @@ namespace StarCube.Utility
         /// <returns>如果失败则返回 StringID.Failed</returns>
         public static bool TryCreate(string modid, string name, out StringID id)
         {
+            id = Failed;
+
+            if (modid.Length + name.Length + 1 > MAX_STRING_LENGTH)
+            {
+                return false;
+            }
+
             if (!IsValidModid(modid) || !IsValidName(name))
             {
-                id = Failed;
                 return false;
             }
 
@@ -111,9 +130,15 @@ namespace StarCube.Utility
         /// <returns>如果失败则返回 StringID.Failed</returns>
         public static bool TryCreate(ReadOnlySpan<char> modid, ReadOnlySpan<char> name, out StringID id)
         {
+            id = Failed;
+
+            if (modid.Length + name.Length + 1 > MAX_STRING_LENGTH)
+            {
+                return false;
+            }
+
             if (!IsValidModid(modid) || !IsValidName(name))
             {
-                id = Failed;
                 return false;
             }
 
@@ -188,6 +213,7 @@ namespace StarCube.Utility
             id = Failed;
             return false;
         }
+
 
         private static string CreateIDString(ReadOnlySpan<char> modid, ReadOnlySpan<char> name)
         {
@@ -320,6 +346,11 @@ namespace StarCube.Utility
         /// <returns></returns>
         public static bool IsValidID(ReadOnlySpan<char> id)
         {
+            if (id.Length < MIN_STRING_LENGTH || id.Length > MAX_STRING_LENGTH)
+            {
+                return false;
+            }
+
             int separatorIndex = id.IndexOf(SEPARATOR_CHAR);
 
             if (separatorIndex < 0)
@@ -339,6 +370,12 @@ namespace StarCube.Utility
         /// <returns></returns>
         public static bool IsValidID(ReadOnlySpan<char> id, out int separatorIndex)
         {
+            if (id.Length < MIN_STRING_LENGTH || id.Length > MAX_STRING_LENGTH)
+            {
+                separatorIndex = 0;
+                return false;
+            }
+
             separatorIndex = id.IndexOf(SEPARATOR_CHAR);
 
             if (separatorIndex < 0)
