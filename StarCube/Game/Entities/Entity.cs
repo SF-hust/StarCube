@@ -2,6 +2,7 @@
 
 using StarCube.Utility;
 using StarCube.Core.Components;
+using System.Numerics;
 
 namespace StarCube.Game.Entities
 {
@@ -10,6 +11,10 @@ namespace StarCube.Game.Entities
         IGuid
     {
         Guid IGuid.Guid => guid;
+
+        public Vector3 Position { get => position; set => position = value; }
+
+        public Quaternion Rotation { get => rotation; set => rotation = value; }
 
         public ComponentContainer<Entity> Components => throw new NotImplementedException();
 
@@ -31,7 +36,10 @@ namespace StarCube.Game.Entities
 
         public readonly bool standalone;
 
-        public readonly ComponentContainer<Entity> components;
+        private Vector3 position;
 
+        private Quaternion rotation;
+
+        public readonly ComponentContainer<Entity> components;
     }
 }

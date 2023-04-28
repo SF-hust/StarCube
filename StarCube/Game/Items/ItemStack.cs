@@ -2,7 +2,7 @@
 
 using StarCube.Core.Components;
 
-namespace StarCube.Game.Items.Stacks
+namespace StarCube.Game.Items
 {
     public sealed class ItemStack : IComponentOwner<ItemStack>
     {

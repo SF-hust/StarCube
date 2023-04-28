@@ -1,8 +1,8 @@
 ﻿using StarCube.Utility.Math;
 using StarCube.Core.Components;
-using StarCube.Game.Items.Stacks;
 using StarCube.Game.Entities;
 using StarCube.Game.Levels;
+using StarCube.Game.Items;
 
 namespace StarCube.Game.Blocks.Components
 {
