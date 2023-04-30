@@ -240,10 +240,10 @@ namespace StarCube.Server.Game.Worlds
                 if (runner.DoneAction)
                 {
                     runner.Wait();
-                    doneInitWorldList.Add(runner.world.guid);
+                    doneInitWorldCache.Add(runner.world.guid);
                 }
             }
-            foreach (Guid guid in doneInitWorldList)
+            foreach (Guid guid in doneInitWorldCache)
             {
                 guidToInitializingWorld.Remove(guid, out var tuple);
                 guidToServerWorldRunner.Add(guid, tuple.Item1);
@@ -263,7 +263,7 @@ namespace StarCube.Server.Game.Worlds
                     throw new InvalidCastException("world task");
                 }
             }
-            doneInitWorldList.Clear();
+            doneInitWorldCache.Clear();
         }
 
         /// <summary>
@@ -451,8 +451,7 @@ namespace StarCube.Server.Game.Worlds
         /// 加载或生成中的 world，不会参与 tick 与 save
         /// </summary>
         private readonly Dictionary<Guid, (ServerWorldRunner, object)> guidToInitializingWorld = new Dictionary<Guid, (ServerWorldRunner, object)>();
-
-        private readonly List<Guid> doneInitWorldList = new List<Guid>();
+        private readonly List<Guid> doneInitWorldCache = new List<Guid>();
 
         /// <summary>
         /// 已卸载的 world，等待下一次存档时被释放

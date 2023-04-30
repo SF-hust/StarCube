@@ -27,13 +27,29 @@ namespace StarCube.Server.Game.Worlds
         public long TickCount => Interlocked.Read(ref tickCount);
 
 
-        public IEnumerable<ChunkedServerLevel> ServerLevels => throw new NotImplementedException();
-        public override IEnumerable<Level> Levels => throw new NotImplementedException();
-        public override IEnumerable<Entity> Entities => throw new NotImplementedException();
+        public IEnumerable<ServerLevel> ServerLevels => guidToLevel.Values;
+
+        public override IEnumerable<Level> Levels => guidToLevel.Values;
+
+        public bool TryGetLevel(Guid guid, [NotNullWhen(true)] out ServerLevel? level)
+        {
+            return guidToLevel.TryGetValue(guid, out level);
+        }
+
         public override bool TryGetLevel(Guid guid, [NotNullWhen(true)] out Level? level)
         {
-            throw new NotImplementedException();
+            if (TryGetLevel(guid, out ServerLevel? serverLevel))
+            {
+                level = serverLevel;
+                return true;
+            }
+
+            level = null;
+            return false;
         }
+
+
+        public override IEnumerable<Entity> Entities => throw new NotImplementedException();
         public override bool TryGetEntity(Guid guid, [NotNullWhen(true)] out Entity? entity)
         {
             throw new NotImplementedException();
@@ -49,9 +65,10 @@ namespace StarCube.Server.Game.Worlds
 
         public void Tick()
         {
-            if (tickCount % 100 == 0)
+            // 更新所有 level
+            foreach (ServerLevel level in guidToLevel.Values)
             {
-                LogUtil.Debug($"server world ticking (guid = {guid}, tick = {totalTickCount})...");
+                level.Tick();
             }
 
             // 更新 tickCount
@@ -72,6 +89,48 @@ namespace StarCube.Server.Game.Worlds
             storage.SaveTotalTickCount(totalTickCount);
         }
 
+
+        /// <summary>
+        /// 向世界中添加一个 Level
+        /// </summary>
+        /// <param name="level"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void AddLevel(ServerLevel level)
+        {
+            if (Thread.CurrentThread != game.ServerGameThread)
+            {
+                throw new InvalidOperationException("only called on ServerGameThread");
+            }
+
+            guidToLevel.Add(level.guid, level);
+            level.OnAddToWorld(this);
+            level.Active = true;
+        }
+
+        /// <summary>
+        /// 从世界中移除一个 Level
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public bool RemoveLevel(Guid guid, [NotNullWhen(true)] out ServerLevel? level)
+        {
+            if (Thread.CurrentThread != game.ServerGameThread)
+            {
+                throw new InvalidOperationException("only called on ServerGameThread");
+            }
+
+            if (guidToLevel.TryGetValue(guid, out level))
+            {
+                level.Active = false;
+                level.OnRemoveFromWorld();
+                guidToLevel.Remove(guid);
+                return true;
+            }
+
+            return false;
+        }
 
         public void Dispose()
         {
@@ -101,6 +160,8 @@ namespace StarCube.Server.Game.Worlds
         private long totalTickCount = 0L;
 
         private long tickCount = 0L;
+
+        private readonly Dictionary<Guid, ServerLevel> guidToLevel = new Dictionary<Guid, ServerLevel>();
 
         private bool released = false;
     }
