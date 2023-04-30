@@ -21,7 +21,7 @@ namespace StarCube.Client.Network.Protocol
 
         public override void Handle(ClientPacketHandler handler)
         {
-            if (handler.game.World != null && handler.game.World.TryGetClientLevel(guid, out var level))
+            if (handler.game.CurrentWorld != null && handler.game.CurrentWorld.TryGetClientLevel(guid, out var level))
             {
                 level.OnChunkLoad(chunk);
             }

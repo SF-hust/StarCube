@@ -1,8 +1,8 @@
 ﻿using System;
 
-using StarCube.Network.ByteBuffer;
-using StarCube.Network.Packets;
 using StarCube.Utility.Math;
+using StarCube.Network.Packets;
+using StarCube.Network.ByteBuffer;
 
 namespace StarCube.Client.Network.Protocol
 {
@@ -21,7 +21,7 @@ namespace StarCube.Client.Network.Protocol
 
         public override void Handle(ClientPacketHandler handler)
         {
-            if (handler.game.World != null && handler.game.World.TryGetClientLevel(guid, out var level))
+            if (handler.game.CurrentWorld != null && handler.game.CurrentWorld.TryGetClientLevel(guid, out var level))
             {
                 level.OnChunkUnload(pos);
             }
