@@ -113,7 +113,7 @@ namespace StarCube.Server.Game.Worlds
             if (game.TotalTickCount == 0L)
             {
                 Guid guid = Guid.NewGuid();
-                ServerWorldStorage worldStorage = storage.OpenOrCreate(guid);
+                WorldStorage worldStorage = storage.OpenOrCreate(guid);
                 ServerWorld world = new ServerWorld(guid, game, worldStorage);
                 ServerWorldRunner runner = new ServerWorldRunner(world);
                 guidToServerWorldRunner.Add(guid, runner);
@@ -125,7 +125,7 @@ namespace StarCube.Server.Game.Worlds
                 foreach (Guid guid in activeWorldGuidList)
                 {
                     LogUtil.Debug($"active world loaded in init (guid = {guid})");
-                    ServerWorldStorage worldStorage = storage.OpenOrCreate(guid);
+                    WorldStorage worldStorage = storage.OpenOrCreate(guid);
                     ServerWorld world = new ServerWorld(guid, game, worldStorage);
                     ServerWorldRunner runner = new ServerWorldRunner(world);
                     guidToServerWorldRunner.Add(guid, runner);
@@ -161,7 +161,7 @@ namespace StarCube.Server.Game.Worlds
             {
                 if (worldTask is WorldSpawnTask spawnTask)
                 {
-                    ServerWorldStorage worldStorage = storage.OpenOrCreate(spawnTask.guid);
+                    WorldStorage worldStorage = storage.OpenOrCreate(spawnTask.guid);
                     ServerWorld world = new ServerWorld(spawnTask.guid, game, worldStorage, spawnTask.initializer);
                     ServerWorldRunner runner = new ServerWorldRunner(world);
                     runner.BeginExcute(ServerWorldActions.Init);
@@ -195,7 +195,7 @@ namespace StarCube.Server.Game.Worlds
                     // 创建 world 并从存档中加载
                     else
                     {
-                        ServerWorldStorage worldStorage = storage.OpenOrCreate(loadTask.guid);
+                        WorldStorage worldStorage = storage.OpenOrCreate(loadTask.guid);
                         ServerWorld world = new ServerWorld(loadTask.guid, game, worldStorage);
                         runner = new ServerWorldRunner(world);
                         runner.BeginExcute(ServerWorldActions.Init);
@@ -435,12 +435,12 @@ namespace StarCube.Server.Game.Worlds
         public ServerWorldManager(ServerGame game)
         {
             this.game = game;
-            storage = new ServerWorldStorageManager(game.saves);
+            storage = new WorldStorageManager(game.saves);
         }
 
         public readonly ServerGame game;
 
-        public readonly ServerWorldStorageManager storage;
+        public readonly WorldStorageManager storage;
 
         /// <summary>
         /// 活跃的 world，会参与每次 tick 与 save

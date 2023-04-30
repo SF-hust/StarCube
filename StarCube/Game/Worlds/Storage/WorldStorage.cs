@@ -10,7 +10,7 @@ using StarCube.Server.Game;
 
 namespace StarCube.Game.Worlds.Storage
 {
-    public sealed class ServerWorldStorage
+    public sealed class WorldStorage
     {
         public const string WorldMetaCollectionName = "meta";
 
@@ -73,7 +73,7 @@ namespace StarCube.Game.Worlds.Storage
         }
 
 
-        internal ServerWorldStorage(Guid guid, ServerWorldStorageManager manager, StorageDatabase database)
+        internal WorldStorage(Guid guid, WorldStorageManager manager, StorageDatabase database)
         {
             this.guid = guid;
             this.manager = manager;
@@ -83,7 +83,7 @@ namespace StarCube.Game.Worlds.Storage
 
         public readonly Guid guid;
 
-        private readonly ServerWorldStorageManager manager;
+        private readonly WorldStorageManager manager;
 
         public readonly StorageDatabase database;
 

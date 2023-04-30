@@ -85,7 +85,7 @@ namespace StarCube.Server.Game.Worlds
             released = true;
         }
 
-        public ServerWorld(Guid guid, ServerGame game, ServerWorldStorage storage, Action<ServerWorld>? intializer = null) : base(guid)
+        public ServerWorld(Guid guid, ServerGame game, WorldStorage storage, Action<ServerWorld>? intializer = null) : base(guid)
         {
             this.game = game;
             this.storage = storage;
@@ -94,7 +94,7 @@ namespace StarCube.Server.Game.Worlds
 
         public readonly ServerGame game;
 
-        public readonly ServerWorldStorage storage;
+        public readonly WorldStorage storage;
 
         private readonly Action<ServerWorld>? intializer;
 

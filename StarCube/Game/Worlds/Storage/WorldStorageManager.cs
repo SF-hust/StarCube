@@ -11,7 +11,7 @@ using StarCube.Data.Storage.Exceptions;
 
 namespace StarCube.Game.Worlds.Storage
 {
-    public sealed class ServerWorldStorageManager : IDisposable
+    public sealed class WorldStorageManager : IDisposable
     {
         public const string WorldMetaDatabasePath = "world/meta";
 
@@ -83,7 +83,7 @@ namespace StarCube.Game.Worlds.Storage
         /// <param name="guid"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public ServerWorldStorage OpenOrCreate(Guid guid)
+        public WorldStorage OpenOrCreate(Guid guid)
         {
             CheckDisposed();
             lock (this)
@@ -118,7 +118,7 @@ namespace StarCube.Game.Worlds.Storage
                 // 创建 ServerWorldStorage
                 string path = GuidToPath(guid);
                 StorageDatabase database = saves.OpenOrCreateDatabase(path);
-                var worldStorage = new ServerWorldStorage(guid, this, database);
+                var worldStorage = new WorldStorage(guid, this, database);
                 guidToOpenedWorldStorageCache.Add(guid, worldStorage);
                 return worldStorage;
             }
@@ -154,7 +154,7 @@ namespace StarCube.Game.Worlds.Storage
                 // 没找到对应的元数据
                 else
                 {
-                    throw new GameSavesCorruptException(nameof(ServerWorldStorageManager));
+                    throw new GameSavesCorruptException(nameof(WorldStorageManager));
                 }
 
                 // 关闭对应的数据库
@@ -214,14 +214,14 @@ namespace StarCube.Game.Worlds.Storage
         {
             if (disposed)
             {
-                throw new ObjectDisposedException(nameof(ServerWorldStorageManager), "double dispose");
+                throw new ObjectDisposedException(nameof(WorldStorageManager), "double dispose");
             }
 
             // 关闭 world 元数据的数据库
             worldMetaDatabase.Release();
 
             // 关闭所有打开的 ServerWorldStorage
-            foreach (ServerWorldStorage storage in guidToOpenedWorldStorageCache.Values.ToList())
+            foreach (WorldStorage storage in guidToOpenedWorldStorageCache.Values.ToList())
             {
                 storage.Release();
             }
@@ -234,11 +234,11 @@ namespace StarCube.Game.Worlds.Storage
         {
             if (disposed)
             {
-                throw new ObjectDisposedException(nameof(ServerWorldStorageManager), "disposed");
+                throw new ObjectDisposedException(nameof(WorldStorageManager), "disposed");
             }
         }
 
-        public ServerWorldStorageManager(GameSaves saves)
+        public WorldStorageManager(GameSaves saves)
         {
             this.saves = saves;
             worldMetaDatabase = saves.OpenOrCreateDatabase(WorldMetaDatabasePath);
@@ -259,7 +259,7 @@ namespace StarCube.Game.Worlds.Storage
         /// <summary>
         /// 所有已打开的 ServerWorldStorage
         /// </summary>
-        private readonly Dictionary<Guid, ServerWorldStorage> guidToOpenedWorldStorageCache = new Dictionary<Guid, ServerWorldStorage>();
+        private readonly Dictionary<Guid, WorldStorage> guidToOpenedWorldStorageCache = new Dictionary<Guid, WorldStorage>();
 
         /// <summary>
         /// 自上次保存以来修改过的 world 元数据
