@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Threading;
 
 using StarCube.Utility.Logging;
 using StarCube.Data.Storage;
-using StarCube.Game.Worlds;
-using System.Collections.Concurrent;
+using StarCube.Game;
+using StarCube.Server.Game.Worlds;
+using StarCube.Server.Game.Levels;
 
-namespace StarCube.Game
+namespace StarCube.Server.Game
 {
     /// <summary>
     /// 表示服务端游戏实例
@@ -353,6 +355,7 @@ namespace StarCube.Game
 
             saving = true;
 
+            levels.Save(flush);
             worlds.Save(flush);
             storage.SaveTotalTickCount(totalTickCount);
 
@@ -381,18 +384,21 @@ namespace StarCube.Game
         {
             this.saves = saves;
 
-            storage = new ServerGameStorage(saves);
+            storage = new GameStorage(saves);
 
             worlds = new ServerWorldManager(this);
+            levels = new ServerLevelManager(this);
 
             serverGameTask = new Task(Run, TaskCreationOptions.LongRunning);
         }
 
         public readonly GameSaves saves;
 
-        public readonly ServerGameStorage storage;
+        public readonly GameStorage storage;
 
         public readonly ServerWorldManager worlds;
+
+        public readonly ServerLevelManager levels;
 
         private readonly Task serverGameTask;
 

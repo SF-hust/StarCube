@@ -5,6 +5,7 @@ using StarCube.Utility.Math;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
 using StarCube.Game.Levels.Chunks.Loading;
+using StarCube.Server.Game.Levels;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
@@ -31,7 +32,11 @@ namespace StarCube.Game.Levels.Chunks.Source
             chunkMap.RemoveAnchor(anchor);
         }
 
-        public override void Tick()
+        public void TickChunks()
+        {
+        }
+
+        public override void TickChunkSource()
         {
             chunkMap.Update();
         }

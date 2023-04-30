@@ -4,12 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
+using StarCube.Game.Levels;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Storage;
-using StarCube.Game.Levels.Generation;
-using StarCube.Game.Worlds;
+using StarCube.Server.Game.Worlds;
 
-namespace StarCube.Game.Levels
+namespace StarCube.Server.Game.Levels
 {
     public sealed class IntegralServerLevel : ServerLevel
     {
@@ -77,11 +77,6 @@ namespace StarCube.Game.Levels
             return false;
         }
 
-        public override void Tick()
-        {
-            TickLevelUpdate();
-        }
-
         public override bool HasChunk(ChunkPos pos)
         {
             return posToChunk.ContainsKey(pos);
@@ -92,7 +87,39 @@ namespace StarCube.Game.Levels
             return posToChunk.TryGetValue(pos, out chunk);
         }
 
-        protected override void DoSave()
+
+        public override void Init()
+        {
+            if (!storage.Created)
+            {
+            }
+            else
+            {
+                foreach (Chunk chunk in storage.LoadAllChunks())
+                {
+                    chunk.Modify = false;
+                    posToChunk.Add(chunk.pos, chunk);
+                }
+            }
+
+
+            foreach (Chunk chunk in posToChunk.Values)
+            {
+                chunk.OnActive(this, true);
+            }
+        }
+
+        public override void Tick()
+        {
+            foreach (Chunk chunk in posToChunk.Values)
+            {
+
+            }
+
+            TickLevelUpdate();
+        }
+
+        public override void Save(bool flush)
         {
             foreach (Chunk chunk in posToChunk.Values)
             {
@@ -104,8 +131,8 @@ namespace StarCube.Game.Levels
             }
         }
 
-        public IntegralServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, ILevelChunkGenerator generator, LevelStorage storage)
-            : base(guid, bounding, world, generator, storage)
+        public IntegralServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, LevelStorage storage)
+            : base(guid, bounding, world, storage)
         {
 
         }

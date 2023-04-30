@@ -7,8 +7,9 @@ using System.Linq;
 
 using StarCube.Game.Worlds.Storage;
 using StarCube.Utility.Logging;
+using StarCube.Game.Worlds;
 
-namespace StarCube.Game.Worlds
+namespace StarCube.Server.Game.Worlds
 {
     internal sealed class WorldSpawnTask
     {

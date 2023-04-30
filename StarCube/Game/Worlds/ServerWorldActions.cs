@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace StarCube.Game.Worlds
+namespace StarCube.Server.Game.Worlds
 {
     public static class ServerWorldActions
     {

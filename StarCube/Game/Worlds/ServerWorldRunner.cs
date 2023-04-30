@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using StarCube.Utility.Logging;
 
-namespace StarCube.Game.Worlds
+namespace StarCube.Server.Game.Worlds
 {
     public sealed class ServerWorldRunner
     {

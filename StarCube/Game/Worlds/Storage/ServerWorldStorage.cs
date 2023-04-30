@@ -6,6 +6,7 @@ using StarCube.Utility;
 using StarCube.Utility.Logging;
 using StarCube.Data.Storage;
 using StarCube.Data.Storage.Exceptions;
+using StarCube.Server.Game;
 
 namespace StarCube.Game.Worlds.Storage
 {
@@ -55,7 +56,7 @@ namespace StarCube.Game.Worlds.Storage
             if (released)
             {
                 LogUtil.Error("ServerGameStorage disposed");
-                throw new ObjectDisposedException(nameof(ServerGameStorage));
+                throw new ObjectDisposedException(nameof(GameStorage));
             }
 
             manager.Release(guid);
@@ -67,7 +68,7 @@ namespace StarCube.Game.Worlds.Storage
         {
             if (released)
             {
-                throw new ObjectDisposedException(nameof(ServerGameStorage), "disposed");
+                throw new ObjectDisposedException(nameof(GameStorage), "disposed");
             }
         }
 

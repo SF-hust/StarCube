@@ -4,14 +4,15 @@ using System.Collections.Generic;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
-using StarCube.Game.Levels.Generation;
-using StarCube.Game.Levels.Storage;
+using StarCube.Game.Levels;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Chunks.Source;
 using StarCube.Game.Levels.Chunks.Loading;
-using StarCube.Game.Worlds;
+using StarCube.Game.Levels.Generation;
+using StarCube.Game.Levels.Storage;
+using StarCube.Server.Game.Worlds;
 
-namespace StarCube.Game.Levels
+namespace StarCube.Server.Game.Levels
 {
     public sealed class ChunkedServerLevel : ServerLevel, IChunkedServerLevel
     {
@@ -128,9 +129,13 @@ namespace StarCube.Game.Levels
             return count;
         }
 
+        public override void Init()
+        {
+        }
+
         public override void Tick()
         {
-            chunkSource.Tick();
+            chunkSource.TickChunkSource();
         }
 
         public void Stop()
@@ -138,13 +143,13 @@ namespace StarCube.Game.Levels
             chunkSource.Stop();
         }
 
-        protected override void DoSave()
+        public override void Save(bool flush)
         {
             chunkSource.Save();
         }
 
         public ChunkedServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, ILevelChunkGenerator generator, LevelStorage storage)
-            : base(guid, bounding, world, generator, storage)
+            : base(guid, bounding, world, storage)
         {
             chunkSource = new ServerChunkCache(this, generator, storage);
         }

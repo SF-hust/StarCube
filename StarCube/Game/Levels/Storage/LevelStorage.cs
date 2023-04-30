@@ -8,9 +8,11 @@ using LiteDB;
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Data.Storage;
+using StarCube.Data.Storage.Exceptions;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Levels.Chunks.Loading;
-using StarCube.Utility.Logging;
+using StarCube.Game.Levels.Chunks.Storage;
+using System.Linq;
 
 namespace StarCube.Game.Levels.Storage
 {
@@ -23,89 +25,178 @@ namespace StarCube.Game.Levels.Storage
 
         public const string StaticAnchorCollectionName = "static_anchor";
 
+        public const string StaticAnchorNextIndexField = "next";
+
+        public const string StaticAnchorPosField = "pos";
+
+        public const string StaticAnchorRadiusField = "radius";
+
+
+        public bool Created => database.Created;
+
+        public IChunkFactory ChunkFactory => manager.chunkFactory;
+
+        public IChunkParser ChunkParser => manager.chunkParser;
+
+        /// <summary>
+        /// 检查数据库中是否已存在对应位置的 chunk
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public bool Contains(ChunkPos pos)
         {
+            CheckReleased();
+
             if (!database.Created)
             {
                 return false;
             }
+
             return chunkCollection.Value.Exists(Query.EQ("_id", pos.ToObjectID()));
         }
 
+        /// <summary>
+        /// 尝试从数据库中加载对应位置的 chunk
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="chunk"></param>
+        /// <returns></returns>
         public bool TryLoadChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
+            CheckReleased();
+
             chunk = null;
             if (!database.Created)
             {
                 return false;
             }
+
             BsonDocument? bson = chunkCollection.Value.FindById(pos.ToObjectID());
             if (bson == null)
             {
                 return false;
             }
-            return manager.chunkParser.TryParse(bson, pos, out chunk);
+            return ChunkParser.TryParse(bson, pos, out chunk);
         }
 
+        /// <summary>
+        /// 从数据库中加载所有 chunk
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="GameSavesCorruptException"></exception>
+        public IEnumerable<Chunk> LoadAllChunks()
+        {
+            if (!database.Created)
+            {
+                yield break;
+            }
+
+            foreach (BsonDocument bson in chunkCollection.Value.FindAll())
+            {
+                ChunkPos pos = bson["_id"].AsObjectId.ToChunkPos();
+                if (!ChunkParser.TryParse(bson, pos, out Chunk? chunk))
+                {
+                    throw new GameSavesCorruptException("chunk parse failed");
+                }
+
+                yield return chunk;
+            }
+        }
+
+        /// <summary>
+        /// 将 chunk 保存到数据库中
+        /// </summary>
+        /// <param name="chunk"></param>
         public void SaveChunk(Chunk chunk)
         {
-            BsonDocument bson = manager.chunkParser.ToBson(chunk);
+            CheckReleased();
+
+            BsonDocument bson = ChunkParser.ToBson(chunk);
             chunkCollection.Value.Upsert(chunk.pos.ToObjectID(), bson);
         }
 
-        public void LoadStaticLevelAnchors(out long nextID, out Dictionary<long, AnchorData> idToStaticAnchor)
+        /// <summary>
+        /// 从数据库中加载静态锚点以及锚点的下一个 index
+        /// </summary>
+        /// <param name="nextIndex"></param>
+        /// <param name="indexToStaticAnchor"></param>
+        public void LoadStaticLevelAnchors(out long nextIndex, out Dictionary<long, AnchorData> indexToStaticAnchor)
         {
-            idToStaticAnchor = new Dictionary<long, AnchorData>();
+            CheckReleased();
+
+            indexToStaticAnchor = new Dictionary<long, AnchorData>();
             if (!database.Created)
             {
-                nextID = 1L;
-                idToStaticAnchor = new Dictionary<long, AnchorData>();
+                nextIndex = 1L;
                 return;
             }
 
-            // 读取下一个静态加载锚的 id
-            BsonDocument? currentIDDoc = staticAnchorCollection.Value.FindById(0L);
-            if (currentIDDoc == null)
-            {
-                currentIDDoc = new BsonDocument();
-                currentIDDoc["next"] = 1L;
-            }
-            nextID = currentIDDoc["next"].AsInt64;
+            // 读取下一个静态加载锚点的 index
+            BsonDocument currentIDDoc = staticAnchorCollection.Value.FindById(0L) ?? throw new GameSavesCorruptException(nameof(nextIndex));
+            nextIndex = currentIDDoc[StaticAnchorNextIndexField].AsInt64;
 
             // 读取所有静态加载锚数据
-            foreach (BsonDocument anchorDoc in staticAnchorCollection.Value.Find(Query.GT("_id", 0L)))
+            foreach (BsonDocument anchorDocument in staticAnchorCollection.Value.Find(Query.Not("_id", 0L)))
             {
-                if (anchorDoc.TryGetChunkPos("pos", out ChunkPos pos) && anchorDoc.TryGetInt32("radius", out int radius))
+                if (anchorDocument.TryGetChunkPos(StaticAnchorPosField, out ChunkPos pos) && anchorDocument.TryGetInt32(StaticAnchorRadiusField, out int radius))
                 {
-                    idToStaticAnchor.Add(anchorDoc["_id"].AsInt64, new AnchorData(pos, radius));
+                    indexToStaticAnchor.Add(anchorDocument["_id"].AsInt64, new AnchorData(pos, radius));
+                    continue;
                 }
+
+                throw new GameSavesCorruptException(nameof(anchorDocument));
             }
         }
 
-        public void WriteStaticLevelAnchors(long currentID, Dictionary<long, AnchorData> idToAnchorData)
+        /// <summary>
+        /// 向数据库中写入修改过的静态锚点数据
+        /// </summary>
+        /// <param name="currentIndex"></param>
+        /// <param name="indexToModifiedAnchorData"></param>
+        public void WriteStaticLevelAnchors(long currentIndex, Dictionary<long, AnchorData> indexToModifiedAnchorData, IEnumerable<long> removedAnchorIndexes)
         {
-            staticAnchorCollection.Value.DeleteAll();
-            BsonDocument currentIDDoc = new BsonDocument();
-            currentIDDoc["next"] = currentID;
-            staticAnchorCollection.Value.Insert(0L, currentIDDoc);
-            foreach (var pair in idToAnchorData)
+            // 更新 index
+            BsonDocument currentIDDoc = staticAnchorCollection.Value.FindById(0L) ?? new BsonDocument();
+            currentIDDoc[StaticAnchorNextIndexField] = currentIndex;
+            staticAnchorCollection.Value.Upsert(0L, currentIDDoc);
+
+            // 更新已修改的锚点数据
+            foreach (var pair in indexToModifiedAnchorData)
             {
-                BsonDocument anchorDoc = new BsonDocument();
-                anchorDoc.Add("pos", pair.Value.chunkPos);
-                anchorDoc.Add("radius", pair.Value.radius);
+                BsonDocument bson = new BsonDocument();
+                bson[StaticAnchorPosField] = pair.Value.chunkPos.ToObjectID();
+                bson[StaticAnchorRadiusField] = pair.Value.radius;
+                staticAnchorCollection.Value.Upsert(pair.Key, bson);
+            }
+
+            // 删除被移除的锚点数据
+            foreach (var index in removedAnchorIndexes)
+            {
+                staticAnchorCollection.Value.Delete(index);
             }
         }
 
-        public void Dispose()
+
+        public void Release()
         {
-            if (disposed)
+            if (released)
             {
-                LogUtil.Error("LevelStorage disposed");
-                throw new ObjectDisposedException(nameof(LevelStorage));
+                throw new ObjectDisposedException(nameof(LevelStorage), "double release");
             }
+
             manager.Release(this);
-            disposed = true;
+
+            released = true;
         }
+
+        private void CheckReleased()
+        {
+            if (released)
+            {
+                throw new ObjectDisposedException(nameof(LevelStorage), "released");
+            }
+        }
+
 
         internal LevelStorage(Guid guid, LevelStorageManager manager, StorageDatabase database)
         {
@@ -126,6 +217,6 @@ namespace StarCube.Game.Levels.Storage
 
         private readonly Lazy<ILiteCollection<BsonDocument>> staticAnchorCollection;
 
-        private volatile bool disposed = false;
+        private volatile bool released = false;
     }
 }

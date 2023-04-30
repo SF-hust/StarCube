@@ -24,6 +24,6 @@ namespace StarCube.Game.Levels.Chunks.Source
         /// <summary>
         /// 每刻更新
         /// </summary>
-        public abstract void Tick();
+        public abstract void TickChunkSource();
     }
 }

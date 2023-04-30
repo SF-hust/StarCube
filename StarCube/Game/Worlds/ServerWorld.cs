@@ -7,8 +7,10 @@ using StarCube.Utility.Logging;
 using StarCube.Game.Entities;
 using StarCube.Game.Levels;
 using StarCube.Game.Worlds.Storage;
+using StarCube.Game.Worlds;
+using StarCube.Server.Game.Levels;
 
-namespace StarCube.Game.Worlds
+namespace StarCube.Server.Game.Worlds
 {
     public sealed class ServerWorld : World, IDisposable
     {

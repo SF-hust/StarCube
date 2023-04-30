@@ -2,13 +2,13 @@
 
 using LiteDB;
 
+using StarCube.Utility;
 using StarCube.Data.Storage;
 using StarCube.Data.Storage.Exceptions;
-using StarCube.Utility;
 
 namespace StarCube.Game
 {
-    public sealed class ServerGameStorage : IDisposable
+    public sealed class GameStorage : IDisposable
     {
         public const string GameMetaDatabasePath = "meta";
 
@@ -62,7 +62,7 @@ namespace StarCube.Game
         {
             if (disposed)
             {
-                throw new ObjectDisposedException(nameof(ServerGameStorage));
+                throw new ObjectDisposedException(nameof(GameStorage));
             }
 
             gameMetaDatabase.Release();
@@ -74,11 +74,11 @@ namespace StarCube.Game
         {
             if (disposed)
             {
-                throw new ObjectDisposedException(nameof(ServerGameStorage), "disposed");
+                throw new ObjectDisposedException(nameof(GameStorage), "disposed");
             }
         }
 
-        public ServerGameStorage(GameSaves saves)
+        public GameStorage(GameSaves saves)
         {
             this.saves = saves;
             gameMetaDatabase = saves.OpenOrCreateDatabase(GameMetaDatabasePath);

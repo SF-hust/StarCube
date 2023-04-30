@@ -8,17 +8,26 @@ using LiteDB;
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
-using StarCube.Game.Levels.Chunks.Storage.Palette;
+using StarCube.Game.Levels.Chunks.Palette;
 
 namespace StarCube.Game.Levels.Chunks.Storage
 {
     public class PalettedChunkParser : IChunkParser
     {
+        public const string BlockStateField = "blockstate";
+
+        public const string PaletteIndexField = "palette";
+
+        public const string LocalPaletteField = "local";
+
+        public const string PalettedDataField = "data";
+
+
         public bool TryParse(BsonDocument bson, ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             chunk = null;
 
-            if (!bson.TryGetDocument("blockstates", out BsonDocument? blockStateDocument))
+            if (!bson.TryGetDocument(BlockStateField, out BsonDocument? blockStateDocument))
             {
                 return false;
             }
@@ -48,7 +57,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
 
             // 将 block state 数据转为 json
             BsonDocument blockStateDocument = BlockStatesToBson(chunk);
-            bson.Add("blockstates", blockStateDocument);
+            bson.Add(BlockStateField, blockStateDocument);
 
             return bson;
         }
@@ -57,20 +66,20 @@ namespace StarCube.Game.Levels.Chunks.Storage
         {
             single = false;
 
-            if (!bson.TryGetInt32("palette", out int paletteID))
+            if (!bson.TryGetInt32(PaletteIndexField, out int paletteID))
             {
                 return false;
             }
 
             PaletteMapper? globalPaletteConverter = null;
-            if (paletteID != blockStatePaletteManager.currentPaletteID &&
+            if (paletteID != blockStatePaletteManager.currentPaletteIndex &&
                 !blockStatePaletteManager.TryGetMapper(paletteID, out globalPaletteConverter))
             {
                 return false;
             }
 
             // 单一值的处理
-            if (bson.TryGetInt32("data", out int singleValue))
+            if (bson.TryGetInt32(PalettedDataField, out int singleValue))
             {
                 single = true;
                 if (globalPaletteConverter != null)
@@ -80,7 +89,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 return true;
             }
 
-            if (!bson.TryGetBinary("data", out byte[] binary))
+            if (!bson.TryGetBinary(PalettedDataField, out byte[] binary))
             {
                 return false;
             }
@@ -100,7 +109,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
             BitUtil.Unpack(blockStates, binary, bitCount);
 
             // 使用了本地调色盘
-            if (bson.TryGetBinary("local", out byte[] localPaletteBinary))
+            if (bson.TryGetBinary(LocalPaletteField, out byte[] localPaletteBinary))
             {
                 if (localPaletteBinary.Length % sizeof(int) != 0)
                 {
@@ -150,7 +159,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
             BsonDocument bson = new BsonDocument();
 
             // 设置全局 palette id
-            bson.Add("palette", blockStatePaletteManager.currentPaletteID);
+            bson.Add(PaletteIndexField, blockStatePaletteManager.currentPaletteIndex);
 
             // 获取 block state 数据拷贝
             Span<int> buffer = stackalloc int[Chunk.ChunkSize];
@@ -169,7 +178,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
             // block state 只有一种
             if (dict.Count == 1)
             {
-                bson.Add("data", buffer[0]);
+                bson.Add(PalettedDataField, buffer[0]);
                 return bson;
             }
 
@@ -188,7 +197,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 byte[] binary = new byte[bitCountGlobal * (Chunk.ChunkSize / sizeof(byte) / 8)];
                 BitUtil.Pack(buffer, binary, bitCountGlobal);
 
-                bson.Add("data", binary);
+                bson.Add(PalettedDataField, binary);
             }
             // 使用本地调色盘
             else
@@ -216,8 +225,8 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 byte[] binary = new byte[bitCountPalette * (Chunk.ChunkSize / sizeof(byte) / 8)];
                 BitUtil.Pack(buffer, binary, bitCountPalette);
 
-                bson.Add("local", localPaletteBinary);
-                bson.Add("data", binary);
+                bson.Add(LocalPaletteField, localPaletteBinary);
+                bson.Add(PalettedDataField, binary);
             }
 
             return bson;

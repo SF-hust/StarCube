@@ -39,7 +39,7 @@ namespace StarCube.Data.Storage
         public static bool TryGetNameFromDirectory(string path, out string name)
         {
             name = string.Empty;
-            string fullDBPath = Path.Combine(path, ServerGameStorage.GameMetaDatabasePath + LiteDatabaseExtension);
+            string fullDBPath = Path.Combine(path, GameStorage.GameMetaDatabasePath + LiteDatabaseExtension);
             if (!File.Exists(fullDBPath))
             {
                 return false;
@@ -51,11 +51,11 @@ namespace StarCube.Data.Storage
             };
 
             using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
-            if (!metaDatabase.CollectionExists(ServerGameStorage.GameMetaCollectionName))
+            if (!metaDatabase.CollectionExists(GameStorage.GameMetaCollectionName))
             {
                 return false;
             }
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(ServerGameStorage.GameMetaCollectionName, BsonAutoId.ObjectId);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(GameStorage.GameMetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() != 1)
             {
                 return false;
@@ -73,7 +73,7 @@ namespace StarCube.Data.Storage
         public static bool TryLoadFromDirectory(string path, [NotNullWhen(true)] out GameSaves? saves)
         {
             saves = null;
-            string fullDBPath = Path.Combine(path, ServerGameStorage.GameMetaDatabasePath + LiteDatabaseExtension);
+            string fullDBPath = Path.Combine(path, GameStorage.GameMetaDatabasePath + LiteDatabaseExtension);
             if (!File.Exists(fullDBPath))
             {
                 return false;
@@ -85,11 +85,11 @@ namespace StarCube.Data.Storage
             };
 
             using LiteDatabase metaDatabase = new LiteDatabase(connectionString);
-            if (!metaDatabase.CollectionExists(ServerGameStorage.GameMetaCollectionName))
+            if (!metaDatabase.CollectionExists(GameStorage.GameMetaCollectionName))
             {
                 return false;
             }
-            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(ServerGameStorage.GameMetaCollectionName, BsonAutoId.ObjectId);
+            ILiteCollection<BsonDocument> metadataCollection = metaDatabase.GetCollection(GameStorage.GameMetaCollectionName, BsonAutoId.ObjectId);
             if (metadataCollection.Count() != 1)
             {
                 return false;

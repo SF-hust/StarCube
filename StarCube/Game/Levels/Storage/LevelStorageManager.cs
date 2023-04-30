@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 using LiteDB;
 
 using StarCube.Utility;
-using StarCube.Utility.Logging;
+using StarCube.Utility.Container;
 using StarCube.Data.Storage;
 using StarCube.Game.Blocks;
-using StarCube.Game.Levels.Chunks.Storage;
-using StarCube.Game.Levels.Chunks.Storage.Palette;
 using StarCube.Game.Levels.Chunks;
+using StarCube.Game.Levels.Chunks.Storage;
+using StarCube.Game.Levels.Chunks.Palette;
 
 namespace StarCube.Game.Levels.Storage
 {
@@ -20,7 +19,7 @@ namespace StarCube.Game.Levels.Storage
 
         public const string LevelMetaCollectionName = "meta";
 
-        public const string LevelDatabasePathPrefix = "level/level_";
+        public const string LevelDatabasePathPrefix = "level/";
 
         public const string BlockStatePaletteCollectionName = "palette_blockstate";
 
@@ -29,9 +28,9 @@ namespace StarCube.Game.Levels.Storage
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static string IndexToPath(long index)
+        public static string GuidToPath(Guid guid)
         {
-            return LevelDatabasePathPrefix + index.ToString("X").ToLower();
+            return LevelDatabasePathPrefix + guid.ToString("n");
         }
 
 
@@ -40,27 +39,18 @@ namespace StarCube.Game.Levels.Storage
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public LevelStorage GetOrCreate(Guid guid)
+        public LevelStorage OpenOrCreate(Guid guid)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
                 // 检查是否已经被获取
-                if (idToLevelStorageCache.ContainsKey(guid))
+                if (guidToLevelStorageCache.ContainsKey(guid))
                 {
                     throw new ArgumentException("already acquired", nameof(guid));
                 }
 
-                // 尝试读取 level 的 meta 信息
-                if (!TryGetLevelMeta(guid, out BsonDocument? meta))
-                {
-                    meta = new BsonDocument();
-                    meta.Add("index", new BsonValue(GenerateNextLevelIndex()));
-                    levelMetaCollection.Insert(guid, meta);
-                }
-
-                // 创建 LevelStorage
-                long index = meta["index"].AsInt64;
-                string path = IndexToPath(index);
+                string path = GuidToPath(guid);
                 StorageDatabase database = saves.OpenOrCreateDatabase(path);
                 return new LevelStorage(guid, this, database);
             }
@@ -70,14 +60,14 @@ namespace StarCube.Game.Levels.Storage
         /// 释放 LevelStorage
         /// </summary>
         /// <param name="storage"></param>
-        public void Release(LevelStorage storage)
+        internal void Release(LevelStorage storage)
         {
-            lock(this)
+            CheckDisposed();
+            lock (this)
             {
-                if (!idToLevelStorageCache.Remove(storage.guid))
+                if (!guidToLevelStorageCache.Remove(storage.guid))
                 {
-                    LogUtil.Error($"tries to release LevelStorage (id = \"{storage.guid}\") which does not exist");
-                    return;
+                    throw new ArgumentException($"tries to release LevelStorage (guid = {storage.guid}) which does not exist");
                 }
 
                 storage.database.Release();
@@ -88,100 +78,60 @@ namespace StarCube.Game.Levels.Storage
         /// 删除指定 guid 的 level
         /// </summary>
         /// <param name="guid"></param>
-        public void Drop(Guid guid)
+        public bool Drop(Guid guid)
         {
+            CheckDisposed();
             lock(this)
             {
-                // 寻找并删除 level 的 meta 数据
-                BsonDocument? meta = levelMetaCollection.FindById(guid);
-                if (meta == null)
+                if (guidToLevelStorageCache.ContainsKey(guid))
                 {
-                    return;
+                    throw new ArgumentException($"tries to drop level (guid = {guid}) which is loaded");
                 }
-                levelMetaCollection.Delete(guid);
 
-                // 删除 level 的数据库
-                long index = meta["index"].AsInt64;
-                string levelPath = IndexToPath(index);
-                saves.DropDatabase(levelPath);
+                string path = GuidToPath(guid);
+                return saves.DropDatabase(path);
             }
         }
 
 
-        private bool TryGetLevelMeta(Guid guid, [NotNullWhen(true)] out BsonDocument? meta)
+        public void Save()
         {
-            meta = levelMetaCollection.FindById(guid);
-            return meta != null;
-        }
-
-        private long GenerateNextLevelIndex()
-        {
-            long current = nextLevelIndex;
-            nextLevelIndex++;
-            return current;
-        }
-
-        private long LoadNextLevelIndex()
-        {
-            BsonDocument? indexBson = levelMetaCollection.FindById(Guid.Empty);
-            if (indexBson == null)
-            {
-                indexBson = new BsonDocument();
-                indexBson.Add("current", new BsonValue(1L));
-                levelMetaCollection.Insert(Guid.Empty, indexBson);
-            }
-            return indexBson["current"].AsInt64;
-        }
-
-        private void SaveNextLevelIndex()
-        {
-            BsonDocument indexBson = levelMetaCollection.FindById(Guid.Empty);
-            indexBson["current"] = nextLevelIndex;
-            levelMetaCollection.Update(indexBson);
+            blockStatePaletteManager.Save();
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(LevelStorageManager), "double dispose");
+            }
+
+            foreach (LevelStorage storage in guidToLevelStorageCache.Values)
+            {
+                storage.Release();
+            }
+            guidToLevelStorageCache.Clear();
+
+            levelMetaDatabase.Release();
+
             disposed = true;
         }
 
-        ~LevelStorageManager()
-        {
-            Dispose(false);
-        }
-
-        private void Dispose(bool disposing)
+        private void CheckDisposed()
         {
             if (disposed)
             {
-                LogUtil.Error("LevelStorageManager disposed");
-                throw new ObjectDisposedException(nameof(LevelStorageManager));
-            }
-
-            SaveNextLevelIndex();
-            levelMetaDatabase.Release();
-            foreach (LevelStorage storage in idToLevelStorageCache.Values)
-            {
-                storage.Dispose();
-            }
-
-            if (disposing)
-            {
-                idToLevelStorageCache.Clear();
+                throw new ObjectDisposedException(nameof(LevelStorageManager), "disposed");
             }
         }
-
 
         public LevelStorageManager(GameSaves saves)
         {
             this.saves = saves;
             levelMetaDatabase = saves.OpenOrCreateDatabase(LevelMetaDatabasePath);
-            levelMetaCollection = levelMetaDatabase.Value.GetCollectionAndEnsureIndex(LevelMetaCollectionName, BsonAutoId.Guid);
-            nextLevelIndex = LoadNextLevelIndex();
-            ILiteCollection<BsonDocument> blockStatePaletteCollection = levelMetaDatabase.Value.GetCollectionAndEnsureIndex(BlockStatePaletteCollectionName, BsonAutoId.Int32);
-            PaletteManager<BlockState> blockStatePaletteManager = PaletteManager<BlockState>.Load("blockstate", BlockState.GlobalBlockStateIDMap, blockStatePaletteCollection, BlockState.ToBson, saves.name);
+            levelMetaCollection = new Lazy<ILiteCollection<BsonDocument>>(() => levelMetaDatabase.Value.GetCollectionAndEnsureIndex(LevelMetaCollectionName, BsonAutoId.Guid));
+
+            blockStatePaletteManager = new PaletteManager<BlockState>("blockstate", levelMetaDatabase, BlockState.GlobalBlockStateIDMap, BlockState.ToBson);
             chunkFactory = new PalettedChunkFactory(BlockState.GlobalBlockStateIDMap);
             chunkParser = new PalettedChunkParser(chunkFactory, blockStatePaletteManager);
         }
@@ -190,15 +140,17 @@ namespace StarCube.Game.Levels.Storage
 
         private readonly StorageDatabase levelMetaDatabase;
 
-        private readonly ILiteCollection<BsonDocument> levelMetaCollection;
+        private readonly Lazy<ILiteCollection<BsonDocument>> levelMetaCollection;
 
-        private long nextLevelIndex;
+        private readonly Dictionary<Guid, LevelStorage> guidToLevelStorageCache = new Dictionary<Guid, LevelStorage>();
 
-        public readonly IChunkParser chunkParser;
 
         public readonly IChunkFactory chunkFactory;
 
-        private readonly Dictionary<Guid, LevelStorage> idToLevelStorageCache = new Dictionary<Guid, LevelStorage>();
+        public readonly IChunkParser chunkParser;
+
+        public readonly PaletteManager<BlockState> blockStatePaletteManager;
+
 
         private volatile bool disposed = false;
     }

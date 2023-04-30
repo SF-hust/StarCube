@@ -6,15 +6,28 @@ using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Worlds;
+using System.Numerics;
 
 namespace StarCube.Game.Levels
 {
     public abstract class Level :
         IGuid
     {
+        public Vector3 Position
+        {
+            get => position;
+            set => position = value;
+        }
+
+        public Quaternion Rotation
+        {
+            get => rotation;
+            set => rotation = value;
+        }
+
         public abstract bool Active { get; set; }
 
-        public abstract World World { get; set; }
+        public abstract World World { get; }
 
         public abstract bool HasBlock(int x, int y, int z);
         public abstract bool HasBlock(BlockPos pos);
@@ -46,5 +59,8 @@ namespace StarCube.Game.Levels
         public readonly Guid guid;
 
         public readonly ILevelBounding bounding;
+
+        private Vector3 position = Vector3.Zero;
+        private Quaternion rotation = Quaternion.Identity;
     }
 }

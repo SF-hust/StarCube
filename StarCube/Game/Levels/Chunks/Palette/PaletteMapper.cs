@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 using StarCube.Utility;
 
-namespace StarCube.Game.Levels.Chunks.Storage.Palette
+namespace StarCube.Game.Levels.Chunks.Palette
 {
     /// <summary>
     /// 旧调色盘到当前调色盘的映射
