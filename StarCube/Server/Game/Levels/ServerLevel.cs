@@ -22,7 +22,7 @@ namespace StarCube.Server.Game.Levels
             {
                 if (world == null)
                 {
-                    throw new InvalidOperationException(nameof(Active));
+                    throw new InvalidOperationException("can't set level's active property when it is not in a world");
                 }
 
                 active = value;
@@ -34,23 +34,51 @@ namespace StarCube.Server.Game.Levels
         /// <summary>
         /// ServerLevel 所存在的 ServerWorld
         /// </summary>
-        public ServerWorld ServerWorld
+        public ServerWorld ServerWorld => world ?? throw new NullReferenceException(nameof(World));
+
+        /// <summary>
+        /// 当 Level 被加入某个世界时调用此方法
+        /// </summary>
+        /// <param name="world"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void OnAddToWorld(ServerWorld world)
         {
-            get => world ?? throw new NullReferenceException(nameof(World));
-            set
+            if (Thread.CurrentThread != game.ServerGameThread)
             {
-                if (Thread.CurrentThread != game.ServerGameThread)
-                {
-                    throw new InvalidOperationException("can't set or reset server level's world from other than ServerGameThread");
-                }
-
-                if (active)
-                {
-                    throw new InvalidOperationException("can't set or reset server level's world when active");
-                }
-
-                world = value;
+                throw new InvalidOperationException("can't set server level's world from other than ServerGameThread");
             }
+
+            if (world != null)
+            {
+                throw new InvalidOperationException("can't add a server level to another world");
+            }
+
+            if (active)
+            {
+                throw new InvalidOperationException("can't set server level's world when active");
+            }
+
+            this.world = world;
+        }
+
+        public void OnRemoveFromWorld()
+        {
+            if (Thread.CurrentThread != game.ServerGameThread)
+            {
+                throw new InvalidOperationException("can't reset server level's world from other than ServerGameThread");
+            }
+
+            if (world == null)
+            {
+                throw new InvalidOperationException("can't remove a server level from null world");
+            }
+
+            if (active)
+            {
+                throw new InvalidOperationException("can't reset server level's world when active");
+            }
+
+            world = null;
         }
 
         /// <summary>
