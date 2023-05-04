@@ -61,6 +61,10 @@ namespace StarCube.Server.Game.Levels
             this.world = world;
         }
 
+        /// <summary>
+        /// 当 Level 从世界中移除时调用此方法
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public void OnRemoveFromWorld()
         {
             if (Thread.CurrentThread != game.ServerGameThread)

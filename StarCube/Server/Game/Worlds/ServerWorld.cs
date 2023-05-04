@@ -31,14 +31,14 @@ namespace StarCube.Server.Game.Worlds
 
         public override IEnumerable<Level> Levels => guidToLevel.Values;
 
-        public bool TryGetLevel(Guid guid, [NotNullWhen(true)] out ServerLevel? level)
+        public bool TryGetServerLevel(Guid guid, [NotNullWhen(true)] out ServerLevel? level)
         {
             return guidToLevel.TryGetValue(guid, out level);
         }
 
         public override bool TryGetLevel(Guid guid, [NotNullWhen(true)] out Level? level)
         {
-            if (TryGetLevel(guid, out ServerLevel? serverLevel))
+            if (TryGetServerLevel(guid, out ServerLevel? serverLevel))
             {
                 level = serverLevel;
                 return true;
@@ -91,7 +91,7 @@ namespace StarCube.Server.Game.Worlds
 
 
         /// <summary>
-        /// 向世界中添加一个 Level
+        /// 向世界中添加一个 Level，只能在游戏主线程调用
         /// </summary>
         /// <param name="level"></param>
         /// <exception cref="InvalidOperationException"></exception>
@@ -108,7 +108,7 @@ namespace StarCube.Server.Game.Worlds
         }
 
         /// <summary>
-        /// 从世界中移除一个 Level
+        /// 从世界中移除一个 Level，只能在游戏主线程调用
         /// </summary>
         /// <param name="guid"></param>
         /// <param name="level"></param>
@@ -131,6 +131,7 @@ namespace StarCube.Server.Game.Worlds
 
             return false;
         }
+
 
         public void Dispose()
         {
