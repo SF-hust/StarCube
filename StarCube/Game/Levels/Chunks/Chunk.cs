@@ -55,6 +55,8 @@ namespace StarCube.Game.Levels.Chunks
         public abstract void CopyBlockStatesTo(Span<BlockState> array);
 
         public abstract void CopyBlockStatesTo(Span<int> array);
+
+        public abstract Chunk CloneBlockStates();
         /* ~ BlockState end ~ */
 
 

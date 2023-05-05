@@ -423,5 +423,4 @@ namespace StarCube.Game.Levels.Chunks
         public readonly int singleValue;
         public readonly ReadOnlySpan<uint> data;
     }
-
 }

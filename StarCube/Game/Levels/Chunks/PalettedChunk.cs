@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Utility.Container;
@@ -18,13 +19,13 @@ namespace StarCube.Game.Levels.Chunks
         public override BlockState GetBlockState(int x, int y, int z)
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
-            return blockStates.Get(index);
+            return globalBlockStateMap.ValueFor(blockStates.Get(index));
         }
 
         public override void SetBlockState(int x, int y, int z, BlockState blockState)
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
-            blockStates.Set(index, blockState);
+            blockStates.Set(index, blockState.IntegerID, pool);
             Modify = true;
         }
 
@@ -38,7 +39,7 @@ namespace StarCube.Game.Levels.Chunks
                     for (int x = x0; x < x1 + 1; ++x)
                     {
                         int index = BlockPos.InChunkPosToIndex(x, y, z);
-                        blockStates.SetRaw(index, blockStateIndex);
+                        blockStates.Set(index, blockStateIndex, pool);
                     }
                 }
             }
@@ -48,31 +49,43 @@ namespace StarCube.Game.Levels.Chunks
         public override BlockState GetAndSetBlockState(int x, int y, int z, BlockState blockState)
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
-            BlockState old = blockStates.Get(index);
-            blockStates.Set(index, blockState);
+            BlockState old = globalBlockStateMap.ValueFor(blockStates.Get(index));
+            blockStates.Set(index, blockState.IntegerID, pool);
             Modify = true;
             return old;
         }
 
         public override void CopyBlockStatesTo(Span<BlockState> blockStates)
         {
+            Debug.Assert(blockStates.Length == ChunkSize);
+
+            for(int i = 0; i < blockStates.Length; ++i)
+            {
+                blockStates[i] = globalBlockStateMap.ValueFor(this.blockStates.Get(i));
+            }
+        }
+
+        public override void CopyBlockStatesTo(Span<int> blockStates)
+        {
             this.blockStates.CopyTo(blockStates);
         }
 
-        public override void CopyBlockStatesTo(Span<int> buffer)
+        public override Chunk CloneBlockStates()
         {
-            blockStates.CopyRawTo(buffer);
+            return new PalettedChunk(pos, globalBlockStateMap, pool, blockStates.Clone(pool));
         }
+
+        public void CompressPalettedData()
+        {
+            blockStates.Compress(pool);
+        }
+
+
 
         public override void Clear()
         {
-            blockStates.Clear();
+            blockStates.Clear(0, pool);
             Modify = true;
-        }
-
-        public PalettedChunkDataView GetReadOnlyBlockStateDataView()
-        {
-            return blockStates.AsReadOnlyView();
         }
 
         public override bool TryGetBlockEntity(BlockPos pos, [NotNullWhen(true)] out BlockEntity? blockEntity)
@@ -119,13 +132,15 @@ namespace StarCube.Game.Levels.Chunks
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool)
             : base(pos)
         {
-            blockStates = new PalettedChunkData<BlockState>(globalBlockStateMap, pool);
+            this.globalBlockStateMap = globalBlockStateMap;
+            blockStates = new PalettedChunkData(globalBlockStateMap.Count);
+            this.pool = pool;
         }
 
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, int fillBlockState)
             : this(pos, globalBlockStateMap, pool)
         {
-            blockStates.Clear(fillBlockState);
+            blockStates.Clear(fillBlockState, pool);
         }
 
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, BlockState fillBlockState)
@@ -136,16 +151,31 @@ namespace StarCube.Game.Levels.Chunks
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, ReadOnlySpan<int> blockStates)
             : this(pos, globalBlockStateMap, pool)
         {
-            this.blockStates.CopyRawFrom(blockStates);
+            this.blockStates.CopyFrom(blockStates, pool);
         }
 
         public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, ReadOnlySpan<BlockState> blockStates)
             : this(pos, globalBlockStateMap, pool)
         {
-            this.blockStates.CopyFrom(blockStates);
+            for (int i = 0; i < ChunkSize; i++)
+            {
+                this.blockStates.Set(i, blockStates[i].IntegerID, pool);
+            }
         }
 
-        private readonly PalettedChunkData<BlockState> blockStates;
+        private PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, PalettedChunkData blockStates)
+            : base(pos)
+        {
+            this.pool = pool;
+            this.globalBlockStateMap = globalBlockStateMap;
+            this.blockStates = blockStates;
+        }
+
+        private readonly PalettedChunkDataPool pool;
+
+        private readonly IIDMap<BlockState> globalBlockStateMap;
+
+        private readonly PalettedChunkData blockStates;
 
         private readonly Dictionary<int, BlockEntity> inChunkIndexToBlockEntity = new Dictionary<int, BlockEntity>();
     }
