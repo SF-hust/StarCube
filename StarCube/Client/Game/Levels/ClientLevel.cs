@@ -13,9 +13,9 @@ namespace StarCube.Client.Game.Levels
         public override bool Active { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override World World => world;
 
-        public abstract void OnChunkLoad(Chunk chunk);
+        public abstract void ChunkChanged(Chunk chunk);
 
-        public abstract void OnChunkUnload(ChunkPos pos);
+        public abstract void ChunkRemoved(ChunkPos pos);
 
         public ClientLevel(Guid guid, ILevelBounding bounding, ClientWorld world) : base(guid, bounding)
         {

@@ -23,7 +23,7 @@ namespace StarCube.Client.Network.Protocol
         {
             if (handler.game.CurrentWorld != null && handler.game.CurrentWorld.TryGetClientLevel(guid, out var level))
             {
-                level.OnChunkLoad(chunk);
+                level.ChunkChanged(chunk);
             }
         }
 

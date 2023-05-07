@@ -9,13 +9,14 @@ using StarCube.Utility.Math;
 using StarCube.Utility.Logging;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
+using System.Diagnostics;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class ChunkProvider
+    public sealed class ChunkProvider : IDisposable
     {
         public void Start()
         {
@@ -40,9 +41,9 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
         }
 
-        public Chunk GetSync(ChunkPos pos)
+        private Chunk GetSync(ChunkPos pos)
         {
-            if (storage.TryLoadChunk(pos, out Chunk? chunk))
+            if (storage != null && storage.TryLoadChunk(pos, out Chunk? chunk))
             {
                 return chunk;
             }
@@ -58,7 +59,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             workerTask.Wait();
         }
 
-        private void Work()
+        private void Work(int _)
         {
             if (pendingLoadChunkPos.TryDequeue(out ChunkPos pos))
             {
@@ -69,51 +70,24 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         private void WorkerRun()
         {
-            int count64 = 0;
-            int count16 = 0;
-            int count4 = 0;
-            int count = 0;
             try
             {
-                Thread.CurrentThread.Priority = ThreadPriority.Lowest;
-                Action action = Work;
-                Action[] actions64 = new Action[64];
-                Action[] actions16 = new Action[16];
-                Action[] actions4 = new Action[16];
-                actions64.AsSpan().Fill(action);
-                actions16.AsSpan().Fill(action);
-                actions4.AsSpan().Fill(action);
-
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                //Thread.CurrentThread.Priority = ThreadPriority.Lowest;
                 while (!stop)
                 {
-                    if (chunkResults.Count < maxResultCount - 64)
+                    stopwatch.Restart();
+                    if (pendingLoadChunkPos.Count > 0 && chunkResults.Count < maxResultCount)
                     {
-                        if (pendingLoadChunkPos.Count >= 64)
-                        {
-                            count64++;
-                            Parallel.Invoke(actions64);
-                            continue;
-                        }
-                        else if (pendingLoadChunkPos.Count >= 16)
-                        {
-                            count16++;
-                            Parallel.Invoke(actions16);
-                            continue;
-                        }
-                        else if(pendingLoadChunkPos.Count >= 4)
-                        {
-                            count4++;
-                            Parallel.Invoke(actions4);
-                            continue;
-                        }
-                        else if (pendingLoadChunkPos.Count > 0)
-                        {
-                            count++;
-                            action();
-                            continue;
-                        }
+                        Parallel.For(0, maxResultCount - chunkResults.Count, Work);
+                        continue;
                     }
-                    Thread.Sleep(taskSleepMilliseconds);
+                    stopwatch.Stop();
+                    int ms = (int)stopwatch.ElapsedMilliseconds;
+                    if (ms < taskSleepMilliseconds)
+                    {
+                        Thread.Sleep(taskSleepMilliseconds - ms);
+                    }
                 }
             }
             catch (Exception e)
@@ -121,10 +95,12 @@ namespace StarCube.Game.Levels.Chunks.Source
                 LogUtil.Error(e);
                 throw e;
             }
-            finally
-            {
-                LogUtil.Debug($"count64 = {count64}, count16 = {count16}, count4 = {count4}, count = {count}, total = {count64 * 64 + count16 * 16 + count4 * 4 + count}");
-            }
+        }
+
+        public void Dispose()
+        {
+            stop = true;
+            workerTask.Wait();
         }
 
         public ChunkProvider(ILevelChunkGenerator generator, LevelStorage storage, int maxResultCount)
@@ -133,7 +109,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             this.storage = storage;
             this.maxResultCount = maxResultCount;
             workerTask = new Task(WorkerRun, TaskCreationOptions.LongRunning);
-            taskSleepMilliseconds = 20;
+            taskSleepMilliseconds = 5;
         }
 
         private readonly ILevelChunkGenerator generator;

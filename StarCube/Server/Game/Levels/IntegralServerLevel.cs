@@ -90,10 +90,7 @@ namespace StarCube.Server.Game.Levels
 
         public override void Init()
         {
-            if (!storage.Created)
-            {
-            }
-            else
+            if (storage.Created)
             {
                 foreach (Chunk chunk in storage.LoadAllChunks())
                 {
@@ -129,6 +126,10 @@ namespace StarCube.Server.Game.Levels
                 }
                 chunk.Modify = false;
             }
+        }
+
+        public override void Dispose()
+        {
         }
 
         public IntegralServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, LevelStorage storage)

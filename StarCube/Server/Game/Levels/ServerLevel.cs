@@ -10,7 +10,7 @@ using StarCube.Server.Game.Worlds;
 
 namespace StarCube.Server.Game.Levels
 {
-    public abstract class ServerLevel : Level
+    public abstract class ServerLevel : Level, IDisposable
     {
         /// <summary>
         /// ServerLevel 的活跃状态
@@ -123,10 +123,12 @@ namespace StarCube.Server.Game.Levels
             storage.Release();
         }
 
+        public abstract void Dispose();
+
         public ServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, LevelStorage storage)
             : base(guid, bounding)
         {
-            game = world.game;
+            game = world?.game;
             this.world = world;
             this.storage = storage;
         }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 using StarCube.Utility;
 using StarCube.Utility.Math;
 using StarCube.Game.Blocks;
 using StarCube.Game.Levels.Chunks;
 using StarCube.Game.Worlds;
-using System.Numerics;
 
 namespace StarCube.Game.Levels
 {
@@ -47,6 +47,26 @@ namespace StarCube.Game.Levels
 
         public abstract void Tick();
 
+        public event EventHandler<Chunk>? OnChunkLoadEvent;
+
+        public event EventHandler<Chunk>? OnChunkUpdateEvent;
+
+        public event EventHandler<Chunk>? OnChunkUnloadEvent;
+
+        public void OnChunkLoad(Chunk chunk)
+        {
+            OnChunkLoadEvent?.Invoke(this, chunk);
+        }
+
+        public void OnChunkUpdate(Chunk chunk)
+        {
+            OnChunkUpdateEvent?.Invoke(this, chunk);
+        }
+
+        public void OnChunkUnload(Chunk chunk)
+        {
+            OnChunkUnloadEvent?.Invoke(this, chunk);
+        }
 
         Guid IGuid.Guid => guid;
 

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using StarCube.Network.Packets;
 using StarCube.Client.Game;
-using StarCube.Network;
-using StarCube.Network.Packets;
 
 namespace StarCube.Client.Network
 {

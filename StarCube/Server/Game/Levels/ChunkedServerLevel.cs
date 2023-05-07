@@ -138,14 +138,14 @@ namespace StarCube.Server.Game.Levels
             chunkSource.TickChunkSource();
         }
 
-        public void Stop()
-        {
-            chunkSource.Stop();
-        }
-
         public override void Save(bool flush)
         {
             chunkSource.Save();
+        }
+
+        public override void Dispose()
+        {
+            chunkSource.Dispose();
         }
 
         public ChunkedServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, ILevelChunkGenerator generator, LevelStorage storage)

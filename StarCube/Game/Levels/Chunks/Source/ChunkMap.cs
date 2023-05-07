@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Levels.Chunks.Loading;
-using StarCube.Game.Levels.Storage;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
@@ -115,7 +114,7 @@ namespace StarCube.Game.Levels.Chunks.Source
         private readonly Chunk? chunk;
     }
 
-    public class ChunkMap
+    public sealed class ChunkMap : IDisposable
     {
         public bool IsLoaded(ChunkPos pos)
         {
@@ -305,6 +304,7 @@ namespace StarCube.Game.Levels.Chunks.Source
                     continue;
                 }
 
+                chunkCache.level.OnChunkLoad(chunk);
                 // 更新 ChunkMapEntry
                 posToChunkMapEntry[chunk.pos] = entry.OnLoadChunk(chunk);
             }
@@ -323,6 +323,7 @@ namespace StarCube.Game.Levels.Chunks.Source
                 // 卸载区块，将其放入 chunk cache 中
                 if(posToChunkMapEntry.Remove(pos, out ChunkMapEntry removedEntry) && removedEntry.Loaded)
                 {
+                    chunkCache.level.OnChunkUnload(removedEntry.Chunk);
                     chunkCache.PutUnloadChunk(removedEntry.Chunk);
                 }
             }
@@ -344,7 +345,12 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         public void Stop()
         {
-            chunkProvider.Stop();
+            chunkProvider.Dispose();
+        }
+
+        public void Dispose()
+        {
+            chunkProvider.Dispose();
         }
 
         public ChunkMap(ServerChunkCache chunkCache, ChunkProvider chunkProvider, ILevelBounding bounding)

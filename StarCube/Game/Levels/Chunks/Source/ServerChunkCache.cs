@@ -6,10 +6,11 @@ using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
 using StarCube.Game.Levels.Chunks.Loading;
 using StarCube.Server.Game.Levels;
+using System;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
-    public sealed class ServerChunkCache : ChunkSource
+    public sealed class ServerChunkCache : ChunkSource, IDisposable
     {
         public override bool HasChunk(ChunkPos pos)
         {
@@ -46,9 +47,9 @@ namespace StarCube.Game.Levels.Chunks.Source
             chunkMap.Flush();
         }
 
-        public void Stop()
+        public void Dispose()
         {
-            chunkMap.Stop();
+            chunkMap.Dispose();
         }
 
         public void OnChunkModify(Chunk chunk)
