@@ -132,10 +132,14 @@ namespace StarCube.Server.Game.Levels
         {
         }
 
+        public IntegralServerLevel(Guid guid, ILevelBounding bounding, ServerGame game, LevelStorage storage)
+            : base(guid, bounding, game, storage)
+        {
+        }
+
         public IntegralServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, LevelStorage storage)
             : base(guid, bounding, world, storage)
         {
-
         }
 
         private readonly Dictionary<ChunkPos, Chunk> posToChunk = new Dictionary<ChunkPos, Chunk>();

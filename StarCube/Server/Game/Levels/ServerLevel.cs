@@ -125,10 +125,18 @@ namespace StarCube.Server.Game.Levels
 
         public abstract void Dispose();
 
+        public ServerLevel(Guid guid, ILevelBounding bounding, ServerGame game, LevelStorage storage)
+            : base(guid, bounding)
+        {
+            this.game = game;
+            world = null;
+            this.storage = storage;
+        }
+
         public ServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, LevelStorage storage)
             : base(guid, bounding)
         {
-            game = world?.game;
+            game = world.game;
             this.world = world;
             this.storage = storage;
         }

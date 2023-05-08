@@ -148,6 +148,12 @@ namespace StarCube.Server.Game.Levels
             chunkSource.Dispose();
         }
 
+        public ChunkedServerLevel(Guid guid, ILevelBounding bounding, ServerGame game, ILevelChunkGenerator generator, LevelStorage storage)
+            : base(guid, bounding, game, storage)
+        {
+            chunkSource = new ServerChunkCache(this, generator, storage);
+        }
+
         public ChunkedServerLevel(Guid guid, ILevelBounding bounding, ServerWorld world, ILevelChunkGenerator generator, LevelStorage storage)
             : base(guid, bounding, world, storage)
         {
