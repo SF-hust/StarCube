@@ -14,7 +14,7 @@ namespace StarCube.Game.Levels.Chunks.Loading
         {
             Span<int> buffer = stackalloc int[Chunk.ChunkSize];
             chunk.CopyBlockStatesTo(buffer);
-            Chunk copied = player.game.levels.ChunkFactory.Create(chunk.pos, buffer);
+            Chunk copied = player.game.levels.ChunkFactory.Create(chunk.Position, buffer);
             var packet = new ClientBoundChunkLoadPacket(levelGuid, chunk);
             player.connection.Send(packet);
         }

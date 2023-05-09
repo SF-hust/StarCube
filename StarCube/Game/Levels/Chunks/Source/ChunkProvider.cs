@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,6 @@ using StarCube.Utility.Math;
 using StarCube.Utility.Logging;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
-using System.Diagnostics;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
@@ -77,10 +77,15 @@ namespace StarCube.Game.Levels.Chunks.Source
                 while (!stop)
                 {
                     stopwatch.Restart();
-                    if (pendingLoadChunkPos.Count > 0 && chunkResults.Count < maxResultCount)
+                    //if (pendingLoadChunkPos.Count > 0 && chunkResults.Count < maxResultCount)
+                    //{
+                    //    Parallel.For(0, maxResultCount - chunkResults.Count, Work);
+                    //    continue;
+                    //}
+                    while (pendingLoadChunkPos.TryDequeue(out ChunkPos pos))
                     {
-                        Parallel.For(0, maxResultCount - chunkResults.Count, Work);
-                        continue;
+                        Chunk chunk = GetSync(pos);
+                        chunkResults.Enqueue(chunk);
                     }
                     stopwatch.Stop();
                     int ms = (int)stopwatch.ElapsedMilliseconds;

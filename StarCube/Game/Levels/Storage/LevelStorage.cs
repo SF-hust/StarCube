@@ -112,7 +112,7 @@ namespace StarCube.Game.Levels.Storage
             CheckReleased();
 
             BsonDocument bson = ChunkParser.ToBson(chunk);
-            chunkCollection.Value.Upsert(chunk.pos.ToObjectID(), bson);
+            chunkCollection.Value.Upsert(chunk.Position.ToObjectID(), bson);
         }
 
         /// <summary>

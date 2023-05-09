@@ -4,8 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Levels.Chunks.Loading;
+using StarCube.Game.Levels;
+using StarCube.Game.Levels.Chunks;
+using StarCube.Game.Levels.Chunks.Source;
 
-namespace StarCube.Game.Levels.Chunks.Source
+namespace StarCube.Server.Game.Levels
 {
     internal readonly struct ChunkMapEntry
     {
@@ -192,7 +195,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             }
 
             // chunk 在 cache 中，将其取出
-            if (chunkCache.TryGetChunkAndRemoveFromCache(pos, out Chunk? chunk))
+            if (chunkCache.TryRemoveChunkFromCache(pos, out Chunk? chunk))
             {
                 posToChunkMapEntry[pos] = new ChunkMapEntry(chunk, active);
             }
@@ -298,7 +301,7 @@ namespace StarCube.Game.Levels.Chunks.Source
             while (chunkProvider.TryGet(out Chunk? chunk))
             {
                 // 此 chunk 已经不再需要加载，丢弃掉相应的结果
-                if (!posToChunkMapEntry.TryGetValue(chunk.pos, out ChunkMapEntry entry))
+                if (!posToChunkMapEntry.TryGetValue(chunk.Position, out ChunkMapEntry entry))
                 {
                     chunk.Clear();
                     continue;
@@ -306,7 +309,7 @@ namespace StarCube.Game.Levels.Chunks.Source
 
                 chunkCache.level.OnChunkLoad(chunk);
                 // 更新 ChunkMapEntry
-                posToChunkMapEntry[chunk.pos] = entry.OnLoadChunk(chunk);
+                posToChunkMapEntry[chunk.Position] = entry.OnLoadChunk(chunk);
             }
         }
 
@@ -321,13 +324,14 @@ namespace StarCube.Game.Levels.Chunks.Source
                 }
 
                 // 卸载区块，将其放入 chunk cache 中
-                if(posToChunkMapEntry.Remove(pos, out ChunkMapEntry removedEntry) && removedEntry.Loaded)
+                if (posToChunkMapEntry.Remove(pos, out ChunkMapEntry removedEntry) && removedEntry.Loaded)
                 {
                     chunkCache.level.OnChunkUnload(removedEntry.Chunk);
                     chunkCache.PutUnloadChunk(removedEntry.Chunk);
                 }
             }
 
+            chunkCache.ClearCache();
             pendingUnloadChunkPos.Clear();
         }
 

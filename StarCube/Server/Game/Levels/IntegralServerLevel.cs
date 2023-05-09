@@ -95,7 +95,7 @@ namespace StarCube.Server.Game.Levels
                 foreach (Chunk chunk in storage.LoadAllChunks())
                 {
                     chunk.Modify = false;
-                    posToChunk.Add(chunk.pos, chunk);
+                    posToChunk.Add(chunk.Position, chunk);
                 }
             }
 

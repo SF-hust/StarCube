@@ -72,7 +72,7 @@ namespace StarCube.Game.Levels.Chunks
 
         public override Chunk CloneBlockStates()
         {
-            return new PalettedChunk(pos, globalBlockStateMap, pool, blockStates.Clone(pool));
+            return new PalettedChunk(Position, globalBlockStateMap, pool, blockStates.Clone(pool));
         }
 
         public void CompressPalettedData()

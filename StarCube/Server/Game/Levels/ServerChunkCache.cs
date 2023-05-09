@@ -1,23 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using StarCube.Utility.Math;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
+using StarCube.Game.Levels.Chunks;
+using StarCube.Game.Levels.Chunks.Source;
 using StarCube.Game.Levels.Chunks.Loading;
-using StarCube.Server.Game.Levels;
-using System;
 
-namespace StarCube.Game.Levels.Chunks.Source
+namespace StarCube.Server.Game.Levels
 {
-    public sealed class ServerChunkCache : ChunkSource, IDisposable
+    public sealed class ServerChunkCache : IDisposable
     {
-        public override bool HasChunk(ChunkPos pos)
+        public bool HasChunk(ChunkPos pos)
         {
             return chunkMap.IsLoaded(pos);
         }
 
-        public override bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
+        public bool TryGetChunk(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             return chunkMap.TryGet(pos, out chunk);
         }
@@ -37,7 +38,7 @@ namespace StarCube.Game.Levels.Chunks.Source
         {
         }
 
-        public override void TickChunkSource()
+        public void TickChunkSource()
         {
             chunkMap.Update();
         }
@@ -54,17 +55,27 @@ namespace StarCube.Game.Levels.Chunks.Source
 
         public void OnChunkModify(Chunk chunk)
         {
-            posToPendingSaveChunk.TryAdd(chunk.pos, chunk);
+            posToPendingSaveChunk.TryAdd(chunk.Position, chunk);
         }
 
         public void PutUnloadChunk(Chunk chunk)
         {
-            posToPendingUnloadChunk.Add(chunk.pos, chunk);
+            posToPendingUnloadChunk.Add(chunk.Position, chunk);
         }
 
-        public bool TryGetChunkAndRemoveFromCache(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
+        public bool TryRemoveChunkFromCache(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
         {
             return posToPendingUnloadChunk.Remove(pos, out chunk);
+        }
+
+        public void ClearCache()
+        {
+            foreach (Chunk chunk in posToPendingUnloadChunk.Values)
+            {
+                chunk.Clear();
+            }
+
+            posToPendingUnloadChunk.Clear();
         }
 
         public void Save()

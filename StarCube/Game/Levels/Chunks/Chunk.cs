@@ -13,9 +13,9 @@ namespace StarCube.Game.Levels.Chunks
     {
         public const int ChunkSize = 16 * 16 * 16;
 
-        public int X => pos.x;
-        public int Y => pos.y;
-        public int Z => pos.z;
+        public int X => Position.x;
+        public int Y => Position.y;
+        public int Z => Position.z;
 
         public bool Modify
         {
@@ -81,7 +81,7 @@ namespace StarCube.Game.Levels.Chunks
         public override string ToString()
         {
             StringBuilder builder = StringUtil.StringBuilder;
-            builder.Append("(").Append(pos.x).Append(", ").Append(pos.y).Append(", ").Append(pos.z).Append(")");
+            builder.Append("(").Append(Position.x).Append(", ").Append(Position.y).Append(", ").Append(Position.z).Append(")");
             return builder.ToString();
         }
 
@@ -90,7 +90,9 @@ namespace StarCube.Game.Levels.Chunks
             this.pos = pos;
         }
 
-        public readonly ChunkPos pos;
+        public ChunkPos Position => pos;
+
+        private ChunkPos pos;
 
         private bool modify = false;
     }
