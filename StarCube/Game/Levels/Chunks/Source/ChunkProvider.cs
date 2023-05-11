@@ -73,20 +73,19 @@ namespace StarCube.Game.Levels.Chunks.Source
             try
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                //Thread.CurrentThread.Priority = ThreadPriority.Lowest;
                 while (!stop)
                 {
                     stopwatch.Restart();
-                    //if (pendingLoadChunkPos.Count > 0 && chunkResults.Count < maxResultCount)
-                    //{
-                    //    Parallel.For(0, maxResultCount - chunkResults.Count, Work);
-                    //    continue;
-                    //}
-                    while (pendingLoadChunkPos.TryDequeue(out ChunkPos pos))
+                    if (pendingLoadChunkPos.Count > 0 && chunkResults.Count < maxResultCount)
                     {
-                        Chunk chunk = GetSync(pos);
-                        chunkResults.Enqueue(chunk);
+                        Parallel.For(0, maxResultCount - chunkResults.Count, Work);
+                        continue;
                     }
+                    //while (pendingLoadChunkPos.TryDequeue(out ChunkPos pos))
+                    //{
+                    //    Chunk chunk = GetSync(pos);
+                    //    chunkResults.Enqueue(chunk);
+                    //}
                     stopwatch.Stop();
                     int ms = (int)stopwatch.ElapsedMilliseconds;
                     if (ms < taskSleepMilliseconds)

@@ -78,6 +78,15 @@ namespace StarCube.Game.Levels.Chunks
         /// </summary>
         public abstract void Clear();
 
+        public abstract void Fill(BlockState blockState);
+
+        public abstract void Release();
+
+        public void Reset(ChunkPos pos)
+        {
+            this.pos = pos;
+        }
+
         public override string ToString()
         {
             StringBuilder builder = StringUtil.StringBuilder;

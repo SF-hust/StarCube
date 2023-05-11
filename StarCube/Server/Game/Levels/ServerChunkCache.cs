@@ -72,7 +72,7 @@ namespace StarCube.Server.Game.Levels
         {
             foreach (Chunk chunk in posToPendingUnloadChunk.Values)
             {
-                chunk.Clear();
+                chunk.Release();
             }
 
             posToPendingUnloadChunk.Clear();
@@ -87,7 +87,7 @@ namespace StarCube.Server.Game.Levels
 
             foreach (Chunk chunk in posToPendingUnloadChunk.Values)
             {
-                chunk.Clear();
+                chunk.Release();
             }
 
             posToPendingSaveChunk.Clear();

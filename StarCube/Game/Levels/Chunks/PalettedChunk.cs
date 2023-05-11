@@ -25,7 +25,7 @@ namespace StarCube.Game.Levels.Chunks
         public override void SetBlockState(int x, int y, int z, BlockState blockState)
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
-            blockStates.Set(index, blockState.IntegerID, pool);
+            blockStates.Set(index, blockState.IntegerID, factory.pool);
             Modify = true;
         }
 
@@ -39,7 +39,7 @@ namespace StarCube.Game.Levels.Chunks
                     for (int x = x0; x < x1 + 1; ++x)
                     {
                         int index = BlockPos.InChunkPosToIndex(x, y, z);
-                        blockStates.Set(index, blockStateIndex, pool);
+                        blockStates.Set(index, blockStateIndex, factory.pool);
                     }
                 }
             }
@@ -50,7 +50,7 @@ namespace StarCube.Game.Levels.Chunks
         {
             int index = BlockPos.InChunkPosToIndex(x, y, z);
             BlockState old = globalBlockStateMap.ValueFor(blockStates.Get(index));
-            blockStates.Set(index, blockState.IntegerID, pool);
+            blockStates.Set(index, blockState.IntegerID, factory.pool);
             Modify = true;
             return old;
         }
@@ -72,19 +72,19 @@ namespace StarCube.Game.Levels.Chunks
 
         public override Chunk CloneBlockStates()
         {
-            return new PalettedChunk(Position, globalBlockStateMap, pool, blockStates.Clone(pool));
+            return new PalettedChunk(Position, globalBlockStateMap, factory, blockStates.Clone(factory.pool));
         }
 
         public void CompressPalettedData()
         {
-            blockStates.Compress(pool);
+            blockStates.Compress(factory.pool);
         }
 
 
 
         public override void Clear()
         {
-            blockStates.Clear(0, pool);
+            blockStates.Clear(0, factory.pool);
             Modify = true;
         }
 
@@ -129,49 +129,46 @@ namespace StarCube.Game.Levels.Chunks
             }
         }
 
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool)
+        public override void Release()
+        {
+            factory.Release(this);
+        }
+
+        public override void Fill(BlockState blockState)
+        {
+            blockStates.Clear(blockState.IntegerID, factory.pool);
+        }
+
+        public void CopyBlockStatesFrom(ReadOnlySpan<int> blockStates)
+        {
+            this.blockStates.CopyFrom(blockStates, factory.pool);
+        }
+
+        public void CopyBlockStatesFrom(ReadOnlySpan<BlockState> blockStates)
+        {
+            for (int i = 0; i < ChunkSize; i++)
+            {
+                this.blockStates.Set(i, blockStates[i].IntegerID, factory.pool);
+            }
+        }
+
+        internal PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkFactory factory)
             : base(pos)
         {
             this.globalBlockStateMap = globalBlockStateMap;
             blockStates = new PalettedChunkData(globalBlockStateMap.Count);
-            this.pool = pool;
+            this.factory = factory;
         }
 
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, int fillBlockState)
-            : this(pos, globalBlockStateMap, pool)
-        {
-            blockStates.Clear(fillBlockState, pool);
-        }
-
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, BlockState fillBlockState)
-            : this(pos, globalBlockStateMap, pool, fillBlockState.IntegerID)
-        {
-        }
-
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, ReadOnlySpan<int> blockStates)
-            : this(pos, globalBlockStateMap, pool)
-        {
-            this.blockStates.CopyFrom(blockStates, pool);
-        }
-
-        public PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, ReadOnlySpan<BlockState> blockStates)
-            : this(pos, globalBlockStateMap, pool)
-        {
-            for (int i = 0; i < ChunkSize; i++)
-            {
-                this.blockStates.Set(i, blockStates[i].IntegerID, pool);
-            }
-        }
-
-        private PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkDataPool pool, PalettedChunkData blockStates)
+        private PalettedChunk(ChunkPos pos, IIDMap<BlockState> globalBlockStateMap, PalettedChunkFactory factory, PalettedChunkData blockStates)
             : base(pos)
         {
-            this.pool = pool;
+            this.factory = factory;
             this.globalBlockStateMap = globalBlockStateMap;
             this.blockStates = blockStates;
         }
 
-        private readonly PalettedChunkDataPool pool;
+        private readonly PalettedChunkFactory factory;
 
         private readonly IIDMap<BlockState> globalBlockStateMap;
 

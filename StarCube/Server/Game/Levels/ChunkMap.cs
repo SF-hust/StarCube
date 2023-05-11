@@ -303,7 +303,7 @@ namespace StarCube.Server.Game.Levels
                 // 此 chunk 已经不再需要加载，丢弃掉相应的结果
                 if (!posToChunkMapEntry.TryGetValue(chunk.Position, out ChunkMapEntry entry))
                 {
-                    chunk.Clear();
+                    chunk.Release();
                     continue;
                 }
 
@@ -327,11 +327,12 @@ namespace StarCube.Server.Game.Levels
                 if (posToChunkMapEntry.Remove(pos, out ChunkMapEntry removedEntry) && removedEntry.Loaded)
                 {
                     chunkCache.level.OnChunkUnload(removedEntry.Chunk);
-                    chunkCache.PutUnloadChunk(removedEntry.Chunk);
+                    removedEntry.Chunk.Release();
+                    //chunkCache.PutUnloadChunk(removedEntry.Chunk);
                 }
             }
 
-            chunkCache.ClearCache();
+            //chunkCache.ClearCache();
             pendingUnloadChunkPos.Clear();
         }
 

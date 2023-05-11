@@ -18,7 +18,7 @@ namespace StarCube.Utility.Pools
         /// <returns></returns>
         public T[] Get()
         {
-            if (pool.TryPop(out T[]? array))
+            if (pool.TryTake(out T[]? array))
             {
                 return array;
             }
@@ -40,7 +40,7 @@ namespace StarCube.Utility.Pools
 
             if (pool.Count < size)
             {
-                pool.Push(array);
+                pool.Add(array);
             }
         }
 
@@ -51,24 +51,17 @@ namespace StarCube.Utility.Pools
         public void Resize(int newSize)
         {
             size = newSize;
-            int popSize = pool.Count - newSize;
-            if (popSize > 0)
-            {
-                T[][] delete = new T[popSize][];
-                pool.TryPopRange(delete);
-            }
         }
 
         public ConcurrentFixedArrayPool(int size, int length)
         {
             this.size = size;
             this.length = length;
-            pool = new ConcurrentStack<T[]>();
         }
 
         public readonly int length;
 
         private volatile int size;
-        private readonly ConcurrentStack<T[]> pool;
+        private readonly ConcurrentBag<T[]> pool = new ConcurrentBag<T[]>();
     }
 }

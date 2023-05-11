@@ -15,7 +15,7 @@ namespace StarCube.Utility.Pools
         /// <returns></returns>
         public List<T> Get()
         {
-            if (pool.TryPop(out List<T>? list))
+            if (pool.TryTake(out List<T>? list))
             {
                 list.Clear();
                 return list;
@@ -38,7 +38,7 @@ namespace StarCube.Utility.Pools
 
             if (pool.Count < size)
             {
-                pool.Push(list);
+                pool.Add(list);
             }
         }
 
@@ -49,24 +49,17 @@ namespace StarCube.Utility.Pools
         public void Resize(int newSize)
         {
             size = newSize;
-            int popSize = pool.Count - newSize;
-            if (popSize > 0)
-            {
-                List<T>[] delete = new List<T>[popSize];
-                pool.TryPopRange(delete);
-            }
         }
 
         public ConcurrentFixedListPool(int size, int capacity)
         {
             this.size = size;
             this.capacity = capacity;
-            pool = new ConcurrentStack<List<T>>();
         }
 
         public readonly int capacity;
 
         private volatile int size;
-        private readonly ConcurrentStack<List<T>> pool;
+        private readonly ConcurrentBag<List<T>> pool = new ConcurrentBag<List<T>>();
     }
 }
