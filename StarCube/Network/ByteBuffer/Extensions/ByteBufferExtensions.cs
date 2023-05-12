@@ -4,6 +4,8 @@ using System.Text;
 
 using LiteDB;
 
+using StarCube.Utility.Math;
+
 namespace StarCube.Network.ByteBuffer.Extensions
 {
     public static class ByteBufferExtensions
@@ -50,6 +52,99 @@ namespace StarCube.Network.ByteBuffer.Extensions
             Write(buffer, value);
         }
 
+        public static void WriteVarInt(this IByteBuffer buffer, int value)
+        {
+            WriteVarUInt(buffer, BitUtil.ZigZagEncode(value));
+        }
+
+        public static void WriteVarUInt(this IByteBuffer buffer, uint value)
+        {
+            Span<byte> bytes = stackalloc byte[5];
+            int count = 1;
+            bytes[0] = (byte)(value & 0x7FU | 0x80U);
+            bytes[1] = (byte)((value >> 7) & 0x7FU | 0x80U);
+            bytes[2] = (byte)((value >> 14) & 0x7FU | 0x80U);
+            bytes[3] = (byte)((value >> 21) & 0x7FU | 0x80U);
+            bytes[4] = (byte)(value >> 28);
+            if (bytes[1] != 0x80)
+            {
+                count = 2;
+            }
+            if (bytes[2] != 0x80)
+            {
+                count = 3;
+            }
+            if (bytes[3] != 0x80)
+            {
+                count = 4;
+            }
+            if (bytes[4] != 0)
+            {
+                count = 5;
+            }
+            bytes[count - 1] &= 0x7F;
+            buffer.WriteBytes(bytes[..count]);
+        }
+
+        public static void WriteVarInt(this IByteBuffer buffer, long value)
+        {
+            WriteVarUInt(buffer, BitUtil.ZigZagEncode(value));
+        }
+
+        public static void WriteVarUInt(this IByteBuffer buffer, ulong value)
+        {
+            Span<byte> bytes = stackalloc byte[10];
+            int count = 1;
+            bytes[0] = (byte)(value & 0x7FU | 0x80U);
+            bytes[1] = (byte)((value >> 7) & 0x7FU | 0x80U);
+            bytes[2] = (byte)((value >> 14) & 0x7FU | 0x80U);
+            bytes[3] = (byte)((value >> 21) & 0x7FU | 0x80U);
+            bytes[4] = (byte)((value >> 28) & 0x7FU | 0x80U);
+            bytes[5] = (byte)((value >> 35) & 0x7FU | 0x80U);
+            bytes[6] = (byte)((value >> 42) & 0x7FU | 0x80U);
+            bytes[7] = (byte)((value >> 49) & 0x7FU | 0x80U);
+            bytes[8] = (byte)((value >> 56) & 0x7FU | 0x80U);
+            bytes[9] = (byte)(value >> 63);
+            if (bytes[1] != 0x80)
+            {
+                count = 2;
+            }
+            if (bytes[2] != 0x80)
+            {
+                count = 3;
+            }
+            if (bytes[3] != 0x80)
+            {
+                count = 4;
+            }
+            if (bytes[4] != 0x80)
+            {
+                count = 5;
+            }
+            if (bytes[5] != 0x80)
+            {
+                count = 6;
+            }
+            if (bytes[6] != 0x80)
+            {
+                count = 7;
+            }
+            if (bytes[7] != 0x80)
+            {
+                count = 8;
+            }
+            if (bytes[8] != 0x80)
+            {
+                count = 9;
+            }
+            if (bytes[9] != 0)
+            {
+                count = 10;
+            }
+            bytes[count - 1] &= 0x7F;
+            buffer.WriteBytes(bytes[..count]);
+        }
+
         public static void WriteSingle(this IByteBuffer buffer, float value)
         {
             Write(buffer, value);
@@ -79,7 +174,12 @@ namespace StarCube.Network.ByteBuffer.Extensions
 
         public static void WriteDateTime(this IByteBuffer buffer, DateTime value)
         {
-            buffer.WriteInt64(value.ToBinary());
+            WriteInt64(buffer, value.ToBinary());
+        }
+
+        public static void WriteDateTimeUTC(this IByteBuffer buffer, DateTime value)
+        {
+            WriteInt64(buffer, value.ToUniversalTime().Ticks);
         }
 
         public static void WriteString(this IByteBuffer buffer, Span<char> value)
@@ -87,14 +187,14 @@ namespace StarCube.Network.ByteBuffer.Extensions
             int length = Encoding.UTF8.GetByteCount(value);
             Span<byte> bytes = stackalloc byte[length];
             Encoding.UTF8.GetBytes(value, bytes);
-            buffer.WriteInt32(length);
+            WriteVarUInt(buffer, unchecked((uint)length));
             buffer.WriteBytes(bytes);
         }
 
         public static void WriteBson(this IByteBuffer buffer, BsonDocument bson)
         {
             byte[] bytes = BsonSerializer.Serialize(bson);
-            buffer.WriteInt32(bytes.Length);
+            WriteVarUInt(buffer, (uint)bytes.Length);
             buffer.WriteBytes(bytes);
         }
 
@@ -142,6 +242,48 @@ namespace StarCube.Network.ByteBuffer.Extensions
             return Read<ulong>(buffer);
         }
 
+        public static int ReadVarInt32(this IByteBuffer buffer)
+        {
+            uint value = ReadVarUInt32(buffer);
+            return BitUtil.ZigZagDecode(value);
+        }
+
+        public static uint ReadVarUInt32(this IByteBuffer buffer)
+        {
+            byte b;
+            int count = 0;
+            uint value = 0U;
+            do
+            {
+                b = buffer.ReadByte();
+                value |= unchecked((uint)(b & 0x7F) << (7 * count));
+                count++;
+            }
+            while ((b & 0x80) != 0 && count < 5);
+            return value;
+        }
+
+        public static long ReadVarInt64(this IByteBuffer buffer)
+        {
+            ulong value = ReadVarUInt64(buffer);
+            return BitUtil.ZigZagDecode(value);
+        }
+
+        public static ulong ReadVarUInt64(this IByteBuffer buffer)
+        {
+            byte b;
+            int count = 0;
+            ulong value = 0LU;
+            do
+            {
+                b = buffer.ReadByte();
+                value |= unchecked((ulong)(b & 0x7F) << (7 * count));
+                count++;
+            }
+            while ((b & 0x80) != 0 && count < 10);
+            return value;
+        }
+
         public static float ReadSingle(this IByteBuffer buffer)
         {
             return Read<float>(buffer);
@@ -172,12 +314,17 @@ namespace StarCube.Network.ByteBuffer.Extensions
 
         public static DateTime ReadDateTime(this IByteBuffer buffer)
         {
-            return new DateTime(buffer.ReadInt64());
+            return DateTime.FromBinary(ReadInt64(buffer));
+        }
+
+        public static DateTime ReadDateTimeUTC(this IByteBuffer buffer)
+        {
+            return new DateTime(ReadInt64(buffer), DateTimeKind.Utc);
         }
 
         public static string ReadString(this IByteBuffer buffer)
         {
-            int length = buffer.ReadInt32();
+            int length = unchecked((int)ReadVarUInt32(buffer));
             Span<byte> bytes = stackalloc byte[length];
             buffer.ReadBytes(bytes);
             return Encoding.UTF8.GetString(bytes);
@@ -185,8 +332,9 @@ namespace StarCube.Network.ByteBuffer.Extensions
 
         public static BsonDocument ReadBson(this IByteBuffer buffer)
         {
-            int length = buffer.ReadInt32();
+            int length = (int)ReadVarUInt32(buffer);
             byte[] bytes = new byte[length];
+            buffer.ReadBytes(bytes);
             return BsonSerializer.Deserialize(bytes);
         }
     }

@@ -41,7 +41,7 @@ namespace StarCube.Utility.Math
             {
                 for(int j = 0; j < bitCount; ++j)
                 {
-                    b |= (byte)(((data[i] >> j) & 1) << bitIndex);
+                    b |= unchecked((byte)(((data[i] >> j) & 1) << bitIndex));
 
                     bitIndex++;
                     if (bitIndex == 8)
@@ -81,6 +81,46 @@ namespace StarCube.Utility.Math
                 }
                 data[i] = val;
             }
+        }
+
+        /// <summary>
+        /// 使用 ZigZag 编码将一个 int32 编码为 uint32
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static uint ZigZagEncode(int value)
+        {
+            return unchecked((uint)((value << 1) ^ (value >> 31)));
+        }
+
+        /// <summary>
+        /// 使用 Zigzag 编码将一个 int64 编码为 uint64
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static ulong ZigZagEncode(long value)
+        {
+            return unchecked((ulong)((value << 1) ^ (value >> 63)));
+        }
+
+        /// <summary>
+        /// 使用 ZigZag 编码将一个 uint32 解码为 int32
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static int ZigZagDecode(uint value)
+        {
+            return unchecked((int)((value >> 1) ^ (uint)-(int)(value & 1U)));
+        }
+
+        /// <summary>
+        /// 使用 ZigZag 编码将一个 uint64 解码为 int64
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static long ZigZagDecode(ulong value)
+        {
+            return unchecked((long)((value >> 1) ^ (ulong)-(long)(value & 1LU)));
         }
     }
 }
