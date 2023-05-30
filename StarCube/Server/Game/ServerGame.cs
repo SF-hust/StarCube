@@ -364,6 +364,13 @@ namespace StarCube.Server.Game
             lastSaveTickCount = tickCount;
         }
 
+
+        public void OnPlayerEnter(string name)
+        {
+
+        }
+
+
         private void Dispose()
         {
             if (disposed)
@@ -386,6 +393,7 @@ namespace StarCube.Server.Game
 
             storage = new GameStorage(saves);
 
+            players = new ServerPlayerList(this);
             worlds = new ServerWorldManager(this);
             levels = new ServerLevelManager(this);
 
@@ -396,13 +404,18 @@ namespace StarCube.Server.Game
 
         public readonly GameStorage storage;
 
+
+        public readonly ServerPlayerList players;
+
         public readonly ServerWorldManager worlds;
 
         public readonly ServerLevelManager levels;
 
+
         private readonly Task serverGameTask;
 
         private readonly ConcurrentQueue<Task> taskQueue = new ConcurrentQueue<Task>();
+
 
         private long tickCount = 0;
         private long totalTickCount = 0;

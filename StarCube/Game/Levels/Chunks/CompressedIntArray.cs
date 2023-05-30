@@ -121,7 +121,7 @@ namespace StarCube.Game.Levels.Chunks
             {
                 uint oldPacked = data[index >> 3];
                 uint clearMask = ~(0xFu << ((index & 7) << 2));
-                uint valueMask = ((uint)value & 0x7u) << ((index & 7) << 2);
+                uint valueMask = ((uint)value & 0xFu) << ((index & 7) << 2);
                 uint newPacked = oldPacked & clearMask | valueMask;
                 data[index >> 3] = newPacked;
             }
@@ -162,7 +162,7 @@ namespace StarCube.Game.Levels.Chunks
         }
 
 
-        public int Level => data.Length;
+        public int Level => level;
 
         public int SingleValue => singleValue;
 

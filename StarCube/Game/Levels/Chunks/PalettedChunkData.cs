@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace StarCube.Game.Levels.Chunks
 {
-    public class PalettedChunkData
+    public sealed class PalettedChunkData
     {
         public const int MaxLinearPaletteSize = 16;
 

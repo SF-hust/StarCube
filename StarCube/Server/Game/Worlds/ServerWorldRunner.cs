@@ -39,11 +39,6 @@ namespace StarCube.Server.Game.Worlds
         }
 
         /// <summary>
-        /// Runner 是否已经终止
-        /// </summary>
-        public bool DoneTerminate => task.IsCompleted;
-
-        /// <summary>
         /// 开始销毁 world 对象
         /// </summary>
         public void BeginTerminate()

@@ -10,6 +10,7 @@ using StarCube.Utility.Math;
 using StarCube.Utility.Logging;
 using StarCube.Game.Levels.Generation;
 using StarCube.Game.Levels.Storage;
+using System.Drawing;
 
 namespace StarCube.Game.Levels.Chunks.Source
 {
@@ -72,13 +73,16 @@ namespace StarCube.Game.Levels.Chunks.Source
         {
             try
             {
+                ParallelOptions parallelOptions = new ParallelOptions();
+                parallelOptions.MaxDegreeOfParallelism = Environment.ProcessorCount;
+                parallelOptions.MaxDegreeOfParallelism = 8;
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 while (!stop)
                 {
                     stopwatch.Restart();
                     if (pendingLoadChunkPos.Count > 0 && chunkResults.Count < maxResultCount)
                     {
-                        Parallel.For(0, maxResultCount - chunkResults.Count, Work);
+                        Parallel.For(0, maxResultCount - chunkResults.Count, parallelOptions, Work);
                         continue;
                     }
                     //while (pendingLoadChunkPos.TryDequeue(out ChunkPos pos))

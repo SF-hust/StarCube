@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
+using StarCube.Network.ByteBuffer;
 using StarCube.Network.Packets;
 
 namespace StarCube.Network
@@ -12,14 +14,18 @@ namespace StarCube.Network
     {
         public override bool Remote => true;
 
+        public async Task ReceivePacketAsync()
+        {
+            await receiveBuffer.ReceiveAsync(socket);
+        }
+
         protected override void DoSend(Packet packet)
         {
-            throw new NotImplementedException();
         }
 
         protected override bool DoReceive(out Packet packet)
         {
-            throw new NotImplementedException();
+            throw new Exception();
         }
 
         public RemoteConnection(ConnectionBound bound, PacketHandler handler, Socket socket)
@@ -29,5 +35,9 @@ namespace StarCube.Network
         }
 
         private readonly Socket socket;
+
+        private readonly ReceiveByteBuffer receiveBuffer = new ReceiveByteBuffer();
+
+        private readonly SendByteBuffer sendBuffer = new SendByteBuffer();
     }
 }
