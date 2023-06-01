@@ -60,30 +60,17 @@ namespace StarCube.Network.ByteBuffer.Extensions
         public static void WriteVarUInt(this IByteBuffer buffer, uint value)
         {
             Span<byte> bytes = stackalloc byte[5];
-            int count = 1;
-            bytes[0] = (byte)(value & 0x7FU | 0x80U);
-            bytes[1] = (byte)((value >> 7) & 0x7FU | 0x80U);
-            bytes[2] = (byte)((value >> 14) & 0x7FU | 0x80U);
-            bytes[3] = (byte)((value >> 21) & 0x7FU | 0x80U);
-            bytes[4] = (byte)(value >> 28);
-            if (bytes[1] != 0x80)
+            int length = 1;
+            for (int i = 0; i < bytes.Length; i++)
             {
-                count = 2;
+                bytes[i] = (byte)((value >> (i * 7)) & 0x7FU | 0x80U);
+                if (bytes[i] != 0x80)
+                {
+                    length = i + 1;
+                }
             }
-            if (bytes[2] != 0x80)
-            {
-                count = 3;
-            }
-            if (bytes[3] != 0x80)
-            {
-                count = 4;
-            }
-            if (bytes[4] != 0)
-            {
-                count = 5;
-            }
-            bytes[count - 1] &= 0x7F;
-            buffer.WriteBytes(bytes[..count]);
+            bytes[length - 1] &= 0x7F;
+            buffer.WriteBytes(bytes[..length]);
         }
 
         public static void WriteVarInt(this IByteBuffer buffer, long value)
@@ -94,55 +81,17 @@ namespace StarCube.Network.ByteBuffer.Extensions
         public static void WriteVarUInt(this IByteBuffer buffer, ulong value)
         {
             Span<byte> bytes = stackalloc byte[10];
-            int count = 1;
-            bytes[0] = (byte)(value & 0x7FU | 0x80U);
-            bytes[1] = (byte)((value >> 7) & 0x7FU | 0x80U);
-            bytes[2] = (byte)((value >> 14) & 0x7FU | 0x80U);
-            bytes[3] = (byte)((value >> 21) & 0x7FU | 0x80U);
-            bytes[4] = (byte)((value >> 28) & 0x7FU | 0x80U);
-            bytes[5] = (byte)((value >> 35) & 0x7FU | 0x80U);
-            bytes[6] = (byte)((value >> 42) & 0x7FU | 0x80U);
-            bytes[7] = (byte)((value >> 49) & 0x7FU | 0x80U);
-            bytes[8] = (byte)((value >> 56) & 0x7FU | 0x80U);
-            bytes[9] = (byte)(value >> 63);
-            if (bytes[1] != 0x80)
+            int length = 1;
+            for (int i = 0; i < bytes.Length; i++)
             {
-                count = 2;
+                bytes[i] = (byte)((value >> (i * 7)) & 0x7FU | 0x80U);
+                if (bytes[i] != 0x80)
+                {
+                    length = i + 1;
+                }
             }
-            if (bytes[2] != 0x80)
-            {
-                count = 3;
-            }
-            if (bytes[3] != 0x80)
-            {
-                count = 4;
-            }
-            if (bytes[4] != 0x80)
-            {
-                count = 5;
-            }
-            if (bytes[5] != 0x80)
-            {
-                count = 6;
-            }
-            if (bytes[6] != 0x80)
-            {
-                count = 7;
-            }
-            if (bytes[7] != 0x80)
-            {
-                count = 8;
-            }
-            if (bytes[8] != 0x80)
-            {
-                count = 9;
-            }
-            if (bytes[9] != 0)
-            {
-                count = 10;
-            }
-            bytes[count - 1] &= 0x7F;
-            buffer.WriteBytes(bytes[..count]);
+            bytes[length - 1] &= 0x7F;
+            buffer.WriteBytes(bytes[..length]);
         }
 
         public static void WriteSingle(this IByteBuffer buffer, float value)
