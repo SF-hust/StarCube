@@ -38,7 +38,7 @@ namespace StarCube.Network.ByteBuffer
         {
             if (buffer.Length == current)
             {
-                FlushBuffer(1);
+                Flush(1);
             }
 
             buffer.Span[current] = value;
@@ -54,10 +54,10 @@ namespace StarCube.Network.ByteBuffer
         {
             if (buffer.Length - current < bytes.Length)
             {
-                FlushBuffer(bytes.Length);
+                Flush(bytes.Length);
             }
 
-            bytes.CopyTo(buffer.Span);
+            bytes.CopyTo(buffer.Span.Slice(current));
             current += bytes.Length;
             length += bytes.Length;
         }
@@ -74,7 +74,7 @@ namespace StarCube.Network.ByteBuffer
                 throw new ArgumentException($"buffer is too small (require {length}, but only {buffer.Length})");
             }
 
-            FlushBuffer();
+            Flush();
             length = 0;
             if(pipe.Reader.TryRead(out var result))
             {
@@ -90,7 +90,7 @@ namespace StarCube.Network.ByteBuffer
         /// <returns></returns>
         public int Send(Socket socket)
         {
-            FlushBuffer();
+            Flush();
             length = 0;
 
             if (pipe.Reader.TryRead(out var result))
@@ -114,7 +114,7 @@ namespace StarCube.Network.ByteBuffer
         /// <returns></returns>
         public async ValueTask<int> SendAsync(Socket socket)
         {
-            FlushBuffer();
+            Flush();
             length = 0;
 
             if (pipe.Reader.TryRead(out var result))
@@ -135,9 +135,14 @@ namespace StarCube.Network.ByteBuffer
         /// 将当前 buffer 中的内容刷新到 pipe 中，并获取一个长度至少为 length 的新 buffer
         /// </summary>
         /// <param name="length"></param>
-        private void FlushBuffer(int length = 0)
+        private void Flush(int length = 0)
         {
             pipe.Writer.Advance(current);
+            var task = pipe.Writer.FlushAsync();
+            if (!task.IsCompleted)
+            {
+                task.AsTask().Wait();
+            }
             buffer = pipe.Writer.GetMemory(length);
             current = 0;
         }

@@ -30,6 +30,7 @@ namespace StarCube.Network.ByteBuffer
             {
                 buffer.Slice(current).CopyTo(bytes);
                 current += bytes.Length;
+                return;
             }
 
             throw new InvalidOperationException($"no enough bytes, require ({bytes.Length}) but rest ({buffer.Length - current})");
@@ -49,15 +50,6 @@ namespace StarCube.Network.ByteBuffer
                 buffer = ReadOnlySequence<byte>.Empty;
             }
             current = 0;
-        }
-
-        /// <summary>
-        /// 告知 pipe 已处理的数据
-        /// </summary>
-        public void Advance()
-        {
-            pipe.Reader.AdvanceTo(buffer.GetPosition(current));
-            ResetBuffer();
         }
 
         public void WriteByte(byte value)
@@ -80,6 +72,16 @@ namespace StarCube.Network.ByteBuffer
             buffer.CopyTo(memory.Span);
             pipe.Writer.Advance(buffer.Length);
 
+            Flush();
+        }
+
+        public void Flush()
+        {
+            var task = pipe.Writer.FlushAsync();
+            if (!task.IsCompleted)
+            {
+                task.AsTask().Wait();
+            }
             ResetBuffer();
         }
 
@@ -105,7 +107,7 @@ namespace StarCube.Network.ByteBuffer
         /// 从 socket 中异步接受数据并填充至 ByteBuffer 末尾
         /// </summary>
         /// <param name="socket"></param>
-        public async Task ReceiveAsync(Socket socket)
+        public async ValueTask ReceiveAsync(Socket socket)
         {
             int length;
             do
