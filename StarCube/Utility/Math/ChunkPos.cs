@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
+
 using LiteDB;
 using StarCube.Utility.Enums;
 
@@ -30,7 +31,7 @@ namespace StarCube.Utility.Math
 
         public int ToIndex() => (y << 8) + (z << 4) + x;
 
-        public Vector3i ToVector3i => new Vector3i(x, y, z);
+        public Int3 ToVector3i => new Int3(x, y, z);
 
         public ChunkPos SetX(int newX) => new ChunkPos(newX, y, z);
         public ChunkPos SetY(int newY) => new ChunkPos(x, newY, z);

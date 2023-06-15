@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using StarCube.Utility;
 using StarCube.Core.Registries;
 using StarCube.Core.States;
 using StarCube.Core.Components;
 using StarCube.Core.States.Property;
-using System.Collections.Generic;
 
 namespace StarCube.Game.Blocks
 {
@@ -31,12 +31,13 @@ namespace StarCube.Game.Blocks
         public ComponentContainer<Block> Components => components;
         /* ~ IComponentHolder<Block> 接口实现 end ~ */
 
+
         public Block(StringID id, in BlockProperties properties)
             : base(BuiltinRegistries.Block, id)
         {
             this.properties = properties;
-            components = new ComponentContainer<Block>(this);
             stateDefinition = StateDefinition<Block, BlockState>.BuildSingle(this, BlockState.Create);
+            components = new ComponentContainer<Block>(this);
         }
 
         public Block(StringID id, in BlockProperties properties, List<StatePropertyEntry> entries)

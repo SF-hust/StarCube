@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace StarCube.Utility.Math
 {
@@ -21,7 +19,7 @@ namespace StarCube.Utility.Math
             this.z = z;
         }
 
-        public Vector3i ToVector3i => new Vector3i(x, y, z);
+        public Int3 ToVector3i => new Int3(x, y, z);
 
         public RegionPos Up => new RegionPos(x, y + 1, z);
         public RegionPos Down => new RegionPos(x, y - 1, z);

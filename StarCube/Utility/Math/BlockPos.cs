@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using LiteDB;
 using System.Runtime.InteropServices;
 using System.Threading;
+
+using LiteDB;
 
 namespace StarCube.Utility.Math
 {
@@ -38,7 +39,7 @@ namespace StarCube.Utility.Math
         /// </summary>
         public int ToIndex() => (y << 8) + (z << 4) + x;
 
-        public Vector3i ToVector3i => new Vector3i(x, y, z);
+        public Int3 ToVector3i => new Int3(x, y, z);
 
         public BlockPos North => new BlockPos(x, y, z + 1);
         public BlockPos South => new BlockPos(x, y, z - 1);
