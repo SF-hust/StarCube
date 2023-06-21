@@ -15,7 +15,7 @@ namespace StarCube.Network.ByteBuffer.Extensions
         {
             Span<T> valueSpan = stackalloc T[1] { value };
             Span<byte> bytes = MemoryMarshal.AsBytes(valueSpan);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 bytes.Reverse();
             }
@@ -154,7 +154,7 @@ namespace StarCube.Network.ByteBuffer.Extensions
             Span<T> valueSpan = stackalloc T[1];
             Span<byte> bytes = MemoryMarshal.AsBytes(valueSpan);
             buffer.ReadBytes(bytes);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 bytes.Reverse();
             }

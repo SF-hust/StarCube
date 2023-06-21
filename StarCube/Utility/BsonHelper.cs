@@ -216,7 +216,7 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 8)
                 {
-                    if(BitConverter.IsLittleEndian)
+                    if(!BitConverter.IsLittleEndian)
                     {
                         binary.AsSpan(0, 4).Reverse();
                         binary.AsSpan(4, 4).Reverse();
@@ -240,7 +240,7 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if(binary.Length == 12)
                 {
-                    if (BitConverter.IsLittleEndian)
+                    if (!BitConverter.IsLittleEndian)
                     {
                         binary.AsSpan(0, 4).Reverse();
                         binary.AsSpan(4, 4).Reverse();
@@ -266,7 +266,7 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 16)
                 {
-                    if (BitConverter.IsLittleEndian)
+                    if (!BitConverter.IsLittleEndian)
                     {
                         binary.AsSpan(0, 4).Reverse();
                         binary.AsSpan(4, 4).Reverse();
@@ -294,7 +294,7 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 16)
                 {
-                    if (BitConverter.IsLittleEndian)
+                    if (!BitConverter.IsLittleEndian)
                     {
                         binary.AsSpan(0, 4).Reverse();
                         binary.AsSpan(4, 4).Reverse();
@@ -322,7 +322,7 @@ namespace StarCube.Utility
                 byte[] binary = bValue.AsBinary;
                 if (binary.Length == 64)
                 {
-                    if (BitConverter.IsLittleEndian)
+                    if (!BitConverter.IsLittleEndian)
                     {
                         for (int i = 0; i < 64; i += 4)
                         {
@@ -376,7 +376,7 @@ namespace StarCube.Utility
             byte[] binary = new byte[8];
             BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.X);
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 binary.AsSpan(0, 4).Reverse();
                 binary.AsSpan(4, 4).Reverse();
@@ -391,7 +391,7 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(0, 4), value.X);
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
             BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.Z);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 binary.AsSpan(0, 4).Reverse();
                 binary.AsSpan(4, 4).Reverse();
@@ -408,7 +408,7 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
             BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.Z);
             BitConverter.TryWriteBytes(binary.AsSpan(12, 4), value.W);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 binary.AsSpan(0, 4).Reverse();
                 binary.AsSpan(4, 4).Reverse();
@@ -426,7 +426,7 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(4, 4), value.Y);
             BitConverter.TryWriteBytes(binary.AsSpan(8, 4), value.Z);
             BitConverter.TryWriteBytes(binary.AsSpan(12, 4), value.W);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 binary.AsSpan(0, 4).Reverse();
                 binary.AsSpan(4, 4).Reverse();
@@ -456,7 +456,7 @@ namespace StarCube.Utility
             BitConverter.TryWriteBytes(binary.AsSpan(52, 4), value.M42);
             BitConverter.TryWriteBytes(binary.AsSpan(56, 4), value.M43);
             BitConverter.TryWriteBytes(binary.AsSpan(60, 4), value.M44);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 for (int i = 0; i < 64; i += 4)
                 {

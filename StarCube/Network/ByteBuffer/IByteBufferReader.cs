@@ -10,8 +10,10 @@ using StarCube.Utility.Math;
 
 namespace StarCube.Network.ByteBuffer
 {
-    internal interface IByteBufferReader
+    public interface IByteBufferReader
     {
+        public int Length { get; }
+
         public byte ReadByte();
 
         public void ReadBytes(Span<byte> bytes);
@@ -22,7 +24,7 @@ namespace StarCube.Network.ByteBuffer
             Span<T> valueSpan = stackalloc T[1];
             Span<byte> bytes = MemoryMarshal.AsBytes(valueSpan);
             ReadBytes(bytes);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 bytes.Reverse();
             }

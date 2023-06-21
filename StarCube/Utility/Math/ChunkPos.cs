@@ -105,7 +105,7 @@ namespace StarCube.Utility.Math
             ints[0] = chunkPos.x;
             ints[1] = chunkPos.y;
             ints[2] = chunkPos.z;
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 buffer.AsSpan(0, 4).Reverse();
                 buffer.AsSpan(4, 4).Reverse();
@@ -118,7 +118,7 @@ namespace StarCube.Utility.Math
         {
             byte[] buffer = ThreadLocalBuffer.Value;
             id.ToByteArray(buffer, 0);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 buffer.AsSpan(0, 4).Reverse();
                 buffer.AsSpan(4, 4).Reverse();

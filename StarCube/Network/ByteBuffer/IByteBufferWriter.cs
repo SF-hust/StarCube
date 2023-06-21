@@ -10,8 +10,10 @@ using StarCube.Utility.Math;
 
 namespace StarCube.Network.ByteBuffer
 {
-    internal interface IByteBufferWriter
+    public interface IByteBufferWriter
     {
+        public int Length { get; }
+
         /// <summary>
         /// 写入一个字节
         /// </summary>
@@ -25,16 +27,16 @@ namespace StarCube.Network.ByteBuffer
         public void WriteBytes(ReadOnlySpan<byte> bytes);
 
         /// <summary>
-        /// 将 value 
+        /// 将 value 以小端序写入
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
-        private void WriteBigEndian<T>(T value)
+        private void WriteLittleEndian<T>(T value)
             where T : unmanaged
         {
             Span<T> valueSpan = stackalloc T[1] { value };
             Span<byte> bytes = MemoryMarshal.AsBytes(valueSpan);
-            if (BitConverter.IsLittleEndian)
+            if (!BitConverter.IsLittleEndian)
             {
                 bytes.Reverse();
             }
@@ -47,7 +49,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteInt16(short value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -56,7 +58,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteUInt16(ushort value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteInt32(int value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -74,7 +76,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteUInt32(uint value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteInt64(long value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -92,7 +94,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteUInt64(ulong value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -159,7 +161,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteSingle(float value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -168,7 +170,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteDouble(double value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>
@@ -186,7 +188,7 @@ namespace StarCube.Network.ByteBuffer
         /// <param name="value"></param>
         public void WriteDecimal(decimal value)
         {
-            WriteBigEndian(value);
+            WriteLittleEndian(value);
         }
 
         /// <summary>

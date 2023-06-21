@@ -118,7 +118,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
 
                 // 构建本地调色盘
                 Span<int> localPalette = MemoryMarshal.Cast<byte, int>(localPaletteBinary);
-                if (BitConverter.IsLittleEndian)
+                if (!BitConverter.IsLittleEndian)
                 {
                     for (int i = 0; i < localPalette.Length; i++)
                     {
@@ -209,7 +209,7 @@ namespace StarCube.Game.Levels.Chunks.Storage
                 {
                     localPalette[pair.Value] = pair.Key;
                 }
-                if (BitConverter.IsLittleEndian)
+                if (!BitConverter.IsLittleEndian)
                 {
                     for (int i = 0; i < dict.Count; i++)
                     {
